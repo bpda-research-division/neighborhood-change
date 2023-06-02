@@ -1,9 +1,12 @@
+# Imports and Setup ##############
 library(dplyr)
 library(shiny)
 library(leaflet)
 library(tidycensus)
 library(RColorBrewer)
+options(tigris_use_cache = TRUE)
 
+# Data loading ######################
 census_api_key("3910e99aea0a472b50f5cdc422c9a3395b3c87b3")
 
 #v21 <- load_variables(2021, "acs5/subject", cache = TRUE)
@@ -36,6 +39,7 @@ df <- cs %>% bind_rows() %>%
   mutate(median_household_incomeE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeE)) %>%
   sf::st_transform(4326)
 
+# UI ############
 ui <- fluidPage(
   titlePanel(h1("Neighborhood Change Dashboard", align = "center")),
   sidebarLayout(
@@ -55,6 +59,8 @@ ui <- fluidPage(
     )
   )
 )
+
+# Server ##############
 server <- function(input, output, session) {
   # Reactive expression for the data subsetted to what the user selected
   filteredData <- reactive({
@@ -193,6 +199,7 @@ server <- function(input, output, session) {
   # })
 # }
 
+# Extra Functions #############
 addLegend_decreasing <- function (map, position = c("topright", "bottomright", "bottomleft","topleft"),
                                   pal, values, na.label = "NA", bins = 7, colors, 
                                   opacity = 0.5, labels = NULL, labFormat = labelFormat(), 
@@ -294,4 +301,5 @@ addLegend_decreasing <- function (map, position = c("topright", "bottomright", "
   invokeMethod(map, data, "addLegend", legend)
 }
 
+# Run the app ########
 shinyApp(ui, server)
