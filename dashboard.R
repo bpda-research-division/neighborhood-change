@@ -39,7 +39,11 @@ df <- cs %>% bind_rows() %>%
   mutate(median_household_incomeE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeE)) %>%
   sf::st_transform(4326)
 
-df %>% as_tibble() %>% subset(select=-c(geometry)) %>% write.csv(file='income.csv', row.names=FALSE)
+# df %>% as_tibble() %>% subset(select=-c(geometry)) %>% write.csv(file='income.csv', row.names=FALSE)
+d10 <- df[df$year == 2010,]
+d18 <- df[df$year == 2018,]
+yrdfs <- split(df, df$year)
+pal <- colorNumeric("Purples", domain = df$median_household_incomeE)
 
 # UI ############
 ui <- fluidPage(
@@ -62,12 +66,25 @@ ui <- fluidPage(
   )
 )
 
+addTimedLayers <- function(map) {
+  for (yr in names(yrdfs)) {
+    map <- map %>% addPolygons(data=yrdfs[[yr]], group=yr, fillColor = ~pal(median_household_incomeE),
+                               stroke = F,
+                               smoothFactor = 0,
+                               fillOpacity = 0.7)
+  }
+  map
+}
+
 # Server ##############
 server <- function(input, output, session) {
   # Reactive expression for the data subsetted to what the user selected
   filteredData <- reactive({
     # quakes[quakes$mag >= input$range[1] & quakes$mag <= input$range[2],]
     df[df$year == input$yearSelect,]
+  })
+  year_str <- reactive({
+    as.character(input$yearSelect)
   })
   # TODO: try creating a reactive expression using a hash table: 
   # ht <- new.env(hash=TRUE) => ht[[key]] <- df
@@ -86,22 +103,22 @@ server <- function(input, output, session) {
     # entire map is being torn down and recreated).
     # leaflet(quakes, width="100%", height="100%") %>% addTiles() %>%
     #   fitBounds(~min(long), ~min(lat), ~max(long), ~max(lat))
-    
     leaflet(df, height = "100%", width = "100%") %>%
       addProviderTiles(provider = "CartoDB.Positron", group='basemap') %>%
-      addPolygons( # data=df[df$year == 2010,], group="2010", fillColor = colorNumeric("Blues", domain = ~median_household_incomeE),
-        stroke = F,
-        smoothFactor = 0,
-        fillOpacity = 0.7) # %>%
-      # addPolygons(data=df[df$year == 2018,], group="2018", fillColor = colorNumeric("Blues", domain = ~median_household_incomeE),
+      # addPolygons(data=d10, group="2010", fillColor = ~pal(median_household_incomeE),
       #   stroke = F,
       #   smoothFactor = 0,
       #   fillOpacity = 0.7) %>%
-      # addLayersControl(
-      #   baseGroups = c("basemap"),
-      #   overlayGroups = c("2010", "2018"),
-      #   options = layersControlOptions(collapsed = TRUE)
-      # ) %>% hideGroup("2010")
+      # addPolygons(data=d18, group="2018", fillColor = ~pal(median_household_incomeE),
+      #   stroke = F,
+      #   smoothFactor = 0,
+      #   fillOpacity = 0.7) %>%
+      addTimedLayers() %>%
+      addLayersControl(
+        baseGroups = c("basemap"),
+        overlayGroups = names(yrdfs), # c("2010", "2018")
+        options = layersControlOptions(collapsed = TRUE)
+      ) # %>% hideGroup("2010")
     # maybe I can write a function that takes in a leaflet and runs the for loop of addPolygons
         # color = ~ pal(current_data)) %>%
       # addLegend("bottomright",
@@ -117,32 +134,32 @@ server <- function(input, output, session) {
   # an observer. Each independent set of things that can change
   # should be managed in its own observer.
   observe({
-    pal <- colorpal()
-
-    leafletProxy("map", data = filteredData()) %>%
-      clearShapes() %>%
-      addPolygons(weight = 1, color = "#777777",
-                 fillColor = ~pal(median_household_incomeE), fillOpacity = 0.7 #, popup = ~paste(median_household_incomeE)
-      )
-    # leafletProxy("map") %>% showGroup(input$yearSelect)
+    # pal <- colorpal()
+    # 
+    # leafletProxy("map", data = filteredData()) %>%
+    #   clearShapes() %>%
+    #   addPolygons(weight = 1, color = "#777777",
+    #              fillColor = ~pal(median_household_incomeE), fillOpacity = 0.7 #, popup = ~paste(median_household_incomeE)
+    #   )
+    leafletProxy("map") %>% hideGroup(names(yrdfs)) %>% showGroup(year_str()) 
   })
   
   # Use a separate observer to recreate the legend as needed.
-  observe({
-    proxy <- leafletProxy("map", data = df)
-    
-    # Remove any existing legend, and only if the legend is
-    # enabled, create a new one.
-    proxy %>% clearControls()
-    if (input$legend) {
-      pal <- colorpal()
-      proxy %>% addLegend_decreasing(position = "bottomright",
-                          pal = pal, values = ~median_household_incomeE,
-                          na.label = 'Tracts with little or no population',
-                          decreasing = TRUE, title = "Median Household Income ($)"
-      )
-    }
-  })
+  # observe({
+  #   proxy <- leafletProxy("map", data = df)
+  #   
+  #   # Remove any existing legend, and only if the legend is
+  #   # enabled, create a new one.
+  #   proxy %>% clearControls()
+  #   if (input$legend) {
+  #     pal <- colorpal()
+  #     proxy %>% addLegend_decreasing(position = "bottomright",
+  #                         pal = pal, values = ~median_household_incomeE,
+  #                         na.label = 'Tracts with little or no population',
+  #                         decreasing = TRUE, title = "Median Household Income ($)"
+  #     )
+  #   }
+  # })
 }
 
 # ui <- bootstrapPage(
