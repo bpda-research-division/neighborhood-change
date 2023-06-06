@@ -17,7 +17,7 @@ my_vars <- c(
   , median_household_income = "S1901_C01_012"
 )
 
-years <- c(2010, 2014, 2018)
+years <- c(2010, 2012, 2014, 2016, 2018)
 
 get_acs_by_yr <- function(yr) {
   ct <- get_acs(
@@ -39,13 +39,15 @@ df <- cs %>% bind_rows() %>%
   mutate(median_household_incomeE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeE)) %>%
   sf::st_transform(4326)
 
+df %>% as_tibble() %>% subset(select=-c(geometry)) %>% write.csv(file='income.csv', row.names=FALSE)
+
 # UI ############
 ui <- fluidPage(
   titlePanel(h1("Neighborhood Change Dashboard", align = "center")),
   sidebarLayout(
     sidebarPanel(
       sliderInput("yearSelect", "Drag slider to see change over time", 
-                  2010, 2018, value = 2018, step = 4, sep = "", ticks=FALSE
+                  2010, 2018, value = 2018, step = 2, sep = "", ticks=FALSE
       ),
       leafletOutput("map")
       , width=6 # will probably go for 6 on the slider + map side...
@@ -86,11 +88,21 @@ server <- function(input, output, session) {
     #   fitBounds(~min(long), ~min(lat), ~max(long), ~max(lat))
     
     leaflet(df, height = "100%", width = "100%") %>%
-      addProviderTiles(provider = "CartoDB.Positron") %>%
-      addPolygons(
+      addProviderTiles(provider = "CartoDB.Positron", group='basemap') %>%
+      addPolygons( # data=df[df$year == 2010,], group="2010", fillColor = colorNumeric("Blues", domain = ~median_household_incomeE),
         stroke = F,
         smoothFactor = 0,
-        fillOpacity = 0.7)
+        fillOpacity = 0.7) # %>%
+      # addPolygons(data=df[df$year == 2018,], group="2018", fillColor = colorNumeric("Blues", domain = ~median_household_incomeE),
+      #   stroke = F,
+      #   smoothFactor = 0,
+      #   fillOpacity = 0.7) %>%
+      # addLayersControl(
+      #   baseGroups = c("basemap"),
+      #   overlayGroups = c("2010", "2018"),
+      #   options = layersControlOptions(collapsed = TRUE)
+      # ) %>% hideGroup("2010")
+    # maybe I can write a function that takes in a leaflet and runs the for loop of addPolygons
         # color = ~ pal(current_data)) %>%
       # addLegend("bottomright",
       #   pal = pal,
@@ -106,12 +118,13 @@ server <- function(input, output, session) {
   # should be managed in its own observer.
   observe({
     pal <- colorpal()
-    
+
     leafletProxy("map", data = filteredData()) %>%
       clearShapes() %>%
       addPolygons(weight = 1, color = "#777777",
                  fillColor = ~pal(median_household_incomeE), fillOpacity = 0.7 #, popup = ~paste(median_household_incomeE)
       )
+    # leafletProxy("map") %>% showGroup(input$yearSelect)
   })
   
   # Use a separate observer to recreate the legend as needed.
