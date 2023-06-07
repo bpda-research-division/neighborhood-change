@@ -9,17 +9,26 @@ options(tigris_use_cache = TRUE)
 # Data loading ######################
 census_api_key("3910e99aea0a472b50f5cdc422c9a3395b3c87b3")
 
-#v21 <- load_variables(2021, "acs5/subject", cache = TRUE)
+v21 <- load_variables(2021, "acs5/subject", cache = TRUE)
 
 my_states = c("MA")
 my_vars <- c(
-  total_households = "S1901_C01_001"
-  , median_household_income = "S1901_C01_012"
+  # b000_010k = "S1901_C01_002"
+  # , b010_015k = "S1901_C01_003"
+  # , b015_025k = "S1901_C01_004"
+  # , b025_035k = "S1901_C01_005"
+  # , b035_050k = "S1901_C01_006"
+  # , b050_075k = "S1901_C01_007"
+  # , b075_100k = "S1901_C01_008"
+  # , b100_150k = "S1901_C01_009"
+  # , b150_199k = "S1901_C01_010"
+  # , b200____k = "S1901_C01_011"
+  median_household_income = "S1901_C01_012"
 )
 
 years <- c(2010, 2012, 2014, 2016, 2018)
 
-get_acs_by_yr <- function(yr) {
+get_acs_by_yr <- function(yr, vars) {
   ct <- get_acs(
     geography = "tract",
     variables = my_vars,
@@ -34,35 +43,33 @@ get_acs_by_yr <- function(yr) {
   ct$year <- yr
   ct
 }
-cs <- lapply(years, get_acs_by_yr)
+cs <- lapply(years, get_acs_by_yr, vars=my_vars)
 df <- cs %>% bind_rows() %>% 
   mutate(median_household_incomeE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeE)) %>%
   sf::st_transform(4326)
 
-# df %>% as_tibble() %>% subset(select=-c(geometry)) %>% write.csv(file='income.csv', row.names=FALSE)
-d10 <- df[df$year == 2010,]
-d18 <- df[df$year == 2018,]
+# df %>% as_tibble() %>% subset(select=-c(geometry)) %>% write.csv(file='./income_brackets.csv', row.names=FALSE)
+# d10 <- df[df$year == 2010,]
+# d18 <- df[df$year == 2018,]
 yrdfs <- split(df, df$year)
 pal <- colorNumeric("Purples", domain = df$median_household_incomeE)
 
 # UI ############
 ui <- fluidPage(
-  titlePanel(h1("Neighborhood Change Dashboard", align = "center")),
-  sidebarLayout(
-    sidebarPanel(
-      sliderInput("yearSelect", "Drag slider to see change over time", 
-                  2010, 2018, value = 2018, step = 2, sep = "", ticks=FALSE
-      ),
-      leafletOutput("map")
-      , width=6 # will probably go for 6 on the slider + map side...
+  headerPanel(h1("Neighborhood Change Dashboard", align = "center")),
+  sidebarPanel(style = "height: 90vh;",
+    sliderInput("yearSelect", "Drag slider to see change over time",
+                2010, 2018, value = 2018, step = 2, sep = "", ticks=FALSE
     ),
-    mainPanel(
-      selectInput("colors", "Color Scheme",
-                  rownames(subset(brewer.pal.info, category %in% c("seq", "div")))
-      ),
-      checkboxInput("legend", "Show legend", TRUE)
-      , width = 6 # and 6 on the bar + line side
-    )
+    leafletOutput("map", width="100%", height="100%")
+    , width=6 # will probably go for 6 on the slider + map side...
+  ),
+  mainPanel(
+    # selectInput("colors", "Color Scheme",
+    #             rownames(subset(brewer.pal.info, category %in% c("seq", "div")))
+    # ),
+    # checkboxInput("legend", "Show legend", TRUE)
+    width = 6 # and 6 on the bar + line side
   )
 )
 
@@ -86,17 +93,17 @@ server <- function(input, output, session) {
   year_str <- reactive({
     as.character(input$yearSelect)
   })
-  # TODO: try creating a reactive expression using a hash table: 
+  # TODO: try creating a reactive expression using a hash table:
   # ht <- new.env(hash=TRUE) => ht[[key]] <- df
-  # however, we'd need to think about whether to filter or hash if we got to 
+  # however, we'd need to think about whether to filter or hash if we got to
   # the point of arbitrary time steps for a single variable
-  
+
   # This reactive expression represents the palette function,
   # which changes as the user makes selections in UI.
   colorpal <- reactive({
     colorNumeric(input$colors, df$median_household_incomeE)
   })
-  
+
   output$map <- renderLeaflet({
     # Use leaflet() here, and only include aspects of the map that
     # won't need to change dynamically (at least, not unless the
@@ -117,8 +124,7 @@ server <- function(input, output, session) {
       addLayersControl(
         baseGroups = c("basemap"),
         overlayGroups = names(yrdfs), # c("2010", "2018")
-        options = layersControlOptions(collapsed = TRUE)
-      ) # %>% hideGroup("2010")
+        options = layersControlOptions(collapsed = TRUE) ) %>%
     # maybe I can write a function that takes in a leaflet and runs the for loop of addPolygons
         # color = ~ pal(current_data)) %>%
       # addLegend("bottomright",
@@ -126,28 +132,33 @@ server <- function(input, output, session) {
       #   values = ~ current_data %>% append(values = c(0, max_val)),
       #   title = legend_label,
       #   opacity = 1,
-      #   na.label = 'Tracts with little or no population')
+      #   na.label = 'Tracts with little or no population') %>%
+      addLegend_decreasing(position = "bottomright",
+         pal = pal, values = df$median_household_incomeE,
+         na.label = 'Tracts with little or no population',
+         decreasing = TRUE, title = "Median Household Income ($)") %>%
+      setView(-71.075, 42.318, zoom = 12)
   })
-  
+
   # Incremental changes to the map (in this case, replacing the
   # circles when a new color is chosen) should be performed in
   # an observer. Each independent set of things that can change
   # should be managed in its own observer.
   observe({
     # pal <- colorpal()
-    # 
+    #
     # leafletProxy("map", data = filteredData()) %>%
     #   clearShapes() %>%
     #   addPolygons(weight = 1, color = "#777777",
     #              fillColor = ~pal(median_household_incomeE), fillOpacity = 0.7 #, popup = ~paste(median_household_incomeE)
     #   )
-    leafletProxy("map") %>% hideGroup(names(yrdfs)) %>% showGroup(year_str()) 
+    leafletProxy("map") %>% hideGroup(names(yrdfs)) %>% showGroup(year_str())
   })
-  
+
   # Use a separate observer to recreate the legend as needed.
   # observe({
   #   proxy <- leafletProxy("map", data = df)
-  #   
+  #
   #   # Remove any existing legend, and only if the legend is
   #   # enabled, create a new one.
   #   proxy %>% clearControls()
@@ -175,22 +186,22 @@ server <- function(input, output, session) {
                 # checkboxInput("legend", "Show legend", TRUE)
 #   )
 # )
-# 
+#
 # server <- function(input, output, session) {
-#   
+#
   # # Reactive expression for the data subsetted to what the user selected
   # filteredData <- reactive({
   #   quakes[quakes$mag >= input$range[1] & quakes$mag <= input$range[2],]
   # })
   # # TODO: try creating a reactive expression using a hash table: ht <- new.env(hash=TRUE) => ht[[key]] <- df
   # # however, we'd need to think about whether to filter or hash if we got to the point of custom time steps
-  # 
+  #
   # # This reactive expression represents the palette function,
   # # which changes as the user makes selections in UI.
   # colorpal <- reactive({
   #   colorNumeric(input$colors, quakes$mag)
   # })
-  # 
+  #
   # output$map <- renderLeaflet({
   #   # Use leaflet() here, and only include aspects of the map that
   #   # won't need to change dynamically (at least, not unless the
@@ -198,25 +209,25 @@ server <- function(input, output, session) {
   #   leaflet(quakes) %>% addTiles() %>%
   #     fitBounds(~min(long), ~min(lat), ~max(long), ~max(lat))
   # })
-  # 
+  #
   # # Incremental changes to the map (in this case, replacing the
   # # circles when a new color is chosen) should be performed in
   # # an observer. Each independent set of things that can change
   # # should be managed in its own observer.
   # observe({
   #   pal <- colorpal()
-  # 
+  #
   #   leafletProxy("map", data = filteredData()) %>%
   #     clearShapes() %>%
   #     addCircles(radius = ~10^mag/10, weight = 1, color = "#777777",
   #                fillColor = ~pal(mag), fillOpacity = 0.7, popup = ~paste(mag)
   #     )
   # })
-  # 
+  #
   # # Use a separate observer to recreate the legend as needed.
   # observe({
   #   proxy <- leafletProxy("map", data = quakes)
-  # 
+  #
   #   # Remove any existing legend, and only if the legend is
   #   # enabled, create a new one.
   #   proxy %>% clearControls()
@@ -231,37 +242,37 @@ server <- function(input, output, session) {
 
 # Extra Functions #############
 addLegend_decreasing <- function (map, position = c("topright", "bottomright", "bottomleft","topleft"),
-                                  pal, values, na.label = "NA", bins = 7, colors, 
-                                  opacity = 0.5, labels = NULL, labFormat = labelFormat(), 
-                                  title = NULL, className = "info legend", layerId = NULL, 
+                                  pal, values, na.label = "NA", bins = 7, colors,
+                                  opacity = 0.5, labels = NULL, labFormat = labelFormat(),
+                                  title = NULL, className = "info legend", layerId = NULL,
                                   group = NULL, data = getMapData(map), decreasing = FALSE) {
-  
+
   position <- match.arg(position)
   type <- "unknown"
   na.color <- NULL
   extra <- NULL
   if (!missing(pal)) {
-    if (!missing(colors)) 
+    if (!missing(colors))
       stop("You must provide either 'pal' or 'colors' (not both)")
-    if (missing(title) && inherits(values, "formula")) 
+    if (missing(title) && inherits(values, "formula"))
       title <- deparse(values[[2]])
     values <- evalFormula(values, data)
     type <- attr(pal, "colorType", exact = TRUE)
     args <- attr(pal, "colorArgs", exact = TRUE)
     na.color <- args$na.color
-    if (!is.null(na.color) && col2rgb(na.color, alpha = TRUE)[[4]] == 
+    if (!is.null(na.color) && col2rgb(na.color, alpha = TRUE)[[4]] ==
         0) {
       na.color <- NULL
     }
-    if (type != "numeric" && !missing(bins)) 
+    if (type != "numeric" && !missing(bins))
       warning("'bins' is ignored because the palette type is not numeric")
     if (type == "numeric") {
-      cuts <- if (length(bins) == 1) 
+      cuts <- if (length(bins) == 1)
         pretty(values, bins)
-      else bins   
-      if (length(bins) > 2) 
-        if (!all(abs(diff(bins, differences = 2)) <= 
-                 sqrt(.Machine$double.eps))) 
+      else bins
+      if (length(bins) > 2)
+        if (!all(abs(diff(bins, differences = 2)) <=
+                 sqrt(.Machine$double.eps)))
           stop("The vector of breaks 'bins' must be equally spaced")
       n <- length(cuts)
       r <- range(values, na.rm = TRUE)
@@ -317,16 +328,16 @@ addLegend_decreasing <- function (map, position = c("topright", "bottomright", "
       }
     }
     else stop("Palette function not supported")
-    if (!any(is.na(values))) 
+    if (!any(is.na(values)))
       na.color <- NULL
   }
   else {
-    if (length(colors) != length(labels)) 
+    if (length(colors) != length(labels))
       stop("'colors' and 'labels' must be of the same length")
   }
-  legend <- list(colors = I(unname(colors)), labels = I(unname(labels)), 
-                 na_color = na.color, na_label = na.label, opacity = opacity, 
-                 position = position, type = type, title = title, extra = extra, 
+  legend <- list(colors = I(unname(colors)), labels = I(unname(labels)),
+                 na_color = na.color, na_label = na.label, opacity = opacity,
+                 position = position, type = type, title = title, extra = extra,
                  layerId = layerId, className = className, group = group)
   invokeMethod(map, data, "addLegend", legend)
 }
