@@ -1,54 +1,39 @@
 # Imports and Setup ##############
 library(dplyr)
 library(shiny)
+library(plotly)
 library(leaflet)
 library(tidycensus)
 library(RColorBrewer)
 options(tigris_use_cache = TRUE)
+setwd(getSrcDirectory(function(){})[1])
 
-# Data loading ######################
-census_api_key("3910e99aea0a472b50f5cdc422c9a3395b3c87b3")
+x <- c(1:25)
+search <- rnorm(25, mean = 1)
+my_bar_color <- '#60809f'
+my_light_line_color <- "#c6c6b9"
+my_line_skinny <- .75
+forms <- rnorm(25, mean = 1)
+admin <- rnorm(25, mean = 1)
+data <- data.frame(x, search, forms, admin)
 
-v21 <- load_variables(2021, "acs5/subject", cache = TRUE)
-
-my_states = c("MA")
-my_vars <- c(
-  # b000_010k = "S1901_C01_002"
-  # , b010_015k = "S1901_C01_003"
-  # , b015_025k = "S1901_C01_004"
-  # , b025_035k = "S1901_C01_005"
-  # , b035_050k = "S1901_C01_006"
-  # , b050_075k = "S1901_C01_007"
-  # , b075_100k = "S1901_C01_008"
-  # , b100_150k = "S1901_C01_009"
-  # , b150_199k = "S1901_C01_010"
-  # , b200____k = "S1901_C01_011"
-  median_household_income = "S1901_C01_012"
+inc_bckts <- c(
+  "Less than $10,000" = "S1901_C01_002"
+  , "$10,000 to $14,999" = "S1901_C01_003"
+  , "$15,000 to $24,999" = "S1901_C01_004"
+  , "$25,000 to $34,999" = "S1901_C01_005"
+  , "$35,000 to $49,999" = "S1901_C01_006"
+  , "$50,000 to $74,999" = "S1901_C01_007"
+  , "$75,000 to $99,999" = "S1901_C01_008"
+  , "$100,000 to $149,999" = "S1901_C01_009"
+  , "$150,000 to $199,999" = "S1901_C01_010"
+  , "More than $200,000" = "S1901_C01_011"
 )
 
-years <- c(2010, 2012, 2014, 2016, 2018)
-
-get_acs_by_yr <- function(yr, vars) {
-  ct <- get_acs(
-    geography = "tract",
-    variables = my_vars,
-    state = my_states,
-    county = "025",
-    year = yr,
-    survey="acs5",
-    output = "wide",
-    geometry = TRUE,
-    cache_table = TRUE
-  )
-  ct$year <- yr
-  ct
-}
-cs <- lapply(years, get_acs_by_yr, vars=my_vars)
-df <- cs %>% bind_rows() %>% 
-  mutate(median_household_incomeE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeE)) %>%
-  sf::st_transform(4326)
-
-# df %>% as_tibble() %>% subset(select=-c(geometry)) %>% write.csv(file='./income_brackets.csv', row.names=FALSE)
+# Data loading ######################
+df <- readRDS(file ="./data/tract_hh_income_geo.rds")
+bdf <- readRDS(file = "./data/tract_hh_income_brackets_geo.rds")
+# t <- subset(bdf, GEOID == '25025010802' & year == 2018)
 # d10 <- df[df$year == 2010,]
 # d18 <- df[df$year == 2018,]
 yrdfs <- split(df, df$year)
@@ -58,9 +43,9 @@ pal <- colorNumeric("Purples", domain = df$median_household_incomeE)
 ui <- fluidPage(
   headerPanel(h1("Neighborhood Change Dashboard", align = "center")),
   sidebarPanel(style = "height: 90vh;",
+    selectInput("variable", "Select Variable", choices = c("Income", "Age")),
     sliderInput("yearSelect", "Drag slider to see change over time",
-                2010, 2018, value = 2018, step = 2, sep = "", ticks=FALSE
-    ),
+                2010, 2018, value = 2010, step = 2, sep = "", ticks=FALSE),
     leafletOutput("map", width="100%", height="100%")
     , width=6 # will probably go for 6 on the slider + map side...
   ),
@@ -68,7 +53,9 @@ ui <- fluidPage(
     # selectInput("colors", "Color Scheme",
     #             rownames(subset(brewer.pal.info, category %in% c("seq", "div")))
     # ),
-    # checkboxInput("legend", "Show legend", TRUE)
+    # checkboxInput("legend", "Show legend", TRUE),
+    plotlyOutput("bar_chart"),
+    plotlyOutput("line_chart"),
     width = 6 # and 6 on the bar + line side
   )
 )
@@ -92,6 +79,9 @@ server <- function(input, output, session) {
   })
   year_str <- reactive({
     as.character(input$yearSelect)
+  })
+  filteredBar <- reactive({
+    subset(bdf, GEOID == '25025010802' & year == input$yearSelect)
   })
   # TODO: try creating a reactive expression using a hash table:
   # ht <- new.env(hash=TRUE) => ht[[key]] <- df
@@ -138,6 +128,43 @@ server <- function(input, output, session) {
          na.label = 'Tracts with little or no population',
          decreasing = TRUE, title = "Median Household Income ($)") %>%
       setView(-71.075, 42.318, zoom = 12)
+  })
+  
+  output$bar_chart <- renderPlotly({
+    plot_ly(filteredBar(),
+      x = ~variable,
+      y = ~estimate,
+      # marker = list(color = my_bar_color),
+      name = "Household Income",
+      # type = "bar",
+      source = "bar_plot"
+    ) %>% 
+      add_bars() %>%
+      layout(yaxis = list(title = '% of Households', range = c(0, 25)), 
+             xaxis = list(title = '', categoryorder = 'array', categoryarray = names(inc_bckts)))
+  })
+  
+  output$line_chart <- renderPlotly({
+    
+    plot_ly(data, x = ~x,
+            y = ~search,
+            name = 'search',
+            type = 'scatter',
+            mode = 'lines',
+            line = list(color = my_light_line_color,
+                        width = my_line_skinny)) # %>%
+      # add_trace(y = ~forms,
+      #           name = 'forms',
+      #           mode = 'lines',
+      #           line = list(color = my_light_line_color,
+      #                       width = my_line_skinny)) %>%
+      # add_trace(y = ~admin,
+      #           name = 'admin',
+      #           mode = 'lines',
+      #           line = list(color = my_light_line_color,
+      #                       width = my_line_skinny)) %>% 
+      # event_register('plotly_unhover')
+    
   })
 
   # Incremental changes to the map (in this case, replacing the
