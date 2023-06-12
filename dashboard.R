@@ -146,13 +146,14 @@ server <- function(input, output, session) {
   
   output$line_chart <- renderPlotly({
     
-    plot_ly(data, x = ~x,
-            y = ~search,
-            name = 'search',
-            type = 'scatter',
-            mode = 'lines',
-            line = list(color = my_light_line_color,
-                        width = my_line_skinny)) # %>%
+    plot_ly(df[df$GEOID == '25025010802',], x = ~year,
+            y = ~median_household_incomeE
+            # name = 'MHI',
+            # type = 'scatter',
+            # mode = 'lines',
+            # line = list(color = my_light_line_color,
+            #             width = my_line_skinny)
+            ) %>% add_lines()
       # add_trace(y = ~forms,
       #           name = 'forms',
       #           mode = 'lines',
