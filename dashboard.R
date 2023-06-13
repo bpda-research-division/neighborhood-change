@@ -40,14 +40,14 @@ yrdfs <- split(df, df$year)
 pal <- colorNumeric("Purples", domain = df$median_household_incomeE)
 
 # UI ############
-ui <- fluidPage(
+ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"),
   headerPanel(h1("Neighborhood Change Dashboard", align = "center")),
   sidebarPanel(style = "height: 90vh;",
     selectInput("variable", "Select Variable", choices = c("Income", "Age")),
     sliderInput("yearSelect", "Drag slider to see change over time",
-                2010, 2018, value = 2010, step = 2, sep = "", ticks=FALSE),
-    leafletOutput("map", width="100%", height="100%")
-    , width=6 # will probably go for 6 on the slider + map side...
+                2010, 2018, value = 2010, step = 2, sep = "", ticks=TRUE),
+    leafletOutput("map", height="80%"),
+    width=6 # will probably go for 6 on the slider + map side...
   ),
   mainPanel(
     # selectInput("colors", "Color Scheme",
@@ -100,7 +100,7 @@ server <- function(input, output, session) {
     # entire map is being torn down and recreated).
     # leaflet(quakes, width="100%", height="100%") %>% addTiles() %>%
     #   fitBounds(~min(long), ~min(lat), ~max(long), ~max(lat))
-    leaflet(df, height = "100%", width = "100%") %>%
+    leaflet(df) %>%
       addProviderTiles(provider = "CartoDB.Positron", group='basemap') %>%
       # addPolygons(data=d10, group="2010", fillColor = ~pal(median_household_incomeE),
       #   stroke = F,
@@ -132,16 +132,18 @@ server <- function(input, output, session) {
   
   output$bar_chart <- renderPlotly({
     plot_ly(filteredBar(),
-      x = ~variable,
-      y = ~estimate,
+      x = ~variable, 
+      y = ~estimate, 
+      # xend=~variable, yend=0, # if using add_segments()
       # marker = list(color = my_bar_color),
       name = "Household Income",
       # type = "bar",
       source = "bar_plot"
     ) %>% 
-      add_bars() %>%
+      add_bars() %>% # line = list(width = 25) # if using add_segments()
       layout(yaxis = list(title = '% of Households', range = c(0, 25)), 
              xaxis = list(title = '', categoryorder = 'array', categoryarray = names(inc_bckts)))
+      # animation_opts(frame=500, transition=500, redraw=FALSE)
   })
   
   output$line_chart <- renderPlotly({
@@ -153,7 +155,10 @@ server <- function(input, output, session) {
             # mode = 'lines',
             # line = list(color = my_light_line_color,
             #             width = my_line_skinny)
-            ) %>% add_lines()
+            ) %>% 
+      add_lines() %>%
+      layout(yaxis = list(title = 'Median Household Income', range = c(0, 135000)), 
+             xaxis = list(title = 'Year'))
       # add_trace(y = ~forms,
       #           name = 'forms',
       #           mode = 'lines',
