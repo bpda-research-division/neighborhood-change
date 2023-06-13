@@ -33,7 +33,7 @@ inc_bckts <- c(
 # Data loading ######################
 df <- readRDS(file ="./data/tract_hh_income_geo.rds")
 bdf <- readRDS(file = "./data/tract_hh_income_brackets_geo.rds")
-# t <- subset(bdf, GEOID == '25025010802' & year == 2018)
+# t <- subset(df, GEOID == '25025010802' & year == 2018)$median_household_incomeE
 # d10 <- df[df$year == 2010,]
 # d18 <- df[df$year == 2018,]
 yrdfs <- split(df, df$year)
@@ -73,9 +73,9 @@ addTimedLayers <- function(map) {
 # Server ##############
 server <- function(input, output, session) {
   # Reactive expression for the data subsetted to what the user selected
-  filteredData <- reactive({
+  selectedLine <- reactive({
     # quakes[quakes$mag >= input$range[1] & quakes$mag <= input$range[2],]
-    df[df$year == input$yearSelect,]
+    subset(df, GEOID == '25025010802' & year == input$yearSelect)$median_household_incomeE
   })
   year_str <- reactive({
     as.character(input$yearSelect)
@@ -140,7 +140,7 @@ server <- function(input, output, session) {
       # type = "bar",
       source = "bar_plot"
     ) %>% 
-      add_bars() %>% # line = list(width = 25) # if using add_segments()
+      add_bars(color=I(my_bar_color)) %>% # line = list(width = 25) # if using add_segments()
       layout(yaxis = list(title = '% of Households', range = c(0, 25)), 
              xaxis = list(title = '', categoryorder = 'array', categoryarray = names(inc_bckts)))
       # animation_opts(frame=500, transition=500, redraw=FALSE)
@@ -156,7 +156,8 @@ server <- function(input, output, session) {
             # line = list(color = my_light_line_color,
             #             width = my_line_skinny)
             ) %>% 
-      add_lines() %>%
+      add_lines(color=I(my_bar_color)) %>%
+      add_markers(x = input$yearSelect, y = selectedLine(), name = 'highlight', marker = list(color=my_bar_color, size=10), showlegend = F) %>%
       layout(yaxis = list(title = 'Median Household Income', range = c(0, 135000)), 
              xaxis = list(title = 'Year'))
       # add_trace(y = ~forms,
