@@ -43,9 +43,15 @@ pal <- colorNumeric("Purples", domain = df$median_household_incomeE)
 ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"),
   headerPanel(h1("Neighborhood Change Dashboard", align = "center")),
   sidebarPanel(style = "height: 90vh;",
-    selectInput("variable", "Select Variable", choices = c("Income", "Age")),
-    sliderInput("yearSelect", "Drag slider to see change over time",
-                2010, 2018, value = 2010, step = 2, sep = "", ticks=TRUE),
+    fluidRow(
+      column(width = 6,
+        selectInput("variable", "Select Variable", choices = c("Income", "Age"))
+      ),
+      column(width = 6, 
+        sliderInput("yearSelect", "Drag slider to see change over time",
+                   2010, 2018, value = 2010, step = 2, sep = "", ticks=TRUE)
+      )
+    ),
     leafletOutput("map", height="80%"),
     width=6 # will probably go for 6 on the slider + map side...
   ),
@@ -141,7 +147,7 @@ server <- function(input, output, session) {
       source = "bar_plot"
     ) %>% 
       add_bars(color=I(my_bar_color)) %>% # line = list(width = 25) # if using add_segments()
-      layout(yaxis = list(title = '% of Households', range = c(0, 25)), 
+      layout(yaxis = list(title = '', ticksuffix="%", range = c(0, 25)), title = 'Shares of Households by Income',
              xaxis = list(title = '', categoryorder = 'array', categoryarray = names(inc_bckts)))
       # animation_opts(frame=500, transition=500, redraw=FALSE)
   })
@@ -158,8 +164,8 @@ server <- function(input, output, session) {
             ) %>% 
       add_lines(color=I(my_bar_color)) %>%
       add_markers(x = input$yearSelect, y = selectedLine(), name = 'highlight', marker = list(color=my_bar_color, size=10), showlegend = F) %>%
-      layout(yaxis = list(title = 'Median Household Income', range = c(0, 135000)), 
-             xaxis = list(title = 'Year'))
+      layout(yaxis = list(title = '', tickprefix = '$', tickformat="~s", range = c(0, 135000)), 
+             xaxis = list(title = 'Year', range = c(2009, 2019)), title = 'Median Household Income')
       # add_trace(y = ~forms,
       #           name = 'forms',
       #           mode = 'lines',
