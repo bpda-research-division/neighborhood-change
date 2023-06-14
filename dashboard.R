@@ -8,14 +8,23 @@ library(RColorBrewer)
 options(tigris_use_cache = TRUE)
 setwd(getSrcDirectory(function(){})[1])
 
-x <- c(1:25)
-search <- rnorm(25, mean = 1)
+# Data loading ######################
+df <- readRDS(file ="./data/tract_hh_income_geo.rds")
+bdf <- readRDS(file = "./data/tract_hh_income_brackets_geo.rds")
+# t <- subset(df, GEOID == '25025010802' & year == 2018)$median_household_incomeE
+# d10 <- df[df$year == 2010,]
+# d18 <- df[df$year == 2018,]
+yrdfs <- split(df, df$year)
+pal <- colorNumeric("Purples", domain = df$median_household_incomeE)
+
+# the below variables are used to reformat the map legend to place the NA value below the color
+# palette - default behavior in the current version of Leaflet is for them to be side by side
+css_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
+html_fix <- htmltools::tags$style(type = "text/css", css_fix)  # Convert CSS to HTML
+
 my_bar_color <- '#60809f'
 my_light_line_color <- "#c6c6b9"
 my_line_skinny <- .75
-forms <- rnorm(25, mean = 1)
-admin <- rnorm(25, mean = 1)
-data <- data.frame(x, search, forms, admin)
 
 inc_bckts <- c(
   "Less than $10,000" = "S1901_C01_002"
@@ -30,29 +39,20 @@ inc_bckts <- c(
   , "More than $200,000" = "S1901_C01_011"
 )
 
-# Data loading ######################
-df <- readRDS(file ="./data/tract_hh_income_geo.rds")
-bdf <- readRDS(file = "./data/tract_hh_income_brackets_geo.rds")
-# t <- subset(df, GEOID == '25025010802' & year == 2018)$median_household_incomeE
-# d10 <- df[df$year == 2010,]
-# d18 <- df[df$year == 2018,]
-yrdfs <- split(df, df$year)
-pal <- colorNumeric("Purples", domain = df$median_household_incomeE)
-
 # UI ############
 ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"),
   headerPanel(h1("Neighborhood Change Dashboard", align = "center")),
   sidebarPanel(style = "height: 90vh;",
     fluidRow(
       column(width = 6,
-        selectInput("variable", "Select Variable", choices = c("Income", "Age"))
+        selectInput("variable", "Select Data:", choices = c("Income", "Age"))
       ),
       column(width = 6, 
-        sliderInput("yearSelect", "Drag slider to see change over time",
+        sliderInput("yearSelect", "Drag the slider to see change over time:",
                    2010, 2018, value = 2010, step = 2, sep = "", ticks=TRUE)
       )
     ),
-    leafletOutput("map", height="80%"),
+    leafletOutput("map", height="80%") %>% htmlwidgets::prependContent(html_fix),
     width=6 # will probably go for 6 on the slider + map side...
   ),
   mainPanel(
@@ -281,6 +281,8 @@ server <- function(input, output, session) {
 # }
 
 # Extra Functions #############
+# I grabbed the code for this function from GitHub user mpriem89, who wrote it as a workaround
+# for an open Leaflet issue regarding map legends: https://github.com/rstudio/leaflet/issues/256
 addLegend_decreasing <- function (map, position = c("topright", "bottomright", "bottomleft","topleft"),
                                   pal, values, na.label = "NA", bins = 7, colors,
                                   opacity = 0.5, labels = NULL, labFormat = labelFormat(),
