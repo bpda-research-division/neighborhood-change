@@ -1,9 +1,10 @@
 # Imports and Setup ##############
 library(dplyr)
 library(shiny)
+library(shinyWidgets)
 library(plotly)
 library(leaflet)
-library(tidycensus)
+# library(tidycensus)
 library(RColorBrewer)
 options(tigris_use_cache = TRUE)
 setwd(getSrcDirectory(function(){})[1])
@@ -40,7 +41,8 @@ inc_bckts <- c(
 )
 
 # UI ############
-ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"),
+ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"), # this css hides the minor tick marks on the slider
+  chooseSliderSkin("Shiny"),
   headerPanel(h1("Neighborhood Change Dashboard", align = "center")),
   sidebarPanel(style = "height: 90vh;",
     fluidRow(
