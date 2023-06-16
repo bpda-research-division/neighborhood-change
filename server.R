@@ -225,8 +225,8 @@ server <- function(input, output, session) {
       #   na.label = 'Tracts with little or no population') %>%
       addLegend_decreasing(position = "bottomright",
                            pal = pal, values = df$median_household_incomeE,
-                           na.label = 'Tracts with little or no population',
-                           decreasing = TRUE, title = "Median Household Income ($)") %>%
+                           na.label = 'Tracts with little or <br> no population' %>% lapply(htmltools::HTML),
+                           decreasing = TRUE, title = "Median Household <br> Income ($)" %>% lapply(htmltools::HTML)) %>%
       setView(-71.075, 42.318, zoom = 12)
   })
   
