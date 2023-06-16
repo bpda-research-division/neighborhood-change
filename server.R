@@ -4,6 +4,7 @@ library(shiny)
 source('utils.R', local=TRUE) # helper functions are in this file
 library(plotly)
 library(leaflet)
+library(htmltools)
 # library(tidycensus)
 library(RColorBrewer)
 options(tigris_use_cache = TRUE)
@@ -41,13 +42,28 @@ inc_bckts <- c(
 )
 
 addTimedLayers <- function(map) {
+  map <- map %>% addMapPane("layer1", zIndex=420) %>% addMapPane("layer2",zIndex=410)
   for (yr in names(yrdfs)) {
-    map <- map %>% addPolygons(data=yrdfs[[yr]], group=yr, fillColor = ~pal(median_household_incomeE),
-                               stroke = F,
-                               smoothFactor = 0,
-                               fillOpacity = 0.7)
-  }
-  map
+    map <- map %>% 
+      addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), fillColor = ~pal(median_household_incomeE),
+                 weight = 1, color = "gray", smoothFactor = 0, fillOpacity = 0.7, label = ~htmlEscape(NAME),
+                 options = pathOptions(pane = "layer2"), # lower pane
+                 # Highlight polygons upon mouseover
+                 highlight = highlightOptions(
+                   weight = 3,
+                   #stroke = 2,
+                   fillOpacity = 1,
+                   color = "black",
+                   #opacity = 1.0,
+                   #bringToFront = TRUE,
+                   #sendToBack = TRUE
+                   ), 
+                 )
+  } # TODO: use a single set of geographies joined to the tabular data
+  map %>% # hidden layer of identical polygons that will be added in response to clicks
+    addPolygons(data=yrdfs[[yr]], group=~GEOID, weight = 3, color = "red", fillOpacity=0,
+                options = pathOptions(pane = "layer1") # upper pane
+                ) %>% hideGroup(group = yrdfs[[yr]]$GEOID)
 }
 
 # Extra Functions #############
@@ -214,6 +230,38 @@ server <- function(input, output, session) {
       setView(-71.075, 42.318, zoom = 12)
   })
   
+  # Incremental changes to the map (in this case, replacing the
+  # circles when a new color is chosen) should be performed in
+  # an observer. Each independent set of things that can change
+  # should be managed in its own observer.
+  observe({
+    # pal <- colorpal()
+    #
+    # leafletProxy("map", data = filteredData()) %>%
+    #   clearShapes() %>%
+    #   addPolygons(weight = 1, color = "#777777",
+    #              fillColor = ~pal(median_household_incomeE), fillOpacity = 0.7 #, popup = ~paste(median_household_incomeE)
+    #   )
+    leafletProxy("map") %>% hideGroup(group = names(yrdfs)) %>% showGroup(year_str())
+  })
+  
+  #create empty vector to hold all click ids
+  selected <- reactiveValues(groups = vector())
+  
+  observeEvent(input$map_shape_click, {
+    #print(strsplit(input$map_shape_click$id, split = " ")[[1]][1])
+
+    if(nchar(input$map_shape_click$group) == 4){
+      selected$groups <- c(selected$groups, strsplit(input$map_shape_click$id, split = " ")[[1]][1])
+      leafletProxy("map") %>% showGroup(group = strsplit(input$map_shape_click$id, split = " ")[[1]][1])
+    } else {
+      selected$groups <- setdiff(selected$groups, input$map_shape_click$group)
+      leafletProxy("map") %>% hideGroup(group = input$map_shape_click$group)
+    }
+    # this is where we'd call some function to update the line and bar charts, like they do here:
+    # https://stackoverflow.com/questions/65893124/select-multiple-items-using-map-click-in-leaflet-linked-to-selectizeinput-in
+  })
+  
   output$bar_chart <- renderPlotly({
     plot_ly(filteredBar(),
             x = ~variable, 
@@ -256,21 +304,6 @@ server <- function(input, output, session) {
     #                       width = my_line_skinny)) %>% 
     # event_register('plotly_unhover')
     
-  })
-  
-  # Incremental changes to the map (in this case, replacing the
-  # circles when a new color is chosen) should be performed in
-  # an observer. Each independent set of things that can change
-  # should be managed in its own observer.
-  observe({
-    # pal <- colorpal()
-    #
-    # leafletProxy("map", data = filteredData()) %>%
-    #   clearShapes() %>%
-    #   addPolygons(weight = 1, color = "#777777",
-    #              fillColor = ~pal(median_household_incomeE), fillOpacity = 0.7 #, popup = ~paste(median_household_incomeE)
-    #   )
-    leafletProxy("map") %>% hideGroup(names(yrdfs)) %>% showGroup(year_str())
   })
   
   # Use a separate observer to recreate the legend as needed.
