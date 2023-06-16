@@ -12,6 +12,7 @@ setwd(getSrcDirectory(function(){})[1])
 
 # Data loading ######################
 df <- readRDS(file ="./data/tract_hh_income_geo.rds")
+# t <- df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = sum(median_household_incomeE))
 bdf <- readRDS(file = "./data/tract_hh_income_brackets_geo.rds")
 # t <- subset(df, GEOID == '25025010802' & year == 2018)$median_household_incomeE
 # d10 <- df[df$year == 2010,]
@@ -174,8 +175,12 @@ addTimedLayers <- function(map) {
 server <- function(input, output, session) {
   # Reactive expression for the data subsetted to what the user selected
   selectedLine <- reactive({
+    if (length(selected$groups) == 0) {tracts = c('25025010802', '25025010801')}
+    else {tracts = selected$groups}
     # quakes[quakes$mag >= input$range[1] & quakes$mag <= input$range[2],]
-    subset(df, GEOID == '25025010802' & year == input$yearSelect)$median_household_incomeE
+    s <- subset(df, GEOID %in% tracts) %>% # & year == input$yearSelect
+      group_by(year) %>% summarise(median_household_incomeE = mean(median_household_incomeE))
+    s #$median_household_incomeE
   })
   year_str <- reactive({
     as.character(input$yearSelect)
@@ -215,7 +220,6 @@ server <- function(input, output, session) {
         baseGroups = c("basemap"),
         overlayGroups = names(yrdfs), # c("2010", "2018")
         options = layersControlOptions(collapsed = TRUE) ) %>%
-      # maybe I can write a function that takes in a leaflet and runs the for loop of addPolygons
       # color = ~ pal(current_data)) %>%
       # addLegend("bottomright",
       #   pal = pal,
@@ -258,6 +262,7 @@ server <- function(input, output, session) {
       selected$groups <- setdiff(selected$groups, input$map_shape_click$group)
       leafletProxy("map") %>% hideGroup(group = input$map_shape_click$group)
     }
+    #plotlyProxy("line_chart") %>% plotlyProxyInvoke()
     # this is where we'd call some function to update the line and bar charts, like they do here:
     # https://stackoverflow.com/questions/65893124/select-multiple-items-using-map-click-in-leaflet-linked-to-selectizeinput-in
   })
@@ -280,7 +285,8 @@ server <- function(input, output, session) {
   
   output$line_chart <- renderPlotly({
     
-    plot_ly(df[df$GEOID == '25025010802',], x = ~year,
+    plot_ly(selectedLine(), # df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = mean(median_household_incomeE))
+            x = ~year,
             y = ~median_household_incomeE
             # name = 'MHI',
             # type = 'scatter',
@@ -289,7 +295,7 @@ server <- function(input, output, session) {
             #             width = my_line_skinny)
     ) %>% 
       add_lines(color=I(my_bar_color)) %>%
-      add_markers(x = input$yearSelect, y = selectedLine(), name = 'highlight', marker = list(color=my_bar_color, size=10), showlegend = F) %>%
+      add_markers(x = input$yearSelect, y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE, name = 'highlight', marker = list(color=my_bar_color, size=10), showlegend = F) %>%
       layout(yaxis = list(title = '', tickprefix = '$', tickformat="~s", range = c(0, 135000)), 
              xaxis = list(title = 'Year', range = c(2009, 2019)), title = 'Median Household Income')
     # add_trace(y = ~forms,
