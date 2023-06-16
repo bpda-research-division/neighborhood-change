@@ -1,10 +1,15 @@
+library(dplyr)
+library(shinyWidgets)
+library(leaflet)
+library(plotly)
+
 # the below variables are used to reformat the map legend to place the NA value below the color
 # palette - default behavior in the current version of Leaflet is for them to be side by side
 css_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
 html_fix <- htmltools::tags$style(type = "text/css", css_fix)  # Convert CSS to HTML
 
 ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"), # this css hides the minor tick marks on the slider
-  chooseSliderSkin("Flat"),
+  chooseSliderSkin("Shiny"),
   headerPanel(h1("Neighborhood Change Dashboard", align = "center")),
   sidebarPanel(style = "height: 90vh;",
                fluidRow(
@@ -16,7 +21,8 @@ ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;
                                     2010, 2018, value = 2010, step = 2, sep = "", ticks=TRUE)
                  )
                ),
-               leafletOutput("map", height="80%") %>% htmlwidgets::prependContent(html_fix),
+               leafletOutput("map", height="80%") %>% 
+                 htmlwidgets::prependContent(html_fix),
                width=6 # will probably go for 6 on the slider + map side...
   ),
   mainPanel(
