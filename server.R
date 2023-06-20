@@ -14,6 +14,8 @@ setwd(getSrcDirectory(function(){})[1])
 df <- readRDS(file ="./data/tract_hh_income_geo.rds")
 # t <- df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = sum(median_household_incomeE))
 bdf <- readRDS(file = "./data/tract_hh_income_brackets_geo.rds")
+# t <- subset(bdf, GEOID %in% c('25025010802', '25025010801') & year == 2018) %>%
+#   group_by(variable) %>% summarise(estimate = mean(estimate))
 # t <- subset(df, GEOID == '25025010802' & year == 2018)$median_household_incomeE
 # d10 <- df[df$year == 2010,]
 # d18 <- df[df$year == 2018,]
@@ -186,7 +188,10 @@ server <- function(input, output, session) {
     as.character(input$yearSelect)
   })
   filteredBar <- reactive({
-    subset(bdf, GEOID == '25025010802' & year == input$yearSelect)
+    if (length(selected$groups) == 0) {tracts = c('25025010802', '25025010801')}
+    else {tracts = selected$groups}
+    subset(bdf, GEOID %in% tracts & year == input$yearSelect) %>%
+      group_by(variable) %>% summarise(estimate = mean(estimate))
   })
   # TODO: try creating a reactive expression using a hash table:
   # ht <- new.env(hash=TRUE) => ht[[key]] <- df
@@ -276,7 +281,7 @@ server <- function(input, output, session) {
             name = "Household Income",
             # type = "bar",
             source = "bar_plot"
-    ) %>% 
+    ) %>% #hide_legend %>%
       add_bars(color=I(my_bar_color)) %>% # line = list(width = 25) # if using add_segments()
       layout(yaxis = list(title = '', ticksuffix="%", range = c(0, 25)), title = 'Shares of Households by Income',
              xaxis = list(title = '', categoryorder = 'array', categoryarray = names(inc_bckts)))
