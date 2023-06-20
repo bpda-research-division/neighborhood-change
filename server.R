@@ -212,6 +212,12 @@ server <- function(input, output, session) {
   #   colorNumeric(input$colors, df$median_household_incomeE)
   # })
   
+  output$selectionText <- reactive({
+    msg <- "Select areas on the map to filter the data by geography."
+    if (length(selected$groups) == 0) {paste(msg, "<b>Currently showing citywide data.<b>")}
+    else {paste(msg, sprintf("<b>Currently showing data from %s selected areas.<b>", length(selected$groups)))}
+  })
+  
   output$map <- renderLeaflet({
     # Use leaflet() here, and only include aspects of the map that
     # won't need to change dynamically (at least, not unless the
@@ -264,6 +270,11 @@ server <- function(input, output, session) {
   
   #create empty vector to hold all click ids
   selected <- reactiveValues(groups = vector())
+  
+  observeEvent(input$clearSelections, {
+    selected$groups <- vector()
+    leafletProxy("map") %>% hideGroup(group = yrdfs[['2018']]$GEOID)
+  })
   
   observeEvent(input$map_shape_click, {
     #print(strsplit(input$map_shape_click$id, split = " ")[[1]][1])

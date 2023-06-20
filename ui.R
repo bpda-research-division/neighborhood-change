@@ -21,7 +21,16 @@ ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;
                                     2010, 2018, value = 2010, step = 2, sep = "", ticks=TRUE)
                  )
                ),
-               leafletOutput("map", height="80%") %>% 
+               fluidRow(
+                 column(width=2,
+                        actionButton("clearSelections", "Clear all selections")
+                 ),
+                 column(width=9, offset = 1,
+                        htmlOutput("selectionText")
+                 )
+
+               ),
+               leafletOutput("map", height="75%") %>% 
                  htmlwidgets::prependContent(html_fix),
                width=6 # will probably go for 6 on the slider + map side...
   ),
