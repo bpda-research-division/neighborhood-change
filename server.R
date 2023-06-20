@@ -49,13 +49,13 @@ addTimedLayers <- function(map) {
   for (yr in names(yrdfs)) {
     map <- map %>% 
       addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), fillColor = ~pal(median_household_incomeE),
-                 weight = 1, color = "gray", smoothFactor = 0, fillOpacity = 0.7, label = ~htmlEscape(NAME),
+                 weight = 1, color = "gray", smoothFactor = 0, fillOpacity = 0.7, # label = ~htmlEscape(NAME),
                  options = pathOptions(pane = "layer2"), # lower pane
                  # Highlight polygons upon mouseover
                  highlight = highlightOptions(
                    weight = 3,
                    #stroke = 2,
-                   fillOpacity = 1,
+                   fillOpacity = 0.7,
                    color = "black",
                    #opacity = 1.0,
                    #bringToFront = TRUE,
@@ -188,10 +188,18 @@ server <- function(input, output, session) {
     as.character(input$yearSelect)
   })
   filteredBar <- reactive({
-    if (length(selected$groups) == 0) {tracts = c('25025010802', '25025010801')}
-    else {tracts = selected$groups}
+    aggregator <- mean # we need some kind of reactive that changes the aggregator based on the variable.
+    # this could be tricky when we get to pareto interpolation because that requires multiple vectors of input
+    
+    if (length(selected$groups) == 0) {
+      tracts <- c('25025010802', '25025010801')
+    }
+    else {
+      tracts <- selected$groups
+    }
+    # we'll probably use a different variable for citywide and then move this statement inside the else block
     subset(bdf, GEOID %in% tracts & year == input$yearSelect) %>%
-      group_by(variable) %>% summarise(estimate = mean(estimate))
+      group_by(variable) %>% summarise(estimate = aggregator(estimate))
   })
   # TODO: try creating a reactive expression using a hash table:
   # ht <- new.env(hash=TRUE) => ht[[key]] <- df
@@ -200,9 +208,9 @@ server <- function(input, output, session) {
   
   # This reactive expression represents the palette function,
   # which changes as the user makes selections in UI.
-  colorpal <- reactive({
-    colorNumeric(input$colors, df$median_household_incomeE)
-  })
+  # colorpal <- reactive({
+  #   colorNumeric(input$colors, df$median_household_incomeE)
+  # })
   
   output$map <- renderLeaflet({
     # Use leaflet() here, and only include aspects of the map that
@@ -221,10 +229,10 @@ server <- function(input, output, session) {
       #   smoothFactor = 0,
       #   fillOpacity = 0.7) %>%
       addTimedLayers() %>%
-      addLayersControl(
-        baseGroups = c("basemap"),
-        overlayGroups = names(yrdfs), # c("2010", "2018")
-        options = layersControlOptions(collapsed = TRUE) ) %>%
+      # addLayersControl(
+      #   baseGroups = c("basemap"),
+      #   overlayGroups = names(yrdfs), # c("2010", "2018")
+      #   options = layersControlOptions(collapsed = TRUE) ) %>%
       # color = ~ pal(current_data)) %>%
       # addLegend("bottomright",
       #   pal = pal,
@@ -279,12 +287,15 @@ server <- function(input, output, session) {
             # xend=~variable, yend=0, # if using add_segments()
             # marker = list(color = my_bar_color),
             name = "Household Income",
+            hoverinfo = 'text',
             # type = "bar",
             source = "bar_plot"
     ) %>% #hide_legend %>%
-      add_bars(color=I(my_bar_color)) %>% # line = list(width = 25) # if using add_segments()
-      layout(yaxis = list(title = '', ticksuffix="%", range = c(0, 25)), title = 'Shares of Households by Income',
-             xaxis = list(title = '', categoryorder = 'array', categoryarray = names(inc_bckts)))
+      config(displayModeBar = FALSE, scrollZoom = FALSE) %>%
+      # htmlwidgets::onRender("function(el, x) {Plotly.d3.select('.cursor-pointer').style('cursor', 'auto')}") %>%
+      add_bars(color=I(my_bar_color), hoverinfo = 'y') %>% # line = list(width = 25) # if using add_segments()
+      layout(yaxis = list(title = '', fixedrange = TRUE, ticksuffix="%", hoverformat = '.1f', range = c(0, 25)), title = 'Shares of Households by Income',
+             xaxis = list(title = '', fixedrange = TRUE, categoryorder = 'array', categoryarray = names(inc_bckts)))
     # animation_opts(frame=500, transition=500, redraw=FALSE)
   })
   
@@ -292,17 +303,27 @@ server <- function(input, output, session) {
     
     plot_ly(selectedLine(), # df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = mean(median_household_incomeE))
             x = ~year,
-            y = ~median_household_incomeE
+            y = ~median_household_incomeE,
+            hoverinfo = 'text'
             # name = 'MHI',
             # type = 'scatter',
             # mode = 'lines',
             # line = list(color = my_light_line_color,
             #             width = my_line_skinny)
     ) %>% 
-      add_lines(color=I(my_bar_color)) %>%
-      add_markers(x = input$yearSelect, y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE, name = 'highlight', marker = list(color=my_bar_color, size=10), showlegend = F) %>%
-      layout(yaxis = list(title = '', tickprefix = '$', tickformat="~s", range = c(0, 135000)), 
-             xaxis = list(title = 'Year', range = c(2009, 2019)), title = 'Median Household Income')
+      config(displayModeBar = FALSE) %>%
+      add_lines(color=I(my_bar_color), hoverinfo = "y") %>%
+      add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "y",
+                  y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
+                  marker = list(color=my_bar_color, size=10), showlegend = F) %>%
+      # add_text(x = input$yearSelect,
+      #          y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
+      #          text = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
+      #          textposition = 'top center', hovertext = ''
+      #          ) %>% 
+
+      layout(yaxis = list(title = '', fixedrange = TRUE, tickprefix = '$', tickformat="~s", hoverformat = ",.0f", range = c(0, 135000)), 
+             xaxis = list(title = 'Year', fixedrange = TRUE, range = c(2009, 2019)), title = 'Median Household Income')
     # add_trace(y = ~forms,
     #           name = 'forms',
     #           mode = 'lines',
