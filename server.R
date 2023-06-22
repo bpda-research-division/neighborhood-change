@@ -377,5 +377,7 @@ tabPanelServer <- function(id) {
 }
 
 server <- function(input, output, session) {
-  tabPanelServer("tracts")
+  lapply(c("tracts", "neighborhoods"), function(geo_type) {
+    tabPanelServer(geo_type)
+  })
 }

@@ -24,6 +24,10 @@ neigh_vars <- as.data.frame(
 )
 colnames(neigh_vars) <- c("name", "start", "end", "step")
 
+all_vars <- list(tract_vars, neigh_vars)
+names(all_vars) <- c("tracts", "neighborhoods")
+t <- names(all_vars)
+
 geoTabPanelUI <- function(geo_type, variables) {
   ns <- NS(geo_type)
   initial_st <- as.numeric(variables$start[1])
@@ -72,9 +76,13 @@ geoTabPanelUI <- function(geo_type, variables) {
 ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"), # this css hides the minor tick marks on the slider
   chooseSliderSkin("Shiny"),
   headerPanel(h1("Neighborhood Change Dashboard", align = "center")),
-  tabsetPanel(
-    geoTabPanelUI("tracts", tract_vars),
-    geoTabPanelUI("neighborhoods", neigh_vars)
+  do.call(tabsetPanel, 
+          # append(
+            lapply(names(all_vars), function(geo_type) {
+              geoTabPanelUI(geo_type, all_vars[[geo_type]])
+            }), 
+          #   tabPanel("About")
+          # )
   )
   # sidebarPanel(style = "height: 90vh;",
   #              fluidRow(
