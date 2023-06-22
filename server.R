@@ -11,7 +11,10 @@ options(tigris_use_cache = TRUE)
 setwd(getSrcDirectory(function(){})[1])
 
 # Data loading ######################
-df <- readRDS(file ="./data/tract_hh_income_geo.rds")
+
+# For each variable, we have (sub-city / citywide) * (binned data / central tendency)
+
+df <- readRDS(file ="./data/tract_hh_income_geo.rds") 
 # t <- df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = sum(median_household_incomeE))
 bdf <- readRDS(file = "./data/tract_hh_income_brackets_geo.rds")
 # t <- subset(bdf, GEOID %in% c('25025010802', '25025010801') & year == 2018) %>%
@@ -174,265 +177,205 @@ addTimedLayers <- function(map) {
 # }
 
 # Server ##############
-server <- function(input, output, session) {
-  # Reactive expression for the data subsetted to what the user selected
-  selectedLine <- reactive({
-    if (length(selected$groups) == 0) {tracts = c('25025010802', '25025010801')}
-    else {tracts = selected$groups}
-    # quakes[quakes$mag >= input$range[1] & quakes$mag <= input$range[2],]
-    s <- subset(df, GEOID %in% tracts) %>% # & year == input$yearSelect
-      group_by(year) %>% summarise(median_household_incomeE = mean(median_household_incomeE))
-    s #$median_household_incomeE
-  })
-  year_str <- reactive({
-    as.character(input$yearSelect)
-  })
-  filteredBar <- reactive({
-    aggregator <- mean # we need some kind of reactive that changes the aggregator based on the variable.
-    # this could be tricky when we get to pareto interpolation because that requires multiple vectors of input
-    
-    if (length(selected$groups) == 0) {
-      tracts <- c('25025010802', '25025010801')
+tabPanelServer <- function(id) {
+  moduleServer(
+    id,
+    function(input, output, session) {
+      # Reactive expression for the data subsetted to what the user selected
+      selectedLine <- reactive({
+        if (length(selected$groups) == 0) {tracts = c('25025010802', '25025010801')}
+        else {tracts = selected$groups}
+        # quakes[quakes$mag >= input$range[1] & quakes$mag <= input$range[2],]
+        s <- subset(df, GEOID %in% tracts) %>% # & year == input$yearSelect
+          group_by(year) %>% summarise(median_household_incomeE = mean(median_household_incomeE))
+        s #$median_household_incomeE
+      })
+      year_str <- reactive({
+        as.character(input$yearSelect)
+      })
+      filteredBar <- reactive({
+        aggregator <- mean # we need some kind of reactive that changes the aggregator based on the variable.
+        # this could be tricky when we get to pareto interpolation because that requires multiple vectors of input
+        
+        if (length(selected$groups) == 0) {
+          tracts <- c('25025010802', '25025010801')
+        }
+        else {
+          tracts <- selected$groups
+        }
+        # we'll probably use a different variable for citywide and then move this statement inside the else block
+        subset(bdf, GEOID %in% tracts & year == input$yearSelect) %>%
+          group_by(variable) %>% summarise(estimate = aggregator(estimate))
+      })
+      # TODO: try creating a reactive expression using a hash table:
+      # ht <- new.env(hash=TRUE) => ht[[key]] <- df
+      # however, we'd need to think about whether to filter or hash if we got to
+      # the point of arbitrary time steps for a single variable
+      
+      # This reactive expression represents the palette function,
+      # which changes as the user makes selections in UI.
+      # colorpal <- reactive({
+      #   colorNumeric(input$colors, df$median_household_incomeE)
+      # })
+      
+      output$selectionText <- reactive({
+        # the word "tract" should eventually be a variable reflecting the geography selection (tract, neighborhood, etc)
+        msg <- "Currently viewing data for: " 
+        if (length(selected$groups) == 0) {paste(msg, "<b>the whole city<b>")}
+        else {paste(msg, sprintf("<b>%s selected tracts<b>", length(selected$groups)))}
+      })
+      
+      output$map <- renderLeaflet({
+        # Use leaflet() here, and only include aspects of the map that
+        # won't need to change dynamically (at least, not unless the
+        # entire map is being torn down and recreated).
+        # leaflet(quakes, width="100%", height="100%") %>% addTiles() %>%
+        #   fitBounds(~min(long), ~min(lat), ~max(long), ~max(lat))
+        leaflet(df) %>% 
+          addProviderTiles(provider = "CartoDB.Positron", group='basemap') %>%
+          # addPolygons(data=d10, group="2010", fillColor = ~pal(median_household_incomeE),
+          #   stroke = F,
+          #   smoothFactor = 0,
+          #   fillOpacity = 0.7) %>%
+          # addPolygons(data=d18, group="2018", fillColor = ~pal(median_household_incomeE),
+          #   stroke = F,
+          #   smoothFactor = 0,
+          #   fillOpacity = 0.7) %>%
+          addTimedLayers() %>%
+          # addLayersControl(
+          #   baseGroups = c("basemap"),
+          #   overlayGroups = names(yrdfs), # c("2010", "2018")
+          #   options = layersControlOptions(collapsed = TRUE) ) %>%
+          # color = ~ pal(current_data)) %>%
+          # addLegend("bottomright",
+          #   pal = pal,
+          #   values = ~ current_data %>% append(values = c(0, max_val)),
+          #   title = legend_label,
+          #   opacity = 1,
+          #   na.label = 'Tracts with little or no population') %>%
+        addLegend_decreasing(position = "bottomright",
+                             pal = pal, values = df$median_household_incomeE,
+                             na.label = 'Tracts with little or <br> no population' %>% lapply(htmltools::HTML),
+                             decreasing = TRUE, title = "Median Household <br> Income ($)" %>% lapply(htmltools::HTML)) %>%
+          setView(-71.075, 42.318, zoom = 12)
+      })
+      
+      # Incremental changes to the map (in this case, replacing the
+      # circles when a new color is chosen) should be performed in
+      # an observer. Each independent set of things that can change
+      # should be managed in its own observer.
+      observe({
+        # pal <- colorpal()
+        #
+        # leafletProxy("map", data = filteredData()) %>%
+        #   clearShapes() %>%
+        #   addPolygons(weight = 1, color = "#777777",
+        #              fillColor = ~pal(median_household_incomeE), fillOpacity = 0.7 #, popup = ~paste(median_household_incomeE)
+        #   )
+        leafletProxy("map") %>% hideGroup(group = names(yrdfs)) %>% showGroup(year_str())
+      })
+      
+      #create empty vector to hold all click ids
+      selected <- reactiveValues(groups = vector())
+      
+      observeEvent(input$clearSelections, {
+        selected$groups <- vector()
+        leafletProxy("map") %>% hideGroup(group = yrdfs[['2018']]$GEOID)
+      })
+      
+      observeEvent(input$map_shape_click, {
+        #print(strsplit(input$map_shape_click$id, split = " ")[[1]][1])
+        
+        if(nchar(input$map_shape_click$group) == 4){
+          selected$groups <- c(selected$groups, strsplit(input$map_shape_click$id, split = " ")[[1]][1])
+          leafletProxy("map") %>% showGroup(group = strsplit(input$map_shape_click$id, split = " ")[[1]][1])
+        } else {
+          selected$groups <- setdiff(selected$groups, input$map_shape_click$group)
+          leafletProxy("map") %>% hideGroup(group = input$map_shape_click$group)
+        }
+        #plotlyProxy("line_chart") %>% plotlyProxyInvoke()
+        # this is where we'd call some function to update the line and bar charts, like they do here:
+        # https://stackoverflow.com/questions/65893124/select-multiple-items-using-map-click-in-leaflet-linked-to-selectizeinput-in
+      })
+      
+      output$bar_chart <- renderPlotly({
+        plot_ly(filteredBar(),
+                x = ~variable, 
+                y = ~estimate, 
+                # xend=~variable, yend=0, # if using add_segments()
+                # marker = list(color = my_bar_color),
+                name = "Household Income",
+                hoverinfo = 'text',
+                # type = "bar",
+                source = "bar_plot"
+        ) %>% #hide_legend %>%
+          config(displayModeBar = FALSE, scrollZoom = FALSE) %>%
+          # htmlwidgets::onRender("function(el, x) {Plotly.d3.select('.cursor-pointer').style('cursor', 'auto')}") %>%
+          add_bars(color=I(my_bar_color), hoverinfo = 'y') %>% # line = list(width = 25) # if using add_segments()
+          layout(yaxis = list(title = '', fixedrange = TRUE, ticksuffix="%", hoverformat = '.1f', range = c(0, 25)), title = sprintf('Shares of Households by Income in %s', input$yearSelect),
+                 xaxis = list(title = '', fixedrange = TRUE, categoryorder = 'array', categoryarray = names(inc_bckts)))
+        # animation_opts(frame=500, transition=500, redraw=FALSE)
+      })
+      
+      output$line_chart <- renderPlotly({
+        
+        plot_ly(selectedLine(), # df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = mean(median_household_incomeE))
+                x = ~year,
+                y = ~median_household_incomeE,
+                hoverinfo = 'text'
+                # name = 'MHI',
+                # type = 'scatter',
+                # mode = 'lines',
+                # line = list(color = my_light_line_color,
+                #             width = my_line_skinny)
+        ) %>% 
+          config(displayModeBar = FALSE) %>%
+          add_lines(color=I(my_bar_color), hoverinfo = "y") %>%
+          add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "y",
+                      y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
+                      marker = list(color=my_bar_color, size=10), showlegend = F) %>%
+          # add_text(x = input$yearSelect,
+          #          y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
+          #          text = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
+          #          textposition = 'top center', hovertext = ''
+          #          ) %>% 
+          
+          layout(yaxis = list(title = '', fixedrange = TRUE, tickprefix = '$', tickformat="~s", hoverformat = ",.0f", range = c(0, 135000)), 
+                 xaxis = list(title = 'Year', fixedrange = TRUE, range = c(2009, 2019)), title = 'Median Household Income')
+        # add_trace(y = ~forms,
+        #           name = 'forms',
+        #           mode = 'lines',
+        #           line = list(color = my_light_line_color,
+        #                       width = my_line_skinny)) %>%
+        # add_trace(y = ~admin,
+        #           name = 'admin',
+        #           mode = 'lines',
+        #           line = list(color = my_light_line_color,
+        #                       width = my_line_skinny)) %>% 
+        # event_register('plotly_unhover')
+        
+      })
+      
+      # Use a separate observer to recreate the legend as needed.
+      # observe({
+      #   proxy <- leafletProxy("map", data = df)
+      #
+      #   # Remove any existing legend, and only if the legend is
+      #   # enabled, create a new one.
+      #   proxy %>% clearControls()
+      #   if (input$legend) {
+      #     pal <- colorpal()
+      #     proxy %>% addLegend_decreasing(position = "bottomright",
+      #                         pal = pal, values = ~median_household_incomeE,
+      #                         na.label = 'Tracts with little or no population',
+      #                         decreasing = TRUE, title = "Median Household Income ($)"
+      #     )
+      #   }
+      # })
     }
-    else {
-      tracts <- selected$groups
-    }
-    # we'll probably use a different variable for citywide and then move this statement inside the else block
-    subset(bdf, GEOID %in% tracts & year == input$yearSelect) %>%
-      group_by(variable) %>% summarise(estimate = aggregator(estimate))
-  })
-  # TODO: try creating a reactive expression using a hash table:
-  # ht <- new.env(hash=TRUE) => ht[[key]] <- df
-  # however, we'd need to think about whether to filter or hash if we got to
-  # the point of arbitrary time steps for a single variable
-  
-  # This reactive expression represents the palette function,
-  # which changes as the user makes selections in UI.
-  # colorpal <- reactive({
-  #   colorNumeric(input$colors, df$median_household_incomeE)
-  # })
-  
-  output$selectionText <- reactive({
-    msg <- "Select areas on the map to filter the data by geography."
-    if (length(selected$groups) == 0) {paste(msg, "<b>Currently showing citywide data.<b>")}
-    else {paste(msg, sprintf("<b>Currently showing data from %s selected areas.<b>", length(selected$groups)))}
-  })
-  
-  output$map <- renderLeaflet({
-    # Use leaflet() here, and only include aspects of the map that
-    # won't need to change dynamically (at least, not unless the
-    # entire map is being torn down and recreated).
-    # leaflet(quakes, width="100%", height="100%") %>% addTiles() %>%
-    #   fitBounds(~min(long), ~min(lat), ~max(long), ~max(lat))
-    leaflet(df) %>% 
-      addProviderTiles(provider = "CartoDB.Positron", group='basemap') %>%
-      # addPolygons(data=d10, group="2010", fillColor = ~pal(median_household_incomeE),
-      #   stroke = F,
-      #   smoothFactor = 0,
-      #   fillOpacity = 0.7) %>%
-      # addPolygons(data=d18, group="2018", fillColor = ~pal(median_household_incomeE),
-      #   stroke = F,
-      #   smoothFactor = 0,
-      #   fillOpacity = 0.7) %>%
-      addTimedLayers() %>%
-      # addLayersControl(
-      #   baseGroups = c("basemap"),
-      #   overlayGroups = names(yrdfs), # c("2010", "2018")
-      #   options = layersControlOptions(collapsed = TRUE) ) %>%
-      # color = ~ pal(current_data)) %>%
-      # addLegend("bottomright",
-      #   pal = pal,
-      #   values = ~ current_data %>% append(values = c(0, max_val)),
-      #   title = legend_label,
-      #   opacity = 1,
-      #   na.label = 'Tracts with little or no population') %>%
-      addLegend_decreasing(position = "bottomright",
-                           pal = pal, values = df$median_household_incomeE,
-                           na.label = 'Tracts with little or <br> no population' %>% lapply(htmltools::HTML),
-                           decreasing = TRUE, title = "Median Household <br> Income ($)" %>% lapply(htmltools::HTML)) %>%
-      setView(-71.075, 42.318, zoom = 12)
-  })
-  
-  # Incremental changes to the map (in this case, replacing the
-  # circles when a new color is chosen) should be performed in
-  # an observer. Each independent set of things that can change
-  # should be managed in its own observer.
-  observe({
-    # pal <- colorpal()
-    #
-    # leafletProxy("map", data = filteredData()) %>%
-    #   clearShapes() %>%
-    #   addPolygons(weight = 1, color = "#777777",
-    #              fillColor = ~pal(median_household_incomeE), fillOpacity = 0.7 #, popup = ~paste(median_household_incomeE)
-    #   )
-    leafletProxy("map") %>% hideGroup(group = names(yrdfs)) %>% showGroup(year_str())
-  })
-  
-  #create empty vector to hold all click ids
-  selected <- reactiveValues(groups = vector())
-  
-  observeEvent(input$clearSelections, {
-    selected$groups <- vector()
-    leafletProxy("map") %>% hideGroup(group = yrdfs[['2018']]$GEOID)
-  })
-  
-  observeEvent(input$map_shape_click, {
-    #print(strsplit(input$map_shape_click$id, split = " ")[[1]][1])
-
-    if(nchar(input$map_shape_click$group) == 4){
-      selected$groups <- c(selected$groups, strsplit(input$map_shape_click$id, split = " ")[[1]][1])
-      leafletProxy("map") %>% showGroup(group = strsplit(input$map_shape_click$id, split = " ")[[1]][1])
-    } else {
-      selected$groups <- setdiff(selected$groups, input$map_shape_click$group)
-      leafletProxy("map") %>% hideGroup(group = input$map_shape_click$group)
-    }
-    #plotlyProxy("line_chart") %>% plotlyProxyInvoke()
-    # this is where we'd call some function to update the line and bar charts, like they do here:
-    # https://stackoverflow.com/questions/65893124/select-multiple-items-using-map-click-in-leaflet-linked-to-selectizeinput-in
-  })
-  
-  output$bar_chart <- renderPlotly({
-    plot_ly(filteredBar(),
-            x = ~variable, 
-            y = ~estimate, 
-            # xend=~variable, yend=0, # if using add_segments()
-            # marker = list(color = my_bar_color),
-            name = "Household Income",
-            hoverinfo = 'text',
-            # type = "bar",
-            source = "bar_plot"
-    ) %>% #hide_legend %>%
-      config(displayModeBar = FALSE, scrollZoom = FALSE) %>%
-      # htmlwidgets::onRender("function(el, x) {Plotly.d3.select('.cursor-pointer').style('cursor', 'auto')}") %>%
-      add_bars(color=I(my_bar_color), hoverinfo = 'y') %>% # line = list(width = 25) # if using add_segments()
-      layout(yaxis = list(title = '', fixedrange = TRUE, ticksuffix="%", hoverformat = '.1f', range = c(0, 25)), title = 'Shares of Households by Income',
-             xaxis = list(title = '', fixedrange = TRUE, categoryorder = 'array', categoryarray = names(inc_bckts)))
-    # animation_opts(frame=500, transition=500, redraw=FALSE)
-  })
-  
-  output$line_chart <- renderPlotly({
-    
-    plot_ly(selectedLine(), # df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = mean(median_household_incomeE))
-            x = ~year,
-            y = ~median_household_incomeE,
-            hoverinfo = 'text'
-            # name = 'MHI',
-            # type = 'scatter',
-            # mode = 'lines',
-            # line = list(color = my_light_line_color,
-            #             width = my_line_skinny)
-    ) %>% 
-      config(displayModeBar = FALSE) %>%
-      add_lines(color=I(my_bar_color), hoverinfo = "y") %>%
-      add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "y",
-                  y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
-                  marker = list(color=my_bar_color, size=10), showlegend = F) %>%
-      # add_text(x = input$yearSelect,
-      #          y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
-      #          text = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
-      #          textposition = 'top center', hovertext = ''
-      #          ) %>% 
-
-      layout(yaxis = list(title = '', fixedrange = TRUE, tickprefix = '$', tickformat="~s", hoverformat = ",.0f", range = c(0, 135000)), 
-             xaxis = list(title = 'Year', fixedrange = TRUE, range = c(2009, 2019)), title = 'Median Household Income')
-    # add_trace(y = ~forms,
-    #           name = 'forms',
-    #           mode = 'lines',
-    #           line = list(color = my_light_line_color,
-    #                       width = my_line_skinny)) %>%
-    # add_trace(y = ~admin,
-    #           name = 'admin',
-    #           mode = 'lines',
-    #           line = list(color = my_light_line_color,
-    #                       width = my_line_skinny)) %>% 
-    # event_register('plotly_unhover')
-    
-  })
-  
-  # Use a separate observer to recreate the legend as needed.
-  # observe({
-  #   proxy <- leafletProxy("map", data = df)
-  #
-  #   # Remove any existing legend, and only if the legend is
-  #   # enabled, create a new one.
-  #   proxy %>% clearControls()
-  #   if (input$legend) {
-  #     pal <- colorpal()
-  #     proxy %>% addLegend_decreasing(position = "bottomright",
-  #                         pal = pal, values = ~median_household_incomeE,
-  #                         na.label = 'Tracts with little or no population',
-  #                         decreasing = TRUE, title = "Median Household Income ($)"
-  #     )
-  #   }
-  # })
+  )
 }
 
-# ui <- bootstrapPage(
-#   tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
-#   leafletOutput("map", width = "100%", height = "100%"),
-#   absolutePanel(top = 10, right = 10,
-# sliderInput("range", "Magnitudes", min(quakes$mag), max(quakes$mag),
-#             value = range(quakes$mag), step = 0.1
-# ),
-# selectInput("colors", "Color Scheme",
-#             rownames(subset(brewer.pal.info, category %in% c("seq", "div")))
-# ),
-# checkboxInput("legend", "Show legend", TRUE)
-#   )
-# )
-#
-# server <- function(input, output, session) {
-#
-# # Reactive expression for the data subsetted to what the user selected
-# filteredData <- reactive({
-#   quakes[quakes$mag >= input$range[1] & quakes$mag <= input$range[2],]
-# })
-# # TODO: try creating a reactive expression using a hash table: ht <- new.env(hash=TRUE) => ht[[key]] <- df
-# # however, we'd need to think about whether to filter or hash if we got to the point of custom time steps
-#
-# # This reactive expression represents the palette function,
-# # which changes as the user makes selections in UI.
-# colorpal <- reactive({
-#   colorNumeric(input$colors, quakes$mag)
-# })
-#
-# output$map <- renderLeaflet({
-#   # Use leaflet() here, and only include aspects of the map that
-#   # won't need to change dynamically (at least, not unless the
-#   # entire map is being torn down and recreated).
-#   leaflet(quakes) %>% addTiles() %>%
-#     fitBounds(~min(long), ~min(lat), ~max(long), ~max(lat))
-# })
-#
-# # Incremental changes to the map (in this case, replacing the
-# # circles when a new color is chosen) should be performed in
-# # an observer. Each independent set of things that can change
-# # should be managed in its own observer.
-# observe({
-#   pal <- colorpal()
-#
-#   leafletProxy("map", data = filteredData()) %>%
-#     clearShapes() %>%
-#     addCircles(radius = ~10^mag/10, weight = 1, color = "#777777",
-#                fillColor = ~pal(mag), fillOpacity = 0.7, popup = ~paste(mag)
-#     )
-# })
-#
-# # Use a separate observer to recreate the legend as needed.
-# observe({
-#   proxy <- leafletProxy("map", data = quakes)
-#
-#   # Remove any existing legend, and only if the legend is
-#   # enabled, create a new one.
-#   proxy %>% clearControls()
-#   if (input$legend) {
-#     pal <- colorpal()
-#     proxy %>% addLegend(position = "bottomright",
-#                         pal = pal, values = ~mag
-#     )
-#   }
-# })
-# }
-
-# # Run the app ########
-# shinyApp(ui, server)
+server <- function(input, output, session) {
+  tabPanelServer("tracts")
+}
