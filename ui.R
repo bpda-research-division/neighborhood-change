@@ -77,12 +77,13 @@ geoTabPanelUI <- function(geo_type, variables) {
 
 aboutTabPanelUI <- function(title) {
   tabPanel(title, style='padding:10px;',
-           "under construction")
+           "under construction",
+           "hbic labor force is 14+ for 1950 and 1960, 16+ since then. source = decennial except 2010 & 2020 are 5yr acs")
 }
 
 tabGenerator <- function(name) {
   if (name == "About") {
-    aboutTabPanelUI(name) # can pass in other data if we want a modular about page
+    aboutTabPanelUI(name) # can pass in other data if we want a parameterized about page
   }
   else {
     geoTabPanelUI(name, all_vars[[name]])
