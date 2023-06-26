@@ -11,7 +11,7 @@ census_api_key("3910e99aea0a472b50f5cdc422c9a3395b3c87b3")
 v21 <- load_variables(2021, "acs5/subject", cache = TRUE)
 
 my_states = c("MA")
-my_vars <- c(
+mhi <- c(
   median_household_income = "S1901_C01_012"
 )
 
@@ -30,7 +30,7 @@ inc_bckts <- c(
 
 years <- c(2010, 2012, 2014, 2016, 2018)
 
-get_acs_by_yr <- function(yr, vars) {
+get_acs_by_yr <- function(yr, vars, output_type) {
   ct <- get_acs(
     geography = "tract",
     variables = vars,
@@ -38,7 +38,7 @@ get_acs_by_yr <- function(yr, vars) {
     county = "025",
     year = yr,
     survey="acs5",
-    # output = "wide",
+    output = output_type,
     geometry = TRUE,
     cache_table = TRUE
   )
@@ -46,13 +46,25 @@ get_acs_by_yr <- function(yr, vars) {
   ct
 }
 
-cs <- lapply(years, get_acs_by_yr, vars=inc_bckts)
-df <- cs %>% bind_rows() 
-df <- df %>% 
-  # mutate(median_household_incomeE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeE)) %>%
+med_hh_income <- lapply(years, get_acs_by_yr, vars=mhi, output_type="wide") %>% bind_rows()
+subcity_summary <- med_hh_income %>%
+  mutate(median_household_incomeE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeE)) %>%
+  select(-c("median_household_incomeM")) %>% sf::st_transform(4326)
+
+total_hh <- lapply(years, get_acs_by_yr, vars=c("S1901_C01_001"), output_type="wide") %>% bind_rows()
+df <- lapply(years, get_acs_by_yr, vars=inc_bckts, output_type = "tidy") %>% bind_rows() 
+t <- left_join(df, total_hh %>% as_tibble() %>% select(GEOID, S1901_C01_001E, year), by=c("GEOID", "year"))
+t$estimate <- round(t$S1901_C01_001E * t$estimate / 100, digits = 0)
+t$moe <- round(t$S1901_C01_001E * t$moe / 100, digits = 0)
+subcity_bins <- t %>% select(-c(S1901_C01_001E)) %>% sf::st_transform(4326) %>%
   mutate_at(.vars = names(df)[!names(df) %in% c("GEOID", "NAME", "geometry", "year")], 
-            list(~ifelse(startsWith(NAME, "Census Tract 98"), NaN, .))) %>%
-  sf::st_transform(4326)
+            list(~ifelse(startsWith(NAME, "Census Tract 98"), NaN, .)))
+
+# maybe prepare_data can accept override csv files for subcity central and city central. what about city bins?
+# subcity bins is definitely required. if subcity summary not overridden, then summary expression required
+# if city bins not overridden, then agg_func required. or is agg func always required because of multiselection?
+
+# for city bins, we can use sum as agg_func. still need city summary
 
 df %>% saveRDS(file='data/tract_hh_income_brackets_geo.rds')
 
@@ -81,15 +93,19 @@ labor_force_summary = c(
 labor_force_summary_expression <- rlang::expr(ilf_f / (ilf_f + nilf_f))
 
 # assumes that in_csv has columns GEOID, NAME, YEAR, <bin_col_names>
-prepare_data <- function(in_csv, agg_func, bin_col_names, summary_expression) {
+
+prepare_data <- function(var_code, in_csv, agg_func, bin_col_names, summary_expression) {
   subcity_bins <- read.csv(in_csv)
   city_bins <- subcity_bins %>% group_by(YEAR) %>% summarise_at(bin_col_names, agg_func)
   subcity_summary <- subcity_bins %>% mutate(SUMMARY_VAL = !!summary_expression) %>% select(-all_of(bin_col_names))
   city_summary <- city_bins %>% mutate(SUMMARY_VAL = !!summary_expression) %>% select(-all_of(bin_col_names))
   
-  # save all 4 to RDS, maybe return the file names
+  subcity_bins %>% saveRDS(file=sprintf('data/%s_sb.rds', var_code))
+  city_bins %>% saveRDS(file=sprintf('data/%s_cb.rds', var_code))
+  subcity_summary %>% saveRDS(file=sprintf('data/%s_ss.rds', var_code))
+  city_summary %>% saveRDS(file=sprintf('data/%s_cs.rds', var_code))
 }
 
-# In the distant future, this function could be the basis for some kind of interactive wizard where you specify
+# In the distant future, this code could be the basis for some kind of interactive wizard where you specify
 # a csv and it has you enter the labels as well as the summary expression
-t <- prepare_data('data/hbic_neigh_labor_force_bins.csv', sum, unname(labor_force_bins), labor_force_summary_expression)
+prepare_data('hbicn', 'data/hbic_neigh_labor_force_bins.csv', sum, unname(labor_force_bins), labor_force_summary_expression)

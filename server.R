@@ -14,9 +14,9 @@ setwd(getSrcDirectory(function(){})[1])
 
 # For each variable, we have (sub-city / citywide) * (binned data / central tendency)
 
-df <- readRDS(file ="./data/tract_hh_income_geo.rds") 
+df <- readRDS(file ="./data/tract_hh_income_geo.rds") # aka subcity summary
 # t <- df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = sum(median_household_incomeE))
-bdf <- readRDS(file = "./data/tract_hh_income_brackets_geo.rds")
+bdf <- readRDS(file = "./data/tract_hh_income_brackets_geo.rds") # aka subcity bins
 # t <- subset(bdf, GEOID %in% c('25025010802', '25025010801') & year == 2018) %>%
 #   group_by(variable) %>% summarise(estimate = mean(estimate))
 # t <- subset(df, GEOID == '25025010802' & year == 2018)$median_household_incomeE
