@@ -58,7 +58,7 @@ geoTabPanelUI <- function(geo_type, variables) {
                           
                           
                  ),
-                 leafletOutput(ns("map"), height="80%") %>% 
+                 leafletOutput(ns("map"), height='65%') %>% 
                    htmlwidgets::prependContent(html_fix),
                  width=6 # will probably go for 6 on the slider + map side...
     ),

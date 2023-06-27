@@ -1,4 +1,5 @@
 # Imports and Setup ##############
+library(sf)
 library(dplyr)
 library(shiny)
 source('utils.R', local=TRUE) # helper functions are in this file
@@ -12,11 +13,17 @@ setwd(getSrcDirectory(function(){})[1])
 
 # Data loading ######################
 
+# I have the tabular RDS's ready - just need to join to geometries and then do some renaming.
+tracts2010 <- read_sf('geoms/boston_tracts_2010.geojson')
+tracts2010$GEOID10 <- as.character(tracts2010$GEOID10)
+
 # For each variable, we have (sub-city / citywide) * (binned data / central tendency)
+# each variable has a code, so we read in varcode_<sb/cb/ss/cs>.rds
 
 df <- readRDS(file ="./data/tract_hh_income_geo.rds") # aka subcity summary
 # t <- df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = sum(median_household_incomeE))
-bdf <- readRDS(file = "./data/tract_hh_income_brackets_geo.rds") # aka subcity bins
+bdf <- readRDS(file = "./data/acshhi_sb.rds") # aka subcity bins - pre-geo'd is tract_hh_income_brackets_geo.rds
+bdf <- merge(bdf, tracts2010, by.y = "GEOID10", by.x = "GEOID")
 # t <- subset(bdf, GEOID %in% c('25025010802', '25025010801') & year == 2018) %>%
 #   group_by(variable) %>% summarise(estimate = mean(estimate))
 # t <- subset(df, GEOID == '25025010802' & year == 2018)$median_household_incomeE
@@ -194,7 +201,7 @@ tabPanelServer <- function(id) {
         as.character(input$yearSelect)
       })
       filteredBar <- reactive({
-        aggregator <- mean # we need some kind of reactive that changes the aggregator based on the variable.
+        aggregator <- sum # we need some kind of reactive that changes the aggregator based on the variable.
         # this could be tricky when we get to pareto interpolation because that requires multiple vectors of input
         
         if (length(selected$groups) == 0) {
@@ -204,8 +211,21 @@ tabPanelServer <- function(id) {
           tracts <- selected$groups
         }
         # we'll probably use a different variable for citywide and then move this statement inside the else block
-        subset(bdf, GEOID %in% tracts & year == input$yearSelect) %>%
-          group_by(variable) %>% summarise(estimate = aggregator(estimate))
+        subset(bdf, GEOID %in% tracts & YEAR == input$yearSelect) %>%
+          group_by(CATEGORY) %>% summarise(VALUE = aggregator(VALUE))
+      })
+      
+      barRange <- reactive({
+        aggregator <- sum
+        if (length(selected$groups) == 0) {
+          tracts <- c('25025010802', '25025010801')
+        }
+        else {
+          tracts <- selected$groups
+        }
+        data <- subset(bdf, GEOID %in% tracts) %>%
+          group_by(CATEGORY, YEAR) %>% summarise(VALUE = aggregator(VALUE), .groups = 'drop')
+        c(0, max(data$VALUE))
       })
       # TODO: try creating a reactive expression using a hash table:
       # ht <- new.env(hash=TRUE) => ht[[key]] <- df
@@ -300,8 +320,8 @@ tabPanelServer <- function(id) {
       
       output$bar_chart <- renderPlotly({
         plot_ly(filteredBar(),
-                x = ~variable, 
-                y = ~estimate, 
+                x = ~CATEGORY, 
+                y = ~VALUE, 
                 # xend=~variable, yend=0, # if using add_segments()
                 # marker = list(color = my_bar_color),
                 name = "Household Income",
@@ -312,7 +332,7 @@ tabPanelServer <- function(id) {
           config(displayModeBar = FALSE, scrollZoom = FALSE) %>%
           # htmlwidgets::onRender("function(el, x) {Plotly.d3.select('.cursor-pointer').style('cursor', 'auto')}") %>%
           add_bars(color=I(my_bar_color), hoverinfo = 'y') %>% # line = list(width = 25) # if using add_segments()
-          layout(yaxis = list(title = '', fixedrange = TRUE, ticksuffix="%", hoverformat = '.1f', range = c(0, 25)), title = sprintf('Shares of Households by Income in %s', input$yearSelect),
+          layout(yaxis = list(title = '', fixedrange = TRUE, range = barRange()), title = sprintf('Households by Income in %s', input$yearSelect), # ticksuffix="%", hoverformat = '.1f', 
                  xaxis = list(title = '', fixedrange = TRUE, categoryorder = 'array', categoryarray = names(inc_bckts)))
         # animation_opts(frame=500, transition=500, redraw=FALSE)
       })
