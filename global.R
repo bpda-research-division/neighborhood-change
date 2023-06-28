@@ -1,3 +1,25 @@
+# Imports and Setup #####
+library(dplyr)
+
+# Define details for each variable ############
+var_attrs <- c("name", "start", "end", "step", "varcode")
+
+all_vars <- list()
+
+all_vars$tracts <- rbind(
+  c("Income", 2010, 2018, 2, 'acshhi')
+  # , c("Age", 2010, 2020, 1, 'acsage')
+) %>% as.data.frame() %>% setNames(var_attrs)
+
+all_vars$neighborhoods <- rbind(
+  c("Labor Force", 1950, 2020, 10, "hbicnlf")
+  # , c("Race", 1950, 2020, 10, "hbicnre")
+) %>% as.data.frame() %>% setNames(var_attrs)
+
+
+
+# Miscellaneous Functions ###########
+
 # I grabbed the code for this function from GitHub user mpriem89, who wrote it as a workaround
 # for an open Leaflet issue regarding map legends: https://github.com/rstudio/leaflet/issues/256
 addLegend_decreasing <- function (map, position = c("topright", "bottomright", "bottomleft","topleft"),

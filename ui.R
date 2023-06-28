@@ -8,24 +8,7 @@ library(plotly)
 css_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
 html_fix <- htmltools::tags$style(type = "text/css", css_fix)  # Convert CSS to HTML
 
-tract_vars <- as.data.frame(
-  rbind(
-    c("Income", 2010, 2018, 2),
-    c("Age", 2010, 2020, 1)
-  )
-)
-colnames(tract_vars) <- c("name", "start", "end", "step")
 
-neigh_vars <- as.data.frame(
-  rbind(
-    c("Educ", 1950, 2020, 10),
-    c("Race", 1950, 2020, 10)
-  )
-)
-colnames(neigh_vars) <- c("name", "start", "end", "step")
-
-all_vars <- list(tract_vars, neigh_vars)
-names(all_vars) <- c("tracts", "neighborhoods")
 
 geoTabPanelUI <- function(geo_type, variables) {
   ns <- NS(geo_type)
@@ -68,7 +51,7 @@ geoTabPanelUI <- function(geo_type, variables) {
       # ),
       # checkboxInput("legend", "Show legend", TRUE),
       plotlyOutput(ns("bar_chart")),
-      # htmlOutput(ns("selectionText"), style='padding:10px;'),
+      htmlOutput(ns("varText"), style='padding:10px;'), # for debugging
       plotlyOutput(ns("line_chart")),
       width = 6 # and 6 on the bar + line side
     )
@@ -85,7 +68,7 @@ tabGenerator <- function(name) {
   if (name == "About") {
     aboutTabPanelUI(name) # can pass in other data if we want a parameterized about page
   }
-  else {
+  else { # name is either About or a geography type (tracts, neighborhoods, etc)
     geoTabPanelUI(name, all_vars[[name]])
   }
 }
@@ -95,7 +78,7 @@ ui <- fluidPage(tags$style(type = "text/css", "#buttons {align-items: center; ju
                            "), # this css hides the minor tick marks on the slider
   chooseSliderSkin("Shiny"),
   headerPanel(h1("Boston Neighborhood Change Dashboard", align = "center")),
-  do.call(tabsetPanel, 
+  do.call(tabsetPanel,
           lapply(append(names(all_vars), "About"), function(name) {
             tabGenerator(name)
           })
