@@ -2,35 +2,46 @@
 library(sf)
 library(dplyr)
 library(shiny)
-source('utils.R', local=TRUE) # helper functions are in this file
+source('utils.R', local=TRUE) # import helper functions from utils.R within this directory
 library(plotly)
 library(leaflet)
 library(htmltools)
 # library(tidycensus)
 library(RColorBrewer)
-options(tigris_use_cache = TRUE)
-setwd(getSrcDirectory(function(){})[1])
 
 # Data loading ######################
 
-# I have the tabular RDS's ready - just need to join to geometries and then do some renaming.
-tracts2010 <- read_sf('geoms/boston_tracts_2010.geojson')
+# Probably need to set up a data structure of dfs keyed on variable codes or names,
+# and then set up a reactive expression to update which set of dfs is to be used
+# although it's not just a set of dfs, it's also an aggregator and potentially prefixes and such
+# my python instincts for that are to set up a Variable class with named attributes sb, cb, ss, cs, aggregator, etc
+
+tracts2010 <- read_sf('geoms/boston_tracts_2010.geojson') # only attribute is the GEOID10 on which we do the join
 tracts2010$GEOID10 <- as.character(tracts2010$GEOID10)
 
 # For each variable, we have (sub-city / citywide) * (binned data / central tendency)
 # each variable has a code, so we read in varcode_<sb/cb/ss/cs>.rds
 
-df <- readRDS(file ="./data/tract_hh_income_geo.rds") # aka subcity summary
-# t <- df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = sum(median_household_incomeE))
-bdf <- readRDS(file = "./data/acshhi_sb.rds") # aka subcity bins - pre-geo'd is tract_hh_income_brackets_geo.rds
-bdf <- merge(bdf, tracts2010, by.y = "GEOID10", by.x = "GEOID")
+df <- readRDS(file ="./data/acshhi_ss.rds") %>% 
+  mutate(GEOID = as.character(GEOID)) %>%
+  merge(tracts2010, by.y = "GEOID10", by.x = "GEOID") %>%
+  st_as_sf()
+# df_prev <- readRDS(file ="./data/tract_hh_income_geo.rds")
+
+bdf <- readRDS(file = "./data/acshhi_sb.rds") %>%
+  mutate(GEOID = as.character(GEOID)) %>%
+  merge(tracts2010, by.y = "GEOID10", by.x = "GEOID")
+
+cs_df <- readRDS(file = './data/acshhi_cs.rds')
+cb_df <- readRDS(file = './data/acshhi_cb.rds')
 # t <- subset(bdf, GEOID %in% c('25025010802', '25025010801') & year == 2018) %>%
 #   group_by(variable) %>% summarise(estimate = mean(estimate))
 # t <- subset(df, GEOID == '25025010802' & year == 2018)$median_household_incomeE
 # d10 <- df[df$year == 2010,]
 # d18 <- df[df$year == 2018,]
-yrdfs <- split(df, df$year)
-pal <- colorNumeric("Purples", domain = df$median_household_incomeE)
+yrdfs <- split(df, df$YEAR)
+# yrdfs_prev <- split(df_prev, df_prev$year)
+pal <- colorNumeric("Purples", domain = df$SUMMARY_VALUE)
 
 # # the below variables are used to reformat the map legend to place the NA value below the color
 # # palette - default behavior in the current version of Leaflet is for them to be side by side
@@ -58,7 +69,7 @@ addTimedLayers <- function(map) {
   map <- map %>% addMapPane("layer1", zIndex=420) %>% addMapPane("layer2",zIndex=410)
   for (yr in names(yrdfs)) {
     map <- map %>% 
-      addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), fillColor = ~pal(median_household_incomeE),
+      addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), fillColor = ~pal(SUMMARY_VALUE),
                  weight = 1, color = "gray", smoothFactor = 0, fillOpacity = 0.7, # label = ~htmlEscape(NAME),
                  options = pathOptions(pane = "layer2"), # lower pane
                  # Highlight polygons upon mouseover
@@ -72,11 +83,11 @@ addTimedLayers <- function(map) {
                    #sendToBack = TRUE
                    ), 
                  )
-  } # TODO: use a single set of geographies joined to the tabular data
+  } 
   map %>% # hidden layer of identical polygons that will be added in response to clicks
     addPolygons(data=yrdfs[[yr]], group=~GEOID, weight = 3, color = "red", fillOpacity=0,
                 options = pathOptions(pane = "layer1") # upper pane
-                ) %>% hideGroup(group = yrdfs[[yr]]$GEOID)
+                ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) #
 }
 
 # Extra Functions #############
@@ -188,45 +199,49 @@ tabPanelServer <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {
-      # Reactive expression for the data subsetted to what the user selected
-      selectedLine <- reactive({
-        if (length(selected$groups) == 0) {tracts = c('25025010802', '25025010801')}
-        else {tracts = selected$groups}
-        # quakes[quakes$mag >= input$range[1] & quakes$mag <= input$range[2],]
-        s <- subset(df, GEOID %in% tracts) %>% # & year == input$yearSelect
-          group_by(year) %>% summarise(median_household_incomeE = mean(median_household_incomeE))
-        s #$median_household_incomeE
-      })
+
       year_str <- reactive({
         as.character(input$yearSelect)
+      }) # is this necessary, or can I just call as.character on input$yearSelect when i need it?
+      
+      selectedLine <- reactive({
+        if (length(selected$groups) == 0) {cs_df}
+        else {
+          subset(df, GEOID %in% selected$groups) %>% # & year == input$yearSelect
+            group_by(YEAR) %>% summarise(SUMMARY_VALUE = mean(SUMMARY_VALUE))
+        }
+        # # quakes[quakes$mag >= input$range[1] & quakes$mag <= input$range[2],]
+        # s <- 
+        # s #$median_household_incomeE
       })
+      
       filteredBar <- reactive({
         aggregator <- sum # we need some kind of reactive that changes the aggregator based on the variable.
         # this could be tricky when we get to pareto interpolation because that requires multiple vectors of input
         
         if (length(selected$groups) == 0) {
-          tracts <- c('25025010802', '25025010801')
+          subset(cb_df, YEAR == input$yearSelect)
         }
         else {
-          tracts <- selected$groups
+          subset(bdf, GEOID %in% selected$groups & YEAR == input$yearSelect) %>%
+            group_by(CATEGORY) %>% summarise(VALUE = aggregator(VALUE))
         }
         # we'll probably use a different variable for citywide and then move this statement inside the else block
-        subset(bdf, GEOID %in% tracts & YEAR == input$yearSelect) %>%
-          group_by(CATEGORY) %>% summarise(VALUE = aggregator(VALUE))
+        
       })
       
       barRange <- reactive({
+        # we want this to be as high as 
         aggregator <- sum
         if (length(selected$groups) == 0) {
-          tracts <- c('25025010802', '25025010801')
+          data <- cb_df
         }
         else {
-          tracts <- selected$groups
+          data <- subset(bdf, GEOID %in% selected$groups) %>%
+            group_by(CATEGORY, YEAR) %>% summarise(VALUE = aggregator(VALUE), .groups="drop")
         }
-        data <- subset(bdf, GEOID %in% tracts) %>%
-          group_by(CATEGORY, YEAR) %>% summarise(VALUE = aggregator(VALUE), .groups = 'drop')
-        c(0, max(data$VALUE))
-      })
+        c(0, 1.1*max(data$VALUE))
+      }) # is this necessary, or should i just call the 0 to max when i need the range?
       # TODO: try creating a reactive expression using a hash table:
       # ht <- new.env(hash=TRUE) => ht[[key]] <- df
       # however, we'd need to think about whether to filter or hash if we got to
@@ -274,7 +289,7 @@ tabPanelServer <- function(id) {
           #   opacity = 1,
           #   na.label = 'Tracts with little or no population') %>%
         addLegend_decreasing(position = "bottomright",
-                             pal = pal, values = df$median_household_incomeE,
+                             pal = pal, values = df$SUMMARY_VALUE,
                              na.label = 'Tracts with little or <br> no population' %>% lapply(htmltools::HTML),
                              decreasing = TRUE, title = "Median Household <br> Income ($)" %>% lapply(htmltools::HTML)) %>%
           setView(-71.075, 42.318, zoom = 12)
@@ -300,7 +315,7 @@ tabPanelServer <- function(id) {
       
       observeEvent(input$clearSelections, {
         selected$groups <- vector()
-        leafletProxy("map") %>% hideGroup(group = yrdfs[['2018']]$GEOID)
+        leafletProxy("map") %>% hideGroup(group = yrdfs[['2018']]$GEOID) # replace with something more generic than 2018
       })
       
       observeEvent(input$map_shape_click, {
@@ -340,8 +355,8 @@ tabPanelServer <- function(id) {
       output$line_chart <- renderPlotly({
         
         plot_ly(selectedLine(), # df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = mean(median_household_incomeE))
-                x = ~year,
-                y = ~median_household_incomeE,
+                x = ~YEAR,
+                y = ~SUMMARY_VALUE,
                 hoverinfo = 'text'
                 # name = 'MHI',
                 # type = 'scatter',
@@ -352,7 +367,7 @@ tabPanelServer <- function(id) {
           config(displayModeBar = FALSE) %>%
           add_lines(color=I(my_bar_color), hoverinfo = "y") %>%
           add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "y",
-                      y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
+                      y = subset(selectedLine(), YEAR == input$yearSelect)$SUMMARY_VALUE,
                       marker = list(color=my_bar_color, size=10), showlegend = F) %>%
           # add_text(x = input$yearSelect,
           #          y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
@@ -360,7 +375,7 @@ tabPanelServer <- function(id) {
           #          textposition = 'top center', hovertext = ''
           #          ) %>% 
           
-          layout(yaxis = list(title = '', fixedrange = TRUE, tickprefix = '$', tickformat="~s", hoverformat = ",.0f", range = c(0, 135000)), 
+          layout(yaxis = list(title = '', fixedrange = TRUE, tickprefix = '$', tickformat="~s", hoverformat = ",.0f", range = c(0, 1.1*max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE))), 
                  xaxis = list(title = 'Year', fixedrange = TRUE, range = c(2009, 2019)), title = 'Median Household Income')
         # add_trace(y = ~forms,
         #           name = 'forms',

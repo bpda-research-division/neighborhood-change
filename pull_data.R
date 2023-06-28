@@ -3,7 +3,6 @@ library(dplyr)
 library(tidyr)
 library(tidycensus)
 options(tigris_use_cache = TRUE)
-setwd(getSrcDirectory(function(){})[1])
 
 # Functions ##############
 
@@ -20,7 +19,7 @@ prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expr
     stop("If cb_csv is not provided, then agg_func is required")
   }
   else {
-    city_bins <- subcity_bins %>% group_by(YEAR) %>% summarise_at(unname(bin_col_names), agg_func)
+    city_bins <- subcity_bins %>% group_by(YEAR) %>% summarise_at(unname(bin_col_names), agg_func, na.rm=TRUE)
   }
   
   if (!missing(ss_csv)) {subcity_summary <- read.csv(ss_csv)}
@@ -139,8 +138,10 @@ city_summary %>% write.csv(file='data/acshhi_cs.csv', row.names=FALSE)
 med_hh_income <- lapply(years, get_acs_tract_by_yr, vars=mhi, output_type="wide", include_geom=FALSE) %>% bind_rows()
 subcity_summary <- med_hh_income %>%
   mutate(SUMMARY_VALUE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeE)) %>%
+  mutate(MOE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeM)) %>%
   select(-c("median_household_incomeM", "median_household_incomeE"))
 subcity_summary %>% write.csv(file='data/acshhi_ss.csv', row.names=FALSE)
+# subcity_summary %>% saveRDS(file='data/acshhi_ss.rds')
 
 total_hh <- lapply(years, get_acs_tract_by_yr, vars=c("S1901_C01_001"), output_type="wide", include_geom=FALSE) %>% bind_rows()
 df <- lapply(years, get_acs_tract_by_yr, vars=unname(inc_bckts), output_type = "tidy", include_geom=FALSE) %>% bind_rows() 
