@@ -6,17 +6,15 @@ var_attrs <- c("name", "start", "end", "step", "varcode")
 
 all_vars <- list()
 
-all_vars$tracts <- rbind(
-  c("Income", 2010, 2018, 2, 'acshhi')
-  # , c("Age", 2010, 2020, 1, 'acsage')
-) %>% as.data.frame() %>% setNames(var_attrs)
-
 all_vars$neighborhoods <- rbind(
   c("Labor Force", 1950, 2020, 10, "hbicnlf")
   # , c("Race", 1950, 2020, 10, "hbicnre")
 ) %>% as.data.frame() %>% setNames(var_attrs)
 
-
+all_vars$tracts <- rbind(
+  c("Income", 2010, 2018, 2, 'acshhi')
+  # , c("Age", 2010, 2020, 1, 'acsage')
+) %>% as.data.frame() %>% setNames(var_attrs)
 
 # Miscellaneous Functions ###########
 

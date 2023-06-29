@@ -47,6 +47,7 @@ for (geo_type in names(myvars)) {
       mutate(GEOID = as.character(GEOID))
   }
 }
+
 # For each variable, we have (sub-city / citywide) * (binned data / central tendency)
 # each variable has a code, so we read in varcode_<sb/cb/ss/cs>.rds
 
@@ -96,133 +97,32 @@ inc_bckts <- c(
   , "More than $200,000" = "S1901_C01_011"
 )
 
-addTimedLayers <- function(map) {
-  map <- map %>% addMapPane("layer1", zIndex=420) %>% addMapPane("layer2",zIndex=410)
-  for (yr in names(yrdfs)) {
-    map <- map %>% 
-      addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), fillColor = ~pal(SUMMARY_VALUE),
-                 weight = 1, color = "gray", smoothFactor = 0, fillOpacity = 0.7, # label = ~htmlEscape(NAME),
-                 options = pathOptions(pane = "layer2"), # lower pane
-                 # Highlight polygons upon mouseover
-                 highlight = highlightOptions(
-                   weight = 3,
-                   #stroke = 2,
-                   fillOpacity = 0.7,
-                   color = "black",
-                   #opacity = 1.0,
-                   #bringToFront = TRUE,
-                   #sendToBack = TRUE
-                   ), 
-                 )
-  } 
-  map %>% # hidden layer of identical polygons that will be added in response to clicks
-    addPolygons(data=yrdfs[[yr]], group=~GEOID, weight = 3, color = "red", fillOpacity=0,
-                options = pathOptions(pane = "layer1") # upper pane
-                ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) #
-}
+# t <- myvars[["neighborhoods"]][["Labor Force"]]$ss_df %>% split(~YEAR)
 
-# Extra Functions #############
-# # I grabbed the code for this function from GitHub user mpriem89, who wrote it as a workaround
-# # for an open Leaflet issue regarding map legends: https://github.com/rstudio/leaflet/issues/256
-# addLegend_decreasing <- function (map, position = c("topright", "bottomright", "bottomleft","topleft"),
-#                                   pal, values, na.label = "NA", bins = 7, colors,
-#                                   opacity = 0.5, labels = NULL, labFormat = labelFormat(),
-#                                   title = NULL, className = "info legend", layerId = NULL,
-#                                   group = NULL, data = getMapData(map), decreasing = FALSE) {
-#   
-#   position <- match.arg(position)
-#   type <- "unknown"
-#   na.color <- NULL
-#   extra <- NULL
-#   if (!missing(pal)) {
-#     if (!missing(colors))
-#       stop("You must provide either 'pal' or 'colors' (not both)")
-#     if (missing(title) && inherits(values, "formula"))
-#       title <- deparse(values[[2]])
-#     values <- evalFormula(values, data)
-#     type <- attr(pal, "colorType", exact = TRUE)
-#     args <- attr(pal, "colorArgs", exact = TRUE)
-#     na.color <- args$na.color
-#     if (!is.null(na.color) && col2rgb(na.color, alpha = TRUE)[[4]] ==
-#         0) {
-#       na.color <- NULL
-#     }
-#     if (type != "numeric" && !missing(bins))
-#       warning("'bins' is ignored because the palette type is not numeric")
-#     if (type == "numeric") {
-#       cuts <- if (length(bins) == 1)
-#         pretty(values, bins)
-#       else bins
-#       if (length(bins) > 2)
-#         if (!all(abs(diff(bins, differences = 2)) <=
-#                  sqrt(.Machine$double.eps)))
-#           stop("The vector of breaks 'bins' must be equally spaced")
-#       n <- length(cuts)
-#       r <- range(values, na.rm = TRUE)
-#       cuts <- cuts[cuts >= r[1] & cuts <= r[2]]
-#       n <- length(cuts)
-#       p <- (cuts - r[1])/(r[2] - r[1])
-#       extra <- list(p_1 = p[1], p_n = p[n])
-#       p <- c("", paste0(100 * p, "%"), "")
-#       if (decreasing == TRUE){
-#         colors <- pal(rev(c(r[1], cuts, r[2])))
-#         labels <- rev(labFormat(type = "numeric", cuts))
-#       }else{
-#         colors <- pal(c(r[1], cuts, r[2]))
-#         labels <- rev(labFormat(type = "numeric", cuts))
-#       }
-#       colors <- paste(colors, p, sep = " ", collapse = ", ")
-#     }
-#     else if (type == "bin") {
-#       cuts <- args$bins
-#       n <- length(cuts)
-#       mids <- (cuts[-1] + cuts[-n])/2
-#       if (decreasing == TRUE){
-#         colors <- pal(rev(mids))
-#         labels <- rev(labFormat(type = "bin", cuts))
-#       }else{
-#         colors <- pal(mids)
-#         labels <- labFormat(type = "bin", cuts)
-#       }
-#     }
-#     else if (type == "quantile") {
-#       p <- args$probs
-#       n <- length(p)
-#       cuts <- quantile(values, probs = p, na.rm = TRUE)
-#       mids <- quantile(values, probs = (p[-1] + p[-n])/2, na.rm = TRUE)
-#       if (decreasing == TRUE){
-#         colors <- pal(rev(mids))
-#         labels <- rev(labFormat(type = "quantile", cuts, p))
-#       }else{
-#         colors <- pal(mids)
-#         labels <- labFormat(type = "quantile", cuts, p)
-#       }
-#     }
-#     else if (type == "factor") {
-#       v <- sort(unique(na.omit(values)))
-#       colors <- pal(v)
-#       labels <- labFormat(type = "factor", v)
-#       if (decreasing == TRUE){
-#         colors <- pal(rev(v))
-#         labels <- rev(labFormat(type = "factor", v))
-#       }else{
-#         colors <- pal(v)
-#         labels <- labFormat(type = "factor", v)
-#       }
-#     }
-#     else stop("Palette function not supported")
-#     if (!any(is.na(values)))
-#       na.color <- NULL
-#   }
-#   else {
-#     if (length(colors) != length(labels))
-#       stop("'colors' and 'labels' must be of the same length")
-#   }
-#   legend <- list(colors = I(unname(colors)), labels = I(unname(labels)),
-#                  na_color = na.color, na_label = na.label, opacity = opacity,
-#                  position = position, type = type, title = title, extra = extra,
-#                  layerId = layerId, className = className, group = group)
-#   invokeMethod(map, data, "addLegend", legend)
+# 
+# addTimedLayers <- function(map) {
+#   map <- map %>% addMapPane("layer1", zIndex=420) %>% addMapPane("layer2",zIndex=410)
+#   for (yr in names(yrdfs)) {
+#     map <- map %>% 
+#       addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), fillColor = ~pal(SUMMARY_VALUE),
+#                  weight = 1, color = "gray", smoothFactor = 0, fillOpacity = 0.7, # label = ~htmlEscape(NAME),
+#                  options = pathOptions(pane = "layer2"), # lower pane
+#                  # Highlight polygons upon mouseover
+#                  highlight = highlightOptions(
+#                    weight = 3,
+#                    #stroke = 2,
+#                    fillOpacity = 0.7,
+#                    color = "black",
+#                    #opacity = 1.0,
+#                    #bringToFront = TRUE,
+#                    #sendToBack = TRUE
+#                    ), 
+#                  )
+#   } 
+#   map %>% # hidden layer of identical polygons that will be added in response to clicks
+#     addPolygons(data=yrdfs[[yr]], group=~GEOID, weight = 3, color = "red", fillOpacity=0,
+#                 options = pathOptions(pane = "layer1") # upper pane
+#                 ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) #
 # }
 
 # Server ##############
@@ -296,43 +196,22 @@ tabPanelServer <- function(id) {
         # entire map is being torn down and recreated).
         # leaflet(quakes, width="100%", height="100%") %>% addTiles() %>%
         #   fitBounds(~min(long), ~min(lat), ~max(long), ~max(lat))
+
         leaflet() %>% 
           addProviderTiles(provider = "CartoDB.Positron", group='basemap') %>%
           addMapPane("layer1", zIndex=420) %>% addMapPane("layer2",zIndex=410) %>%
           setView(-71.075, 42.318, zoom = 12)
-          # addPolygons(data=d10, group="2010", fillColor = ~pal(median_household_incomeE),
-          #   stroke = F,
-          #   smoothFactor = 0,
-          #   fillOpacity = 0.7) %>%
-          # addPolygons(data=d18, group="2018", fillColor = ~pal(median_household_incomeE),
-          #   stroke = F,
-          #   smoothFactor = 0,
-          #   fillOpacity = 0.7) %>%
-          # addTimedLayers() %>%
-          # addLayersControl(
-          #   baseGroups = c("basemap"),
-          #   overlayGroups = names(yrdfs), # c("2010", "2018")
-          #   options = layersControlOptions(collapsed = TRUE) ) %>%
-          # color = ~ pal(current_data)) %>%
-          # addLegend("bottomright",
-          #   pal = pal,
-          #   values = ~ current_data %>% append(values = c(0, max_val)),
-          #   title = legend_label,
-          #   opacity = 1,
-          #   na.label = 'Tracts with little or no population') %>%
-        # addLegend_decreasing(position = "bottomright",
-        #                      pal = pal, values = df$SUMMARY_VALUE,
-        #                      na.label = 'Tracts with little or <br> no population' %>% lapply(htmltools::HTML),
-        #                      decreasing = TRUE, title = "Median Household <br> Income ($)" %>% lapply(htmltools::HTML)) %>%
-        #   setView(-71.075, 42.318, zoom = 12)
       })
       
-      observe({
+      outputOptions(output, "map", suspendWhenHidden = FALSE) # map for one geo_type will stay rendered when user is on another tab
+      
+      observeEvent(input$variable, {
         ss <- my_var()$ss_df
         yrdfs <- split(ss, ss$YEAR)
         pal <- colorNumeric("Purples", domain = ss$SUMMARY_VALUE)
         leafletProxy("map") %>% clearShapes()
- 
+        
+        print("st")
         for (yr in names(yrdfs)) {
           leafletProxy("map") %>% 
             addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), fillColor = ~pal(SUMMARY_VALUE),
@@ -358,7 +237,7 @@ tabPanelServer <- function(id) {
                                pal = pal, values = ss$SUMMARY_VALUE,
                                na.label = 'Tracts with little or <br> no population' %>% lapply(htmltools::HTML),
                                decreasing = TRUE, title = "Median Household <br> Income ($)" %>% lapply(htmltools::HTML))
-          
+        print("end")  
       })
       
       # TODO: make the layer add and the legend add reactive on my_var() rather than static. 
