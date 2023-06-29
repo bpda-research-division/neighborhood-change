@@ -2,19 +2,23 @@
 library(dplyr)
 
 # Define details for each variable ############
-var_attrs <- c("name", "start", "end", "step", "varcode")
-
 all_vars <- list()
 
 all_vars$neighborhoods <- rbind(
-  c("Labor Force", 1950, 2020, 10, "hbicnlf")
+  c(name = "Labor Force", lineTitle = "Female Labor Force Participation Rate", 
+    barTitle = "Labor Force Status by Sex", start = 1950, end = 2020, step = 10,
+    varcode = "hbicnlf")
   # , c("Race", 1950, 2020, 10, "hbicnre")
-) %>% as.data.frame() %>% setNames(var_attrs)
+) %>% as.data.frame() #%>% setNames(var_attrs)
 
 all_vars$tracts <- rbind(
-  c("Income", 2010, 2018, 2, 'acshhi')
+  c(name = "Income", lineTitle = "Median Household Income",
+    barTitle = "Households by Income", start = 2010, end = 2018, step = 2, 
+    varcode = 'acshhi')
   # , c("Age", 2010, 2020, 1, 'acsage')
-) %>% as.data.frame() %>% setNames(var_attrs)
+) %>% as.data.frame() #%>% setNames(var_attrs)
+
+# if we want other geography types, we can add them in the same way that we do above for tracts and neighborhoods
 
 # Miscellaneous Functions ###########
 

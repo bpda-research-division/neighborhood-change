@@ -51,7 +51,7 @@ geoTabPanelUI <- function(geo_type, variables) {
       # ),
       # checkboxInput("legend", "Show legend", TRUE),
       plotlyOutput(ns("bar_chart")),
-      htmlOutput(ns("varText"), style='padding:10px;'), # for debugging
+      # htmlOutput(ns("varText"), style='padding:10px;'), # for debugging
       plotlyOutput(ns("line_chart")),
       width = 6 # and 6 on the bar + line side
     )

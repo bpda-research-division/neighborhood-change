@@ -5,6 +5,7 @@ library(shiny)
 #source('utils.R', local=TRUE) # import helper functions from utils.R within this directory
 library(plotly)
 library(leaflet)
+library(leafem)
 library(htmltools)
 # library(tidycensus)
 library(RColorBrewer)
@@ -130,16 +131,19 @@ tabPanelServer <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {
-      output$varText <- reactive ({
-        as.character(sum(my_var()$ss_df$SUMMARY_VALUE, na.rm = TRUE))
-      }) # for debugging
+      # output$varText <- reactive ({
+      #   as.character(sum(var_data()$ss_df$SUMMARY_VALUE, na.rm = TRUE))
+      # }) # for debugging
       
       geo_namespace <- reactive({
         substr(session$ns(''), 1, nchar(session$ns('')) - 1)
       })
-      # we need a reactive that serves the correct set of dfs for each input$variable
-      # and then we need to access those
-      my_var <- reactive({
+      
+      var_params <- reactive({
+        all_vars[[geo_namespace()]] %>% subset(name = input$variable)
+      })
+      
+      var_data <- reactive({
         myvars[[geo_namespace()]][[input$variable]]
       })
 
@@ -148,9 +152,9 @@ tabPanelServer <- function(id) {
       }) # is this necessary, or can I just call as.character on input$yearSelect when i need it?
       
       selectedLine <- reactive({
-        if (length(selected$groups) == 0) {my_var()$cs_df}
+        if (length(selected$groups) == 0) {var_data()$cs_df}
         else {
-          subset(my_var()$ss_df, GEOID %in% selected$groups) %>%
+          subset(var_data()$ss_df, GEOID %in% selected$groups) %>%
             group_by(YEAR) %>% summarise(SUMMARY_VALUE = mean(SUMMARY_VALUE)) # TODO: parameterize this agg func, or aggregate from sb in some fashion
         }
       })
@@ -160,10 +164,10 @@ tabPanelServer <- function(id) {
         # this could be tricky if we get to pareto interpolation because that requires multiple vectors of input
         
         if (length(selected$groups) == 0) {
-          subset(my_var()$cb_df, YEAR == input$yearSelect)
+          subset(var_data()$cb_df, YEAR == input$yearSelect)
         }
         else {
-          subset(my_var()$sb_df, GEOID %in% selected$groups & YEAR == input$yearSelect) %>%
+          subset(var_data()$sb_df, GEOID %in% selected$groups & YEAR == input$yearSelect) %>%
             group_by(CATEGORY) %>% summarise(VALUE = aggregator(VALUE))
         }
         # we'll probably use a different variable for citywide and then move this statement inside the else block
@@ -174,10 +178,10 @@ tabPanelServer <- function(id) {
         # we want this to be as high as 
         aggregator <- sum
         if (length(selected$groups) == 0) {
-          data <- my_var()$cb_df
+          data <- var_data()$cb_df
         }
         else {
-          data <- subset(my_var()$sb_df, GEOID %in% selected$groups) %>%
+          data <- subset(var_data()$sb_df, GEOID %in% selected$groups) %>%
             group_by(CATEGORY, YEAR) %>% summarise(VALUE = aggregator(VALUE), .groups="drop")
         }
         c(0, 1.1*max(data$VALUE))
@@ -187,7 +191,7 @@ tabPanelServer <- function(id) {
         # the word "tract" should eventually be a variable reflecting the geography selection (tract, neighborhood, etc)
         msg <- "Currently viewing data for: " 
         if (length(selected$groups) == 0) {paste(msg, "<b>the whole city<b>")}
-        else {paste(msg, sprintf("<b>%s selected tracts<b>", length(selected$groups)))}
+        else {paste(msg, sprintf("<b>%s selected %s<b>", length(selected$groups), geo_namespace()))}
       })
       
       output$map <- renderLeaflet({
@@ -206,16 +210,15 @@ tabPanelServer <- function(id) {
       outputOptions(output, "map", suspendWhenHidden = FALSE) # map for one geo_type will stay rendered when user is on another tab
       
       observeEvent(input$variable, {
-        ss <- my_var()$ss_df
+        ss <- var_data()$ss_df
         yrdfs <- split(ss, ss$YEAR)
         pal <- colorNumeric("Purples", domain = ss$SUMMARY_VALUE)
         leafletProxy("map") %>% clearShapes()
         
-        print("st")
         for (yr in names(yrdfs)) {
           leafletProxy("map") %>% 
             addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), fillColor = ~pal(SUMMARY_VALUE),
-                        weight = 1, color = "gray", smoothFactor = 0, fillOpacity = 0.7, # label = ~htmlEscape(NAME),
+                        weight = 1, color = "gray", smoothFactor = 0, fillOpacity = 0.7, label = ~htmlEscape(NAME),
                         options = pathOptions(pane = "layer2"), # lower pane
                         # Highlight polygons upon mouseover
                         highlight = highlightOptions(
@@ -236,18 +239,18 @@ tabPanelServer <- function(id) {
           addLegend_decreasing(position = "bottomright",
                                pal = pal, values = ss$SUMMARY_VALUE,
                                na.label = 'Tracts with little or <br> no population' %>% lapply(htmltools::HTML),
-                               decreasing = TRUE, title = "Median Household <br> Income ($)" %>% lapply(htmltools::HTML))
-        print("end")  
+                               decreasing = TRUE, title = var_params()$lineTitle %>% lapply(htmltools::HTML))
+        
       })
       
-      # TODO: make the layer add and the legend add reactive on my_var() rather than static. 
+      # TODO: make the layer add and the legend add reactive on var_data() rather than static. 
       # map %>% clearShapes() may need a clear() statement
       
       # Incremental changes to the map (in this case, replacing the
       # circles when a new color is chosen) should be performed in
       # an observer. Each independent set of things that can change
       # should be managed in its own observer.
-      observe({
+      observeEvent(input$yearSelect, {
         # pal <- colorpal()
         #
         # leafletProxy("map", data = filteredData()) %>%
@@ -255,7 +258,7 @@ tabPanelServer <- function(id) {
         #   addPolygons(weight = 1, color = "#777777",
         #              fillColor = ~pal(median_household_incomeE), fillOpacity = 0.7 #, popup = ~paste(median_household_incomeE)
         #   )
-        leafletProxy("map") %>% hideGroup(group = my_var()$cs_df$YEAR) %>% showGroup(year_str())
+        leafletProxy("map") %>% hideGroup(group = var_data()$cs_df$YEAR) %>% showGroup(year_str())
       })
       
       #create empty vector to hold all click ids
@@ -263,15 +266,19 @@ tabPanelServer <- function(id) {
       
       observeEvent(input$clearSelections, {
         selected$groups <- vector()
-        leafletProxy("map") %>% hideGroup(group = my_var()$ss_df$GEOID) # replace with something more generic than 2018
+        leafletProxy("map") %>% hideGroup(group = var_data()$ss_df$GEOID) # replace with something more generic than 2018
       })
       
       observeEvent(input$map_shape_click, {
         #print(strsplit(input$map_shape_click$id, split = " ")[[1]][1])
         
-        if(nchar(input$map_shape_click$group) == 4){
-          selected$groups <- c(selected$groups, strsplit(input$map_shape_click$id, split = " ")[[1]][1])
-          leafletProxy("map") %>% showGroup(group = strsplit(input$map_shape_click$id, split = " ")[[1]][1])
+        # this if else ondition isn't really about string length, it should be whether it's 
+        # a year vs whether it's a geography name
+        if(input$map_shape_click$group %in% var_data()$ss_df$YEAR){ # nchar(input$map_shape_click$group) == 4
+          # this gsub expression removes the last space-delimited word from a string
+          # I got it from https://stackoverflow.com/questions/13093931/remove-last-word-from-string
+          selected$groups <- c(selected$groups, gsub("\\s*\\w*$", "", input$map_shape_click$id))
+          leafletProxy("map") %>% showGroup(group = gsub("\\s*\\w*$", "", input$map_shape_click$id)) # strsplit(input$map_shape_click$id, split = " ")[[1]][1]
         } else {
           selected$groups <- setdiff(selected$groups, input$map_shape_click$group)
           leafletProxy("map") %>% hideGroup(group = input$map_shape_click$group)
@@ -295,7 +302,7 @@ tabPanelServer <- function(id) {
           config(displayModeBar = FALSE, scrollZoom = FALSE) %>%
           # htmlwidgets::onRender("function(el, x) {Plotly.d3.select('.cursor-pointer').style('cursor', 'auto')}") %>%
           add_bars(color=I(my_bar_color), hoverinfo = 'y') %>% # line = list(width = 25) # if using add_segments()
-          layout(yaxis = list(title = '', fixedrange = TRUE, range = barRange()), title = sprintf('Households by Income in %s', input$yearSelect), # ticksuffix="%", hoverformat = '.1f', 
+          layout(yaxis = list(title = '', fixedrange = TRUE, range = barRange()), title = paste0(var_params()$barTitle, " in ", input$yearSelect), # ticksuffix="%", hoverformat = '.1f', 
                  xaxis = list(title = '', fixedrange = TRUE, categoryorder = 'array', categoryarray = names(inc_bckts)))
         # animation_opts(frame=500, transition=500, redraw=FALSE)
       })
@@ -324,7 +331,15 @@ tabPanelServer <- function(id) {
           #          ) %>% 
           
           layout(yaxis = list(title = '', fixedrange = TRUE, tickprefix = '$', tickformat="~s", hoverformat = ",.0f", range = c(0, 1.1*max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE))), 
-                 xaxis = list(title = 'Year', fixedrange = TRUE, range = c(as.numeric(all_vars[[geo_namespace()]]$start) - 1, as.numeric(all_vars[[geo_namespace()]]$end) + 1)), title = 'Median Household Income')
+                 xaxis = list(
+                   title = 'Year'
+                   , fixedrange = TRUE
+                   , range = c(
+                     as.numeric(var_params()$start) - 0.1*(as.numeric(var_params()$end)-as.numeric(var_params()$start))
+                     , as.numeric(var_params()$end) + 0.1*(as.numeric(var_params()$end)-as.numeric(var_params()$start))
+                     )
+                   ), title = var_params()$lineTitle
+                 )
         # add_trace(y = ~forms,
         #           name = 'forms',
         #           mode = 'lines',
