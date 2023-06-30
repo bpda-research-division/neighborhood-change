@@ -25,7 +25,9 @@ geoTabPanelUI <- function(geo_type, variables) {
                    ),
                    column(width = 6, 
                           sliderInput(ns("yearSelect"), "3. Drag the slider to see change over time:",
-                                      initial_st, initial_end, value = initial_st, step = initial_step, sep = "", ticks=TRUE)
+                                      initial_st, initial_end, value = initial_st, step = initial_step, sep = "", ticks=TRUE,
+                                      animate = animationOptions(interval = 500 #, playButton = icon('play', "fa-3x"), pauseButton = icon('pause', "fa-3x")
+                                                                 ))
                    )
                  ),
                  fluidRow(style='padding:10px;',

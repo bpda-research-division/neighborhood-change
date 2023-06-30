@@ -49,8 +49,6 @@ for (geo_type in names(myvars)) {
   }
 }
 
-print("hey")
-
 # For each variable, we have (sub-city / citywide) * (binned data / central tendency)
 # each variable has a code, so we read in varcode_<sb/cb/ss/cs>.rds
 
@@ -156,7 +154,6 @@ tabPanelServer <- function(id) {
       }) # is this necessary, or can I just call as.character on input$yearSelect when i need it?
       
       selectedLine <- reactive({
-        print(length(var_data()$cs_df))
         if (length(selected$groups) == 0) {var_data()$cs_df}
         else {
           subset(var_data()$ss_df, GEOID %in% selected$groups) %>%
@@ -241,8 +238,12 @@ tabPanelServer <- function(id) {
           addPolygons(data=yrdfs[[yr]], group=~GEOID, weight = 3, color = "red", fillOpacity=0,
                       options = pathOptions(pane = "layer1") # upper pane
           ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) %>%
-          addLegend_decreasing(position = "bottomright",
-                               pal = pal, values = ss$SUMMARY_VALUE,
+          addLegend_decreasing(position = "bottomright", values = ss$SUMMARY_VALUE,
+                               pal = pal, labFormat = labelFormat(
+                                 prefix = var_params()$tickprefix, 
+                                 suffix = ifelse(grepl("%", var_params()$tickformat, fixed = TRUE), "%", ""),
+                                 transform = ifelse(grepl("%", var_params()$tickformat, fixed = TRUE), function(x) round(x*100), function (x) x)
+                                 ),
                                na.label = 'Tracts with little or <br> no population' %>% lapply(htmltools::HTML), # PARAM
                                decreasing = TRUE, title = var_params()$lineTitle %>% lapply(htmltools::HTML))
         
@@ -304,8 +305,20 @@ tabPanelServer <- function(id) {
           config(displayModeBar = FALSE, scrollZoom = FALSE) %>%
           # htmlwidgets::onRender("function(el, x) {Plotly.d3.select('.cursor-pointer').style('cursor', 'auto')}") %>%
           add_bars(color=I(my_bar_color), hoverinfo = 'y') %>% # line = list(width = 25) # if using add_segments()
-          layout(yaxis = list(title = '', fixedrange = TRUE, range = barRange()), title = paste0(var_params()$barTitle, " in ", input$yearSelect), # ticksuffix="%", hoverformat = '.1f', 
-                 xaxis = list(title = '', fixedrange = TRUE, categoryorder = 'array', categoryarray = names(var_params()$barCats)))
+          layout(yaxis = list(
+                  title = ''
+                  , fixedrange = TRUE
+                  , range = barRange()
+                  , hoverformat = var_params()$barhoverformat 
+                  ), 
+                 title = paste0(var_params()$barTitle, " in ", input$yearSelect),
+                 xaxis = list(
+                   title = ''
+                   , fixedrange = TRUE
+                   , categoryorder = 'array'
+                   , categoryarray = names(var_params()$barCats)
+                  )
+                 )
         # animation_opts(frame=500, transition=500, redraw=FALSE)
       })
       
@@ -328,11 +341,18 @@ tabPanelServer <- function(id) {
                       marker = list(color=my_bar_color, size=10), showlegend = F) %>%
           # add_text(x = input$yearSelect,
           #          y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
-          #          text = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
+          #          text = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE, # for income, tickprefix = "$", tickformat = "~s", hoverformat = ",.0f"
           #          textposition = 'top center', hovertext = ''
           #          ) %>% 
           
-          layout(yaxis = list(title = '', fixedrange = TRUE, tickprefix = '$', tickformat="~s", hoverformat = ",.0f", range = c(0, 1.1*max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE))), 
+          layout(yaxis = list(
+                  title = '' 
+                  , fixedrange = TRUE 
+                  , tickprefix = var_params()$tickprefix 
+                  , tickformat = var_params()$tickformat 
+                  , hoverformat = var_params()$linehoverformat 
+                  , range = c(0, 1.1*max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE))
+                  ), 
                  xaxis = list(
                    title = 'Year'
                    , fixedrange = TRUE
@@ -340,7 +360,8 @@ tabPanelServer <- function(id) {
                      as.numeric(var_params()$start) - 0.1*(as.numeric(var_params()$end)-as.numeric(var_params()$start))
                      , as.numeric(var_params()$end) + 0.1*(as.numeric(var_params()$end)-as.numeric(var_params()$start))
                      )
-                   ), title = var_params()$lineTitle
+                   ), 
+                 title = var_params()$lineTitle
                  )
         # add_trace(y = ~forms,
         #           name = 'forms',

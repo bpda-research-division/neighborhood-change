@@ -5,12 +5,14 @@ library(dplyr)
 all_vars <- list()
 
 all_vars$neighborhoods <- list(
-  "Labor Force" = list(lineTitle = "Female Labor Force Participation Rate", 
-    barTitle = "Labor Force Status by Sex", start = 1950, end = 2020, step = 10,
-    varcode = "hbicnlf", barCats = list(
+  "Labor Force" = list(varcode = "hbicnlf", start = 1950, end = 2020, step = 10,
+    lineTitle = "Female Labor Force Participation Rate", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%",
+    barTitle = "Labor Force Status by Sex", barhoverformat = ",.0f",
+    barCats = list(
       "Male in labor force" = "ilf_m"
-      , "Female in labor force" = "ilf_f"
       , "Male not in labor force" = "nilf_m"
+      , "Female in labor force" = "ilf_f"
       , "Female not in labor force" = "nilf_f"
     )
   )
@@ -18,9 +20,11 @@ all_vars$neighborhoods <- list(
 ) # %>% as.data.frame() #%>% setNames(var_attrs)
 
 all_vars$tracts <- list(
-  "Income" = list(lineTitle = "Median Household Income",
-    barTitle = "Households by Income", start = 2010, end = 2018, step = 2, 
-    varcode = 'acshhi', barCats = list(
+  "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
+    lineTitle = "Median Household Income", linehoverformat = ",.0f",
+    tickprefix = "$", tickformat = "~s",
+    barTitle = "Households by Income", barhoverformat = ",.0f",
+    barCats = list(
       "Less than $10,000" = "S1901_C01_002"
       , "$10,000 to $14,999" = "S1901_C01_003"
       , "$15,000 to $24,999" = "S1901_C01_004"
@@ -32,8 +36,8 @@ all_vars$tracts <- list(
       , "$150,000 to $199,999" = "S1901_C01_010"
       , "More than $200,000" = "S1901_C01_011"
     )
+    # , "Age" = list(...)
   )
-  # , c("Age", 2010, 2020, 1, 'acsage')
 ) # %>% as.data.frame() #%>% setNames(var_attrs)
 
 # if we want other geography types, we can add them in the same way that we do above for tracts and neighborhoods
