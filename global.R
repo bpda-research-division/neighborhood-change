@@ -4,19 +4,37 @@ library(dplyr)
 # Define details for each variable ############
 all_vars <- list()
 
-all_vars$neighborhoods <- rbind(
-  c(name = "Labor Force", lineTitle = "Female Labor Force Participation Rate", 
+all_vars$neighborhoods <- list(
+  "Labor Force" = list(lineTitle = "Female Labor Force Participation Rate", 
     barTitle = "Labor Force Status by Sex", start = 1950, end = 2020, step = 10,
-    varcode = "hbicnlf")
+    varcode = "hbicnlf", barCats = list(
+      "Male in labor force" = "ilf_m"
+      , "Female in labor force" = "ilf_f"
+      , "Male not in labor force" = "nilf_m"
+      , "Female not in labor force" = "nilf_f"
+    )
+  )
   # , c("Race", 1950, 2020, 10, "hbicnre")
-) %>% as.data.frame() #%>% setNames(var_attrs)
+) # %>% as.data.frame() #%>% setNames(var_attrs)
 
-all_vars$tracts <- rbind(
-  c(name = "Income", lineTitle = "Median Household Income",
+all_vars$tracts <- list(
+  "Income" = list(lineTitle = "Median Household Income",
     barTitle = "Households by Income", start = 2010, end = 2018, step = 2, 
-    varcode = 'acshhi')
+    varcode = 'acshhi', barCats = list(
+      "Less than $10,000" = "S1901_C01_002"
+      , "$10,000 to $14,999" = "S1901_C01_003"
+      , "$15,000 to $24,999" = "S1901_C01_004"
+      , "$25,000 to $34,999" = "S1901_C01_005"
+      , "$35,000 to $49,999" = "S1901_C01_006"
+      , "$50,000 to $74,999" = "S1901_C01_007"
+      , "$75,000 to $99,999" = "S1901_C01_008"
+      , "$100,000 to $149,999" = "S1901_C01_009"
+      , "$150,000 to $199,999" = "S1901_C01_010"
+      , "More than $200,000" = "S1901_C01_011"
+    )
+  )
   # , c("Age", 2010, 2020, 1, 'acsage')
-) %>% as.data.frame() #%>% setNames(var_attrs)
+) # %>% as.data.frame() #%>% setNames(var_attrs)
 
 # if we want other geography types, we can add them in the same way that we do above for tracts and neighborhoods
 

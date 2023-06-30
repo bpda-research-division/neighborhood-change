@@ -12,16 +12,16 @@ html_fix <- htmltools::tags$style(type = "text/css", css_fix)  # Convert CSS to 
 
 geoTabPanelUI <- function(geo_type, variables) {
   ns <- NS(geo_type)
-  initial_st <- as.numeric(variables$start[1])
-  initial_end <- as.numeric(variables$end[1])
-  initial_step <- as.numeric(variables$step[1])
+  initial_st <- as.numeric(variables[[1]]$start)
+  initial_end <- as.numeric(variables[[1]]$end)
+  initial_step <- as.numeric(variables[[1]]$step)
   
   # each variable has a display name, a start year, an end year, and a timestep, 
   tabPanel(tools::toTitleCase(geo_type), style='padding:10px;',
     sidebarPanel(style = "height: 90vh;",
                  fluidRow(
                    column(width = 6,
-                          selectInput(ns("variable"), "1. Select data:", choices = variables$name)
+                          selectInput(ns("variable"), "1. Select data:", choices = names(variables))
                    ),
                    column(width = 6, 
                           sliderInput(ns("yearSelect"), "3. Drag the slider to see change over time:",

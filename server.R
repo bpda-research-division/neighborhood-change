@@ -24,14 +24,14 @@ df_types <- c('sb', 'ss', 'cb', 'cs')
 dfs_from_varcode <- function(varcode) {
   dfs <- lapply(df_types, function(x) paste0("./data/", varcode, "_", x, ".rds")) %>%
     lapply(readRDS) %>% `names<-`(lapply(df_types, function(x) paste0(x, '_df')))
-  # names(dfs) <- lapply(df_types, function(x) paste0(x, '_df'))
-  dfs
+  dfs #%>% lapply(as.data.frame) %>% lapply(function(df) df %>% mutate(YEAR = as.character(YEAR)))
 }
 
-myvars <- all_vars %>% lapply(
+myvars <- all_vars %>% lapply(function(geo_type) geo_type %>% lapply(
   function(var) var$varcode %>% 
-    lapply(dfs_from_varcode) %>% 
-    `names<-`(var$name))
+    dfs_from_varcode
+  )
+)
 
 geoms <- list()
 geoms$tracts <- read_sf('geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
@@ -48,6 +48,8 @@ for (geo_type in names(myvars)) {
       mutate(GEOID = as.character(GEOID))
   }
 }
+
+print("hey")
 
 # For each variable, we have (sub-city / citywide) * (binned data / central tendency)
 # each variable has a code, so we read in varcode_<sb/cb/ss/cs>.rds
@@ -85,18 +87,18 @@ my_bar_color <- '#60809f'
 my_light_line_color <- "#c6c6b9"
 my_line_skinny <- .75
 
-inc_bckts <- c(
-  "Less than $10,000" = "S1901_C01_002"
-  , "$10,000 to $14,999" = "S1901_C01_003"
-  , "$15,000 to $24,999" = "S1901_C01_004"
-  , "$25,000 to $34,999" = "S1901_C01_005"
-  , "$35,000 to $49,999" = "S1901_C01_006"
-  , "$50,000 to $74,999" = "S1901_C01_007"
-  , "$75,000 to $99,999" = "S1901_C01_008"
-  , "$100,000 to $149,999" = "S1901_C01_009"
-  , "$150,000 to $199,999" = "S1901_C01_010"
-  , "More than $200,000" = "S1901_C01_011"
-)
+# inc_bckts <- c(
+#   "Less than $10,000" = "S1901_C01_002"
+#   , "$10,000 to $14,999" = "S1901_C01_003"
+#   , "$15,000 to $24,999" = "S1901_C01_004"
+#   , "$25,000 to $34,999" = "S1901_C01_005"
+#   , "$35,000 to $49,999" = "S1901_C01_006"
+#   , "$50,000 to $74,999" = "S1901_C01_007"
+#   , "$75,000 to $99,999" = "S1901_C01_008"
+#   , "$100,000 to $149,999" = "S1901_C01_009"
+#   , "$150,000 to $199,999" = "S1901_C01_010"
+#   , "More than $200,000" = "S1901_C01_011"
+# )
 
 # t <- myvars[["neighborhoods"]][["Labor Force"]]$ss_df %>% split(~YEAR)
 
@@ -126,6 +128,8 @@ inc_bckts <- c(
 #                 ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) #
 # }
 
+# t <- subset(myvars[['neighborhoods']][['Labor Force']]$cs_df, YEAR == 2010)$SUMMARY_VALUE
+
 # Server ##############
 tabPanelServer <- function(id) {
   moduleServer(
@@ -140,7 +144,7 @@ tabPanelServer <- function(id) {
       })
       
       var_params <- reactive({
-        all_vars[[geo_namespace()]] %>% subset(name = input$variable)
+        all_vars[[geo_namespace()]][[input$variable]]
       })
       
       var_data <- reactive({
@@ -152,6 +156,7 @@ tabPanelServer <- function(id) {
       }) # is this necessary, or can I just call as.character on input$yearSelect when i need it?
       
       selectedLine <- reactive({
+        print(length(var_data()$cs_df))
         if (length(selected$groups) == 0) {var_data()$cs_df}
         else {
           subset(var_data()$ss_df, GEOID %in% selected$groups) %>%
@@ -209,7 +214,7 @@ tabPanelServer <- function(id) {
       
       outputOptions(output, "map", suspendWhenHidden = FALSE) # map for one geo_type will stay rendered when user is on another tab
       
-      observeEvent(input$variable, {
+      observeEvent(input$variable, { # if polygons need to be redrawn for other reasons, we can make this a general observer
         ss <- var_data()$ss_df
         yrdfs <- split(ss, ss$YEAR)
         pal <- colorNumeric("Purples", domain = ss$SUMMARY_VALUE)
@@ -238,13 +243,14 @@ tabPanelServer <- function(id) {
           ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) %>%
           addLegend_decreasing(position = "bottomright",
                                pal = pal, values = ss$SUMMARY_VALUE,
-                               na.label = 'Tracts with little or <br> no population' %>% lapply(htmltools::HTML),
+                               na.label = 'Tracts with little or <br> no population' %>% lapply(htmltools::HTML), # PARAM
                                decreasing = TRUE, title = var_params()$lineTitle %>% lapply(htmltools::HTML))
         
       })
       
-      # TODO: make the layer add and the legend add reactive on var_data() rather than static. 
-      # map %>% clearShapes() may need a clear() statement
+      var_years <- reactive({
+        var_data()$cs_df$YEAR
+      })
       
       # Incremental changes to the map (in this case, replacing the
       # circles when a new color is chosen) should be performed in
@@ -258,10 +264,10 @@ tabPanelServer <- function(id) {
         #   addPolygons(weight = 1, color = "#777777",
         #              fillColor = ~pal(median_household_incomeE), fillOpacity = 0.7 #, popup = ~paste(median_household_incomeE)
         #   )
-        leafletProxy("map") %>% hideGroup(group = var_data()$cs_df$YEAR) %>% showGroup(year_str())
+        leafletProxy("map") %>% hideGroup(group = var_years()) %>% showGroup(year_str())
       })
       
-      #create empty vector to hold all click ids
+      #create empty vector to hold IDs of all selected polygons
       selected <- reactiveValues(groups = vector())
       
       observeEvent(input$clearSelections, {
@@ -270,22 +276,18 @@ tabPanelServer <- function(id) {
       })
       
       observeEvent(input$map_shape_click, {
-        #print(strsplit(input$map_shape_click$id, split = " ")[[1]][1])
-        
-        # this if else ondition isn't really about string length, it should be whether it's 
-        # a year vs whether it's a geography name
-        if(input$map_shape_click$group %in% var_data()$ss_df$YEAR){ # nchar(input$map_shape_click$group) == 4
-          # this gsub expression removes the last space-delimited word from a string
+        # this if statement is checking whether the clicked polygon is currently selected or not
+        # the group name of each unselected polygon is its YEAR, and it's id is NAME YEAR
+        if(input$map_shape_click$group %in% var_years()){
+          # this gsub expression removes the last space-delimited word from a string (in this case, removing the YEAR to extract the NAME)
           # I got it from https://stackoverflow.com/questions/13093931/remove-last-word-from-string
-          selected$groups <- c(selected$groups, gsub("\\s*\\w*$", "", input$map_shape_click$id))
-          leafletProxy("map") %>% showGroup(group = gsub("\\s*\\w*$", "", input$map_shape_click$id)) # strsplit(input$map_shape_click$id, split = " ")[[1]][1]
-        } else {
+          this_selection_id <- gsub("\\s*\\w*$", "", input$map_shape_click$id)
+          selected$groups <- c(selected$groups, this_selection_id)
+          leafletProxy("map") %>% showGroup(group = this_selection_id) # shows the red-bordered overlay polygon
+        } else { # the group name of each selected polygon is the NAME of the polygon
           selected$groups <- setdiff(selected$groups, input$map_shape_click$group)
           leafletProxy("map") %>% hideGroup(group = input$map_shape_click$group)
         }
-        #plotlyProxy("line_chart") %>% plotlyProxyInvoke()
-        # this is where we'd call some function to update the line and bar charts, like they do here:
-        # https://stackoverflow.com/questions/65893124/select-multiple-items-using-map-click-in-leaflet-linked-to-selectizeinput-in
       })
       
       output$bar_chart <- renderPlotly({
@@ -303,7 +305,7 @@ tabPanelServer <- function(id) {
           # htmlwidgets::onRender("function(el, x) {Plotly.d3.select('.cursor-pointer').style('cursor', 'auto')}") %>%
           add_bars(color=I(my_bar_color), hoverinfo = 'y') %>% # line = list(width = 25) # if using add_segments()
           layout(yaxis = list(title = '', fixedrange = TRUE, range = barRange()), title = paste0(var_params()$barTitle, " in ", input$yearSelect), # ticksuffix="%", hoverformat = '.1f', 
-                 xaxis = list(title = '', fixedrange = TRUE, categoryorder = 'array', categoryarray = names(inc_bckts)))
+                 xaxis = list(title = '', fixedrange = TRUE, categoryorder = 'array', categoryarray = names(var_params()$barCats)))
         # animation_opts(frame=500, transition=500, redraw=FALSE)
       })
       
