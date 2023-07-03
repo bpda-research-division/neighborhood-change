@@ -2,27 +2,27 @@
 library(dplyr)
 
 # Define details for each variable ############
-all_vars <- list()
+all_vars_info <- list()
 
-all_vars$neighborhoods <- list(
+all_vars_info$neighborhoods <- list(
   "Labor Force" = list(varcode = "hbicnlf", start = 1950, end = 2020, step = 10,
     lineTitle = "Female Labor Force Participation Rate", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
     barTitle = "Labor Force Status by Sex", barhoverformat = ",.0f",
     barCats = list(
       "Male in labor force" = "ilf_m"
       , "Male not in labor force" = "nilf_m"
       , "Female in labor force" = "ilf_f"
       , "Female not in labor force" = "nilf_f"
-    )
+    ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f))
   )
-  # , c("Race", 1950, 2020, 10, "hbicnre")
+  # , "Age" = list(...)
 ) # %>% as.data.frame() #%>% setNames(var_attrs)
 
-all_vars$tracts <- list(
+all_vars_info$tracts <- list(
   "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
     lineTitle = "Median Household Income", linehoverformat = ",.0f",
-    tickprefix = "$", tickformat = "~s",
+    tickprefix = "$", tickformat = "~s", agg_func = sum,
     barTitle = "Households by Income", barhoverformat = ",.0f",
     barCats = list(
       "Less than $10,000" = "S1901_C01_002"
@@ -39,8 +39,6 @@ all_vars$tracts <- list(
     # , "Age" = list(...)
   )
 ) # %>% as.data.frame() #%>% setNames(var_attrs)
-
-# if we want other geography types, we can add them in the same way that we do above for tracts and neighborhoods
 
 # Miscellaneous Functions ###########
 

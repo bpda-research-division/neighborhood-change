@@ -2,50 +2,55 @@
 library(sf)
 library(dplyr)
 library(shiny)
-#source('utils.R', local=TRUE) # import helper functions from utils.R within this directory
 library(plotly)
 library(leaflet)
-library(leafem)
+# library(leafem)
 library(htmltools)
 # library(tidycensus)
-library(RColorBrewer)
+# library(RColorBrewer)
+
+my_map_palette <- "Purples" # https://www.rdocumentation.org/packages/leaflet/versions/2.1.2/topics/colorNumeric
+my_bar_color <- '#60809f'
+my_line_color <- "#60809f"
+my_line_width <- 2
 
 # Data loading ######################
 
-# Probably need to set up a data structure of dfs keyed on variable codes or names,
-# and then set up a reactive expression to update which set of dfs is to be used
-# although it's not just a set of dfs, it's also an aggregator and potentially prefixes and such
-# my python instincts for that are to set up a Variable class with named attributes sb, cb, ss, cs, aggregator, etc
-
-# structre keyed on variable labels = x[['Labor Force']]
-
+# subcity bins, subcity summary, citywide bins, citywide summary
 df_types <- c('sb', 'ss', 'cb', 'cs')
 
+#' Reads in and returns the four dataframes for a given variable defined by
+#' varcode. Files expected to use the naming convention <varcode>_<df_type>.rds
 dfs_from_varcode <- function(varcode) {
   dfs <- lapply(df_types, function(x) paste0("./data/", varcode, "_", x, ".rds")) %>%
     lapply(readRDS) %>% `names<-`(lapply(df_types, function(x) paste0(x, '_df')))
   dfs #%>% lapply(as.data.frame) %>% lapply(function(df) df %>% mutate(YEAR = as.character(YEAR)))
 }
 
-myvars <- all_vars %>% lapply(function(geo_type) geo_type %>% lapply(
+# using all_vars_info, defined in global.R, read in the four dataframes for each
+# variable into all_vars_data
+all_vars_data <- all_vars_info %>% lapply(function(geo_type) geo_type %>% lapply(
   function(var) var$varcode %>% 
     dfs_from_varcode
   )
 )
 
+# read one shapefile for each geography type that we have. Must have a unique
+# GEOID attribute that corresponds with the GEOID attribute in our tabular data
 geoms <- list()
 geoms$tracts <- read_sf('geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
 geoms$neighborhoods <- read_sf('geoms/boston_neighborhoods_2020bg.geojson') %>% mutate(GEOID = BlockGr202)
 
-for (geo_type in names(myvars)) {
-  for (varname in names(myvars[[geo_type]])) {
-    myvars[[geo_type]][[varname]]$ss_df <- myvars[[geo_type]][[varname]]$ss_df %>%
+# Join each ss_df (the df that gets mapped) to its appropriate shapefile
+for (geo_type in names(all_vars_data)) {
+  for (varname in names(all_vars_data[[geo_type]])) {
+    all_vars_data[[geo_type]][[varname]]$ss_df <- all_vars_data[[geo_type]][[varname]]$ss_df %>%
       mutate(GEOID = as.character(GEOID)) %>%
       merge(y=geoms[[geo_type]], by.y = "GEOID", by.x = "GEOID") %>%
       st_as_sf()
     
-    myvars[[geo_type]][[varname]]$sb_df <- myvars[[geo_type]][[varname]]$sb_df %>%
-      mutate(GEOID = as.character(GEOID))
+    # all_vars_data[[geo_type]][[varname]]$sb_df <- all_vars_data[[geo_type]][[varname]]$sb_df %>%
+    #   mutate(GEOID = as.character(GEOID))
   }
 }
 
@@ -76,15 +81,6 @@ for (geo_type in names(myvars)) {
 # yrdfs_prev <- split(df_prev, df_prev$year)
 # pal <- colorNumeric("Purples", domain = df$SUMMARY_VALUE)
 
-# # the below variables are used to reformat the map legend to place the NA value below the color
-# # palette - default behavior in the current version of Leaflet is for them to be side by side
-# css_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
-# html_fix <- htmltools::tags$style(type = "text/css", css_fix)  # Convert CSS to HTML
-
-my_bar_color <- '#60809f'
-my_light_line_color <- "#c6c6b9"
-my_line_skinny <- .75
-
 # inc_bckts <- c(
 #   "Less than $10,000" = "S1901_C01_002"
 #   , "$10,000 to $14,999" = "S1901_C01_003"
@@ -98,7 +94,7 @@ my_line_skinny <- .75
 #   , "More than $200,000" = "S1901_C01_011"
 # )
 
-# t <- myvars[["neighborhoods"]][["Labor Force"]]$ss_df %>% split(~YEAR)
+# t <- all_vars_data[["neighborhoods"]][["Labor Force"]]$ss_df %>% split(~YEAR)
 
 # 
 # addTimedLayers <- function(map) {
@@ -126,185 +122,176 @@ my_line_skinny <- .75
 #                 ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) #
 # }
 
-# t <- subset(myvars[['neighborhoods']][['Labor Force']]$cs_df, YEAR == 2010)$SUMMARY_VALUE
+# t <- subset(all_vars_data[['neighborhoods']][['Labor Force']]$cs_df, YEAR == 2010)$SUMMARY_VALUE
 
 # Server ##############
-tabPanelServer <- function(id) {
+#' Build the server for a tabPanel for a given namespaced geography type 
+tabPanelServer <- function(geo_type) {
   moduleServer(
-    id,
+    geo_type,
     function(input, output, session) {
       # output$varText <- reactive ({
       #   as.character(sum(var_data()$ss_df$SUMMARY_VALUE, na.rm = TRUE))
       # }) # for debugging
       
-      geo_namespace <- reactive({
-        substr(session$ns(''), 1, nchar(session$ns('')) - 1)
-      })
+      # string representation of the namespaced geography type (e.g. "tracts")
+      geo_namespace <- substr(session$ns(''), 1, nchar(session$ns('')) - 1)
+      # Label for map polygons with null values - function of geography type
+      null_label <- lapply(paste(tools::toTitleCase(geo_namespace), 
+                          'with little <br> or no population'), htmltools::HTML)
       
+      # Shortcut to the parameters for whichever variable the user has selected
       var_params <- reactive({
-        all_vars[[geo_namespace()]][[input$variable]]
+        all_vars_info[[geo_namespace]][[input$variable]]
       })
       
+      # Shortcut to the data for whichever variable the user has selected
       var_data <- reactive({
-        myvars[[geo_namespace()]][[input$variable]]
-      })
-
-      year_str <- reactive({
-        as.character(input$yearSelect)
-      }) # is this necessary, or can I just call as.character on input$yearSelect when i need it?
-      
-      selectedLine <- reactive({
-        if (length(selected$groups) == 0) {var_data()$cs_df}
-        else {
-          subset(var_data()$ss_df, GEOID %in% selected$groups) %>%
-            group_by(YEAR) %>% summarise(SUMMARY_VALUE = mean(SUMMARY_VALUE)) # TODO: parameterize this agg func, or aggregate from sb in some fashion
-        }
+        all_vars_data[[geo_namespace]][[input$variable]]
       })
       
-      filteredBar <- reactive({
-        aggregator <- sum # we need some kind of reactive that changes the aggregator based on the variable.
-        # this could be tricky if we get to pareto interpolation because that requires multiple vectors of input
-        
-        if (length(selected$groups) == 0) {
-          subset(var_data()$cb_df, YEAR == input$yearSelect)
-        }
-        else {
-          subset(var_data()$sb_df, GEOID %in% selected$groups & YEAR == input$yearSelect) %>%
-            group_by(CATEGORY) %>% summarise(VALUE = aggregator(VALUE))
-        }
-        # we'll probably use a different variable for citywide and then move this statement inside the else block
-        
-      })
-      
-      barRange <- reactive({
-        # we want this to be as high as 
-        aggregator <- sum
-        if (length(selected$groups) == 0) {
-          data <- var_data()$cb_df
-        }
-        else {
-          data <- subset(var_data()$sb_df, GEOID %in% selected$groups) %>%
-            group_by(CATEGORY, YEAR) %>% summarise(VALUE = aggregator(VALUE), .groups="drop")
-        }
-        c(0, 1.1*max(data$VALUE))
-      }) # is this necessary, or should i just call the 0 to max when i need the range?
-      
-      output$selectionText <- reactive({
-        # the word "tract" should eventually be a variable reflecting the geography selection (tract, neighborhood, etc)
-        msg <- "Currently viewing data for: " 
-        if (length(selected$groups) == 0) {paste(msg, "<b>the whole city<b>")}
-        else {paste(msg, sprintf("<b>%s selected %s<b>", length(selected$groups), geo_namespace()))}
-      })
-      
+      # Static components of the map
       output$map <- renderLeaflet({
-        # Use leaflet() here, and only include aspects of the map that
-        # won't need to change dynamically (at least, not unless the
-        # entire map is being torn down and recreated).
-        # leaflet(quakes, width="100%", height="100%") %>% addTiles() %>%
-        #   fitBounds(~min(long), ~min(lat), ~max(long), ~max(lat))
-
         leaflet() %>% 
           addProviderTiles(provider = "CartoDB.Positron", group='basemap') %>%
+          # having two separate panes helps us display user map selections
           addMapPane("layer1", zIndex=420) %>% addMapPane("layer2",zIndex=410) %>%
+          # could be worth parameterizing the initial map center and zoom at some point
           setView(-71.075, 42.318, zoom = 12)
       })
       
-      outputOptions(output, "map", suspendWhenHidden = FALSE) # map for one geo_type will stay rendered when user is on another tab
+      # This makes it so that maps on inactive tabs stay rendered
+      outputOptions(output, "map", suspendWhenHidden = FALSE) 
       
-      observeEvent(input$variable, { # if polygons need to be redrawn for other reasons, we can make this a general observer
-        ss <- var_data()$ss_df
+      # Draw all the map polygons as a function of the variable the user selects
+      observeEvent(input$variable, { 
+        ss <- var_data()$ss_df # ss_df is the portion of the data that we map
         yrdfs <- split(ss, ss$YEAR)
-        pal <- colorNumeric("Purples", domain = ss$SUMMARY_VALUE)
+        pal <- colorNumeric(my_map_palette, domain = ss$SUMMARY_VALUE)
         leafletProxy("map") %>% clearShapes()
         
+        # draw and add one layer of polygons for each year
         for (yr in names(yrdfs)) {
           leafletProxy("map") %>% 
-            addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), fillColor = ~pal(SUMMARY_VALUE),
-                        weight = 1, color = "gray", smoothFactor = 0, fillOpacity = 0.7, label = ~htmlEscape(NAME),
-                        options = pathOptions(pane = "layer2"), # lower pane
-                        # Highlight polygons upon mouseover
+            addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), 
+                        fillColor = ~pal(SUMMARY_VALUE), fillOpacity = 0.7, 
+                        weight = 1, smoothFactor = 0, label = ~htmlEscape(NAME),
+                        options = pathOptions(pane = "layer2"), color = "gray", 
                         highlight = highlightOptions(
                           weight = 3,
                           #stroke = 2,
                           fillOpacity = 0.7,
                           color = "black",
                           #opacity = 1.0,
-                          #bringToFront = TRUE,
+                          bringToFront = TRUE,
                           #sendToBack = TRUE
                         ), 
             )
         } 
-        leafletProxy("map") %>% # hidden layer of identical polygons that will be added in response to clicks
-          addPolygons(data=yrdfs[[yr]], group=~GEOID, weight = 3, color = "red", fillOpacity=0,
-                      options = pathOptions(pane = "layer1") # upper pane
+        # add a hidden layer of polygons that will display in response to clicks
+        leafletProxy("map") %>%
+          addPolygons(data=yrdfs[[yr]], group=~GEOID, weight = 3, color = "red", 
+                      fillOpacity=0, options = pathOptions(pane = "layer1")
           ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) %>%
+          
+          # add the map legend, formatting labels appropriately for the given variable
           addLegend_decreasing(position = "bottomright", values = ss$SUMMARY_VALUE,
-                               pal = pal, labFormat = labelFormat(
-                                 prefix = var_params()$tickprefix, 
-                                 suffix = ifelse(grepl("%", var_params()$tickformat, fixed = TRUE), "%", ""),
-                                 transform = ifelse(grepl("%", var_params()$tickformat, fixed = TRUE), function(x) round(x*100), function (x) x)
-                                 ),
-                               na.label = 'Tracts with little or <br> no population' %>% lapply(htmltools::HTML), # PARAM
-                               decreasing = TRUE, title = var_params()$lineTitle %>% lapply(htmltools::HTML))
-        
+             pal = pal, labFormat = labelFormat(
+               prefix = var_params()$tickprefix, 
+               # if the tick format includes a %, add a % suffix and multiply values by 100
+               suffix = ifelse(grepl("%", var_params()$tickformat, fixed = TRUE), "%", ""),
+               transform = ifelse(grepl("%", var_params()$tickformat, fixed = TRUE), 
+                                  function(x) round(x*100), function (x) x)
+               ),
+             na.label = null_label, decreasing = TRUE, title = var_params()$lineTitle)
       })
       
+      # Keep track of the full set of years for the variable the user selects
       var_years <- reactive({
         var_data()$cs_df$YEAR
       })
       
-      # Incremental changes to the map (in this case, replacing the
-      # circles when a new color is chosen) should be performed in
-      # an observer. Each independent set of things that can change
-      # should be managed in its own observer.
+      # Updates the map When the user changes the selected year on the time slider
       observeEvent(input$yearSelect, {
-        # pal <- colorpal()
-        #
-        # leafletProxy("map", data = filteredData()) %>%
-        #   clearShapes() %>%
-        #   addPolygons(weight = 1, color = "#777777",
-        #              fillColor = ~pal(median_household_incomeE), fillOpacity = 0.7 #, popup = ~paste(median_household_incomeE)
-        #   )
-        leafletProxy("map") %>% hideGroup(group = var_years()) %>% showGroup(year_str())
+        leafletProxy("map") %>% hideGroup(group = var_years()) %>% showGroup(input$yearSelect)
       })
       
-      #create empty vector to hold IDs of all selected polygons
+      # This vector holds the IDs of all currently selected polygons. The line
+      # and bar charts are configured to update in response to this vector
       selected <- reactiveValues(groups = vector())
       
-      observeEvent(input$clearSelections, {
-        selected$groups <- vector()
-        leafletProxy("map") %>% hideGroup(group = var_data()$ss_df$GEOID) # replace with something more generic than 2018
-      })
-      
+      # This handles user clicks on map polygons, selecting and deselecting them
+      # under the hood, selected polygons are a separate, initially hidden layer
       observeEvent(input$map_shape_click, {
-        # this if statement is checking whether the clicked polygon is currently selected or not
-        # the group name of each unselected polygon is its YEAR, and it's id is NAME YEAR
+        # To check whether the clicked polygon is currently selected or not, we 
+        # check its group name. The group name of each unselected polygon is its YEAR
         if(input$map_shape_click$group %in% var_years()){
-          # this gsub expression removes the last space-delimited word from a string (in this case, removing the YEAR to extract the NAME)
-          # I got it from https://stackoverflow.com/questions/13093931/remove-last-word-from-string
+          # The ID of each unselected polygon is NAME YEAR. The group name of each
+          # selected polygon is the NAME alone. This gsub expression removes the
+          # last space-delimited word from the unselected polygon ID to extract
+          # the NAME of the selected polygon to display where the user clicked.
           this_selection_id <- gsub("\\s*\\w*$", "", input$map_shape_click$id)
           selected$groups <- c(selected$groups, this_selection_id)
-          leafletProxy("map") %>% showGroup(group = this_selection_id) # shows the red-bordered overlay polygon
-        } else { # the group name of each selected polygon is the NAME of the polygon
+          leafletProxy("map") %>% showGroup(group = this_selection_id) 
+        } else { # To deselect a polygon, we just hide the polygon and update the data
           selected$groups <- setdiff(selected$groups, input$map_shape_click$group)
           leafletProxy("map") %>% hideGroup(group = input$map_shape_click$group)
         }
       })
       
+      # Clears the map and updates the data in response to the user clearing all selections
+      observeEvent(input$clearSelections, {
+        selected$groups <- vector()
+        leafletProxy("map") %>% hideGroup(group = var_data()$ss_df$GEOID)
+      })
+      
+      # The text telling the user what data they are looking at (based on map selections)
+      output$selectionText <- reactive({
+        msg <- "Currently viewing data for: " 
+        if (length(selected$groups) == 0) {paste(msg, "<b>the whole city<b>")}
+        else {paste(msg, sprintf("<b>%s selected %s<b>", length(selected$groups), geo_namespace))}
+      })
+      
+      # The data that is displayed on the bar chart
+      filteredBar <- reactive({ # if the user doesn't have any polygons selected...
+        if (length(selected$groups) == 0) { # ...show citywide data
+          subset(var_data()$cb_df, YEAR == input$yearSelect)
+        }
+        else { # Otherwise, aggregate the data for the set of selected polygons
+          subset(var_data()$sb_df, GEOID %in% selected$groups & YEAR == input$yearSelect) %>%
+            group_by(CATEGORY) %>% 
+            summarise(VALUE = var_params()[["agg_func"]](VALUE))
+        }
+      })
+      
+      # The y-axis range for the bar chart
+      barRange <- reactive({
+        if (length(selected$groups) == 0) {
+          data <- var_data()$cb_df
+        }
+        else {
+          data <- subset(var_data()$sb_df, GEOID %in% selected$groups) %>%
+            group_by(CATEGORY, YEAR) %>% 
+            summarise(VALUE = var_params()[["agg_func"]](VALUE), .groups="drop")
+        }
+        # multiplying by 1.1 adds some padding between the max value and the top of the chart
+        c(0, 1.1*max(data$VALUE, na.rm = TRUE))
+      })
+      
+      # Renders the bar chart
       output$bar_chart <- renderPlotly({
         plot_ly(filteredBar(),
                 x = ~CATEGORY, 
                 y = ~VALUE, 
                 # xend=~variable, yend=0, # if using add_segments()
                 # marker = list(color = my_bar_color),
-                name = "Household Income",
+                # name = "Household Income",
                 hoverinfo = 'text',
                 # type = "bar",
                 source = "bar_plot"
         ) %>% #hide_legend %>%
-          config(displayModeBar = FALSE, scrollZoom = FALSE) %>%
-          # htmlwidgets::onRender("function(el, x) {Plotly.d3.select('.cursor-pointer').style('cursor', 'auto')}") %>%
-          add_bars(color=I(my_bar_color), hoverinfo = 'y') %>% # line = list(width = 25) # if using add_segments()
+          config(displayModeBar = FALSE) %>% # remove default plotly controls
+          add_bars(color=I(my_bar_color), hoverinfo = 'y') %>% # line = list(width = 25) # if using add_segments() instead
           layout(yaxis = list(
                   title = ''
                   , fixedrange = TRUE
@@ -315,90 +302,148 @@ tabPanelServer <- function(id) {
                  xaxis = list(
                    title = ''
                    , fixedrange = TRUE
-                   , categoryorder = 'array'
+                   , categoryorder = 'array' # these 2 lines set the order of the bar categories
                    , categoryarray = names(var_params()$barCats)
                   )
                  )
-        # animation_opts(frame=500, transition=500, redraw=FALSE)
       })
       
+      # The data that is displayed on the line chart
+      selectedLine <- reactive({ # if the user doesn't have any polygons selected...
+        if (length(selected$groups) == 0) {var_data()$cs_df} # ...show citywide data
+        else if (length(selected$groups) == 1) {
+          subset(var_data()$ss_df, GEOID %in% selected$groups)
+        }
+        else { # Otherwise, aggregate the data for the set of selected polygons
+          t <- subset(var_data()$sb_df, GEOID %in% selected$groups) %>%
+            group_by(CATEGORY, YEAR) %>%
+            summarise(VALUE = var_params()[["agg_func"]](VALUE), .groups = "drop")
+          t$CATEGORY <- plyr::mapvalues(t$CATEGORY,
+                                        to = unname(var_params()$barCats),
+                                        from = names(var_params()$barCats))
+          t %>% pivot_wider(id_cols = "YEAR",
+                                 names_from='CATEGORY',
+                                 values_from = 'VALUE') %>%
+            mutate(SUMMARY_VALUE = !!var_params()$summary_expression) %>%
+            select(c("YEAR", "SUMMARY_VALUE"))
+          
+          # subset(var_data()$ss_df, GEOID %in% selected$groups) %>%
+          #   group_by(YEAR) %>% summarise(SUMMARY_VALUE = mean(SUMMARY_VALUE)) # TODO: aggregate from sb using a param'd summary expr
+        }
+      })
+      
+      # The y-axis range for the line chart
+      lineRange <- reactive ({
+        c(0, 1.1*max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE))
+      })
+      
+      # "Bookend" is my term for the amount of padding to put on either end of
+      # the line chart x-axis range in order for no data to be cut off
+      var_xrange_bookend <- reactive({
+        # 0.1 of the difference between the min and max year seems to be good
+        0.1*(as.numeric(var_params()$end)-as.numeric(var_params()$start))
+      })
+      
+      # Renders the line chart
       output$line_chart <- renderPlotly({
         
-        plot_ly(selectedLine(), # df[df$GEOID %in% c('25025010802','25025010801'),] %>% group_by(year) %>% summarise(median_household_incomeE = mean(median_household_incomeE))
+        plot_ly(selectedLine(), 
                 x = ~YEAR,
                 y = ~SUMMARY_VALUE,
                 hoverinfo = 'text'
-                # name = 'MHI',
-                # type = 'scatter',
-                # mode = 'lines',
-                # line = list(color = my_light_line_color,
-                #             width = my_line_skinny)
         ) %>% 
-          config(displayModeBar = FALSE) %>%
-          add_lines(color=I(my_bar_color), hoverinfo = "y") %>%
+          config(displayModeBar = FALSE) %>% # remove default plotly controls
+          add_lines(color=I(my_line_color), line=list(width = my_line_width), hoverinfo = "y") %>%
           add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "y",
                       y = subset(selectedLine(), YEAR == input$yearSelect)$SUMMARY_VALUE,
-                      marker = list(color=my_bar_color, size=10), showlegend = F) %>%
-          # add_text(x = input$yearSelect,
-          #          y = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE,
-          #          text = subset(selectedLine(), year == input$yearSelect)$median_household_incomeE, # for income, tickprefix = "$", tickformat = "~s", hoverformat = ",.0f"
-          #          textposition = 'top center', hovertext = ''
-          #          ) %>% 
-          
+                      marker = list(color=my_line_color, size=10), showlegend = F) %>%
           layout(yaxis = list(
                   title = '' 
                   , fixedrange = TRUE 
                   , tickprefix = var_params()$tickprefix 
                   , tickformat = var_params()$tickformat 
                   , hoverformat = var_params()$linehoverformat 
-                  , range = c(0, 1.1*max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE))
+                  , range = lineRange()
                   ), 
                  xaxis = list(
                    title = 'Year'
                    , fixedrange = TRUE
                    , range = c(
-                     as.numeric(var_params()$start) - 0.1*(as.numeric(var_params()$end)-as.numeric(var_params()$start))
-                     , as.numeric(var_params()$end) + 0.1*(as.numeric(var_params()$end)-as.numeric(var_params()$start))
+                     as.numeric(var_params()$start) - var_xrange_bookend()
+                     , as.numeric(var_params()$end) + var_xrange_bookend()
                      )
                    ), 
                  title = var_params()$lineTitle
                  )
-        # add_trace(y = ~forms,
-        #           name = 'forms',
-        #           mode = 'lines',
-        #           line = list(color = my_light_line_color,
-        #                       width = my_line_skinny)) %>%
-        # add_trace(y = ~admin,
-        #           name = 'admin',
-        #           mode = 'lines',
-        #           line = list(color = my_light_line_color,
-        #                       width = my_line_skinny)) %>% 
-        # event_register('plotly_unhover')
-        
       })
-      
-      # Use a separate observer to recreate the legend as needed.
-      # observe({
-      #   proxy <- leafletProxy("map", data = df)
-      #
-      #   # Remove any existing legend, and only if the legend is
-      #   # enabled, create a new one.
-      #   proxy %>% clearControls()
-      #   if (input$legend) {
-      #     pal <- colorpal()
-      #     proxy %>% addLegend_decreasing(position = "bottomright",
-      #                         pal = pal, values = ~median_household_incomeE,
-      #                         na.label = 'Tracts with little or no population',
-      #                         decreasing = TRUE, title = "Median Household Income ($)"
-      #     )
-      #   }
-      # })
     }
   )
 }
 
+# pareto_median <- function(bins) {
+#   total = sum(bins)
+#   bucket_tops = c(10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 60000, 75000, 100000, 125000, 150000, 200000)
+#   sum_so_far = 0
+#   #length of bins should be length of 
+#   
+#   for (i in 1:length(bins)) {
+#     
+#     if (i == length(bins)) {
+#       return(bucket_tops[length(bucket_tops)])
+#     }
+#     sum_so_far <- sum_so_far + bins[i]
+#     break
+#   }
+#   
+#   
+# }
+
+# def calculate_median(incomedata):
+#   bucket_tops = [10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 60000, 75000, 100000, 125000, 150000, 200000]
+# total = incomedata[0]
+# for i in range(2,18):
+#   if (sum(incomedata[1:i]) > total/2.0):
+#   lower_bucket = i-2
+# upper_bucket = i-1
+# if (i == 17):
+#   break
+# else:
+#   lower_sum = sum(incomedata[1:lower_bucket+1])
+# upper_sum = sum(incomedata[1:upper_bucket+1])
+# lower_perc = float(lower_sum)/total
+# upper_perc = float(upper_sum)/total
+# lower_income = bucket_tops[lower_bucket-1]
+# upper_income = bucket_tops[upper_bucket-1]
+# break
+# if (i==17):
+#   return 200000
+# 
+# #now use pareto interpolation to find the median within this range
+# if (lower_perc == 0.0):
+#   sample_median = lower_income + ((upper_income - lower_income)/2.0)
+# else:
+#   theta_hat = (log(1.0 - lower_perc) - log(1.0 - upper_perc)) / (log(upper_income) - log(lower_income))
+# k_hat = pow( (upper_perc - lower_perc) / ( (1/pow(lower_income, theta_hat)) - (1/pow(upper_income, theta_hat)) ), (1/theta_hat) )
+# sample_median = k_hat * pow(2, (1/theta_hat))
+# return sample_median
+
+# se <- rlang::expr(ilf_f / (ilf_f + nilf_f))
+# bc <- all_vars_info$tracts$`Income`$barCats
+# t <- subset(all_vars_data$tracts$`Income`$sb_df, GEOID %in% c("25025010801", "25025010802")) %>%
+#   group_by(CATEGORY, YEAR) %>%
+#   summarise(VALUE = all_vars_info[["tracts"]][["Income"]][["agg_func"]](VALUE), .groups = "drop")
+# t$CATEGORY <- plyr::mapvalues(t$CATEGORY,
+#                               to = unname(bc),
+#                               from = names(bc))
+# t <- t %>% pivot_wider(id_cols = "YEAR",
+#                        names_from='CATEGORY',
+#                        values_from = 'VALUE') %>%
+#   mutate(SUMMARY_VALUE = !!se) %>%
+#   select(c("YEAR", "SUMMARY_VALUE"))
+
+#' Each geography type gets its own server so that they can act independently
 server <- function(input, output, session) {
-  lapply(c("tracts", "neighborhoods"), function(geo_type) {
+  lapply(names(all_vars_info), function(geo_type) {
     tabPanelServer(geo_type)
   })
 }
