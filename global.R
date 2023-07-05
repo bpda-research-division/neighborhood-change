@@ -35,12 +35,60 @@ all_vars_info$tracts <- list(
       , "$100,000 to $149,999" = "S1901_C01_009"
       , "$150,000 to $199,999" = "S1901_C01_010"
       , "More than $200,000" = "S1901_C01_011"
-    )
+    ), summary_expression = rlang::expr(pareto_median_income(
+      hh_by_income = S1901_C01_005 # TODO: vectorize the pareto function?
+      , cutoffs = c(35000, 50000, 75000, 100000)
+    ))
     # , "Age" = list(...)
   )
 ) # %>% as.data.frame() #%>% setNames(var_attrs)
 
 # Miscellaneous Functions ###########
+
+#' Implements https://en.wikipedia.org/wiki/Pareto_interpolation
+pareto_median <- function(lower_income, upper_income, lower_pct, upper_pct) {
+  if (lower_pct == 0) {
+    return(lower_income + ((upper_income - lower_income) / 2))
+  } else {
+    theta_hat <- (log(1-lower_pct) - log(1-upper_pct)) / (log(upper_income) - log(lower_income))
+    k_hat <- ( (upper_pct - lower_pct) / 
+                 ((1/(lower_income ^ theta_hat)) - (1/(upper_income ^ theta_hat)))
+    ) ^ (1/theta_hat)
+    return(k_hat * (2 ^ (1/theta_hat)))
+  }
+}
+
+#' hh_by_income is a list with the numbers of households per income bucket,
+#' ordered from lowest income to highest income
+pareto_median_income <- function(hh_by_income, cutoffs) {
+  
+  if (length(hh_by_income) - length(cutoffs) != 1) {
+    print(hh_by_income)
+    print(cutoffs)
+    stop("Income data must have as many elements as the number of income cutoffs plus one.")
+  }
+  
+  num_bins <- length(hh_by_income)
+  total <- sum(hh_by_income)
+  sum_so_far <- 0
+  
+  for (i in 1:(num_bins - 2)) {
+    upper_sum <- sum_so_far + hh_by_income[i]
+    
+    if (upper_sum > total / 2) {
+      return(pareto_median(
+        lower_pct = sum_so_far / total
+        , upper_pct = upper_sum / total
+        , lower_income = ifelse(i == 1, 0, cutoffs[i-1])
+        , upper_income = cutoffs[i]
+      ))
+    }
+    sum_so_far <- upper_sum
+  }
+  
+  # if >50% of HH are in the highest bin ($$ and above), return the highest $$
+  return(cutoffs[length(cutoffs)])
+}
 
 # I grabbed the code for this function from GitHub user mpriem89, who wrote it as a workaround
 # for an open Leaflet issue regarding map legends: https://github.com/rstudio/leaflet/issues/256

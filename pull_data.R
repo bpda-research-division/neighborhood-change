@@ -1,8 +1,8 @@
 # Imports and Setup ##############
 library(dplyr)
 library(tidyr)
-library(tidycensus)
-options(tigris_use_cache = TRUE)
+# library(tidycensus)
+# options(tigris_use_cache = TRUE)
 
 # Functions ##############
 
@@ -75,95 +75,95 @@ prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expr
 # a csv and it has you enter the labels as well as the summary expression
 
 # Median Household Income ######################
-census_api_key(read.csv('extra/census_api_key.csv')$key)
-
-v21 <- load_variables(2021, "acs5/subject", cache = TRUE)
-
-my_states = c("MA")
-mhi <- c(
-  median_household_income = "S1901_C01_012"
-)
-
-inc_bckts <- c(
-  "Less than $10,000" = "S1901_C01_002"
-  , "$10,000 to $14,999" = "S1901_C01_003"
-  , "$15,000 to $24,999" = "S1901_C01_004"
-  , "$25,000 to $34,999" = "S1901_C01_005"
-  , "$35,000 to $49,999" = "S1901_C01_006"
-  , "$50,000 to $74,999" = "S1901_C01_007"
-  , "$75,000 to $99,999" = "S1901_C01_008"
-  , "$100,000 to $149,999" = "S1901_C01_009"
-  , "$150,000 to $199,999" = "S1901_C01_010"
-  , "More than $200,000" = "S1901_C01_011"
-)
-
-years <- c(2010, 2012, 2014, 2016, 2018)
-
-get_acs_tract_by_yr <- function(yr, vars, output_type, include_geom) {
-  ct <- get_acs(
-    geography = "tract",
-    variables = vars,
-    state = my_states,
-    county = "025",
-    year = yr,
-    survey="acs5",
-    output = output_type,
-    geometry = include_geom,
-    cache_table = TRUE
-  )
-  ct$YEAR <- yr
-  ct
-}
-
-get_acs_place_by_year <- function(yr) {
-  data <- get_acs(
-    geography = "place",
-    variables = mhi,
-    state = my_states,
-    year = yr,
-    survey="acs5",
-    output = 'wide',
-    geometry = FALSE,
-    cache_table = TRUE
-  ) %>% subset(GEOID == '2507000')
-  data$YEAR <- yr
-  data
-}
-
-mhi_bos <- lapply(years, get_acs_place_by_year) %>% bind_rows()
-city_summary <- mhi_bos %>% select(-c("GEOID", "NAME")) %>%
-  rename(MOE = median_household_incomeM, SUMMARY_VALUE = median_household_incomeE)
-city_summary %>% write.csv(file='data/acshhi_cs.csv', row.names=FALSE)
-
-med_hh_income <- lapply(years, get_acs_tract_by_yr, vars=mhi, output_type="wide", include_geom=FALSE) %>% bind_rows()
-subcity_summary <- med_hh_income %>%
-  mutate(SUMMARY_VALUE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeE)) %>%
-  mutate(MOE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeM)) %>%
-  select(-c("median_household_incomeM", "median_household_incomeE"))
-subcity_summary %>% write.csv(file='data/acshhi_ss.csv', row.names=FALSE)
-# subcity_summary %>% saveRDS(file='data/acshhi_ss.rds')
-
-total_hh <- lapply(years, get_acs_tract_by_yr, vars=c("S1901_C01_001"), output_type="wide", include_geom=FALSE) %>% bind_rows()
-df <- lapply(years, get_acs_tract_by_yr, vars=unname(inc_bckts), output_type = "tidy", include_geom=FALSE) %>% bind_rows() 
-subcity_bins <- left_join(df, 
-               total_hh %>% as_tibble() %>% select(GEOID, S1901_C01_001E, YEAR), 
-               by=c("GEOID", "YEAR")) %>%
-  mutate(across(c(estimate, moe), ~ . * S1901_C01_001E / 100)) %>%
-  mutate(across(c(estimate, moe), round, 0)) %>% 
-  select(-c(S1901_C01_001E, moe)) %>%
-  mutate_at(.vars = c("estimate"), # names(df)[!names(df) %in% c("GEOID", "NAME", "YEAR")]
-            list(~ifelse(startsWith(NAME, "Census Tract 98"), NaN, .))) %>%
-  pivot_wider(names_from = variable, values_from = estimate)
-subcity_bins %>% write.csv(file='data/acshhi_sb.csv', row.names=FALSE)
-
-prepare_data(
-  var_code = 'acshhi'
-  , sb_csv = 'data/acshhi_sb.csv'
-  , bin_col_names = inc_bckts
-  , agg_func = sum
-  , ss_csv = 'data/acshhi_ss.csv'
-  , cs_csv = 'data/acshhi_cs.csv'
-)
+# census_api_key(read.csv('extra/census_api_key.csv')$key)
+# 
+# v21 <- load_variables(2021, "acs5/subject", cache = TRUE)
+# 
+# my_states = c("MA")
+# mhi <- c(
+#   median_household_income = "S1901_C01_012"
+# )
+# 
+# inc_bckts <- c(
+#   "Less than $10,000" = "S1901_C01_002"
+#   , "$10,000 to $14,999" = "S1901_C01_003"
+#   , "$15,000 to $24,999" = "S1901_C01_004"
+#   , "$25,000 to $34,999" = "S1901_C01_005"
+#   , "$35,000 to $49,999" = "S1901_C01_006"
+#   , "$50,000 to $74,999" = "S1901_C01_007"
+#   , "$75,000 to $99,999" = "S1901_C01_008"
+#   , "$100,000 to $149,999" = "S1901_C01_009"
+#   , "$150,000 to $199,999" = "S1901_C01_010"
+#   , "More than $200,000" = "S1901_C01_011"
+# )
+# 
+# years <- c(2010, 2012, 2014, 2016, 2018)
+# 
+# get_acs_tract_by_yr <- function(yr, vars, output_type, include_geom) {
+#   ct <- get_acs(
+#     geography = "tract",
+#     variables = vars,
+#     state = my_states,
+#     county = "025",
+#     year = yr,
+#     survey="acs5",
+#     output = output_type,
+#     geometry = include_geom,
+#     cache_table = TRUE
+#   )
+#   ct$YEAR <- yr
+#   ct
+# }
+# 
+# get_acs_place_by_year <- function(yr) {
+#   data <- get_acs(
+#     geography = "place",
+#     variables = mhi,
+#     state = my_states,
+#     year = yr,
+#     survey="acs5",
+#     output = 'wide',
+#     geometry = FALSE,
+#     cache_table = TRUE
+#   ) %>% subset(GEOID == '2507000')
+#   data$YEAR <- yr
+#   data
+# }
+# 
+# mhi_bos <- lapply(years, get_acs_place_by_year) %>% bind_rows()
+# city_summary <- mhi_bos %>% select(-c("GEOID", "NAME")) %>%
+#   rename(MOE = median_household_incomeM, SUMMARY_VALUE = median_household_incomeE)
+# city_summary %>% write.csv(file='data/acshhi_cs.csv', row.names=FALSE)
+# 
+# med_hh_income <- lapply(years, get_acs_tract_by_yr, vars=mhi, output_type="wide", include_geom=FALSE) %>% bind_rows()
+# subcity_summary <- med_hh_income %>%
+#   mutate(SUMMARY_VALUE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeE)) %>%
+#   mutate(MOE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeM)) %>%
+#   select(-c("median_household_incomeM", "median_household_incomeE"))
+# subcity_summary %>% write.csv(file='data/acshhi_ss.csv', row.names=FALSE)
+# # subcity_summary %>% saveRDS(file='data/acshhi_ss.rds')
+# 
+# total_hh <- lapply(years, get_acs_tract_by_yr, vars=c("S1901_C01_001"), output_type="wide", include_geom=FALSE) %>% bind_rows()
+# df <- lapply(years, get_acs_tract_by_yr, vars=unname(inc_bckts), output_type = "tidy", include_geom=FALSE) %>% bind_rows() 
+# subcity_bins <- left_join(df, 
+#                total_hh %>% as_tibble() %>% select(GEOID, S1901_C01_001E, YEAR), 
+#                by=c("GEOID", "YEAR")) %>%
+#   mutate(across(c(estimate, moe), ~ . * S1901_C01_001E / 100)) %>%
+#   mutate(across(c(estimate, moe), round, 0)) %>% 
+#   select(-c(S1901_C01_001E, moe)) %>%
+#   mutate_at(.vars = c("estimate"), # names(df)[!names(df) %in% c("GEOID", "NAME", "YEAR")]
+#             list(~ifelse(startsWith(NAME, "Census Tract 98"), NaN, .))) %>%
+#   pivot_wider(names_from = variable, values_from = estimate)
+# subcity_bins %>% write.csv(file='data/acshhi_sb.csv', row.names=FALSE)
+# 
+# prepare_data(
+#   var_code = 'acshhi'
+#   , sb_csv = 'data/acshhi_sb.csv'
+#   , bin_col_names = inc_bckts
+#   , agg_func = sum
+#   , ss_csv = 'data/acshhi_ss.csv'
+#   , cs_csv = 'data/acshhi_cs.csv'
+# )
 
 # HBIC Neighborhoods Labor Force ##################
 

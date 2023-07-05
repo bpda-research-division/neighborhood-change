@@ -1,6 +1,7 @@
 # Imports and Setup ##############
 library(sf)
 library(dplyr)
+library(tidyr)
 library(shiny)
 library(plotly)
 library(leaflet)
@@ -379,53 +380,6 @@ tabPanelServer <- function(geo_type) {
     }
   )
 }
-
-# pareto_median <- function(bins) {
-#   total = sum(bins)
-#   bucket_tops = c(10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 60000, 75000, 100000, 125000, 150000, 200000)
-#   sum_so_far = 0
-#   #length of bins should be length of 
-#   
-#   for (i in 1:length(bins)) {
-#     
-#     if (i == length(bins)) {
-#       return(bucket_tops[length(bucket_tops)])
-#     }
-#     sum_so_far <- sum_so_far + bins[i]
-#     break
-#   }
-#   
-#   
-# }
-
-# def calculate_median(incomedata):
-#   bucket_tops = [10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 60000, 75000, 100000, 125000, 150000, 200000]
-# total = incomedata[0]
-# for i in range(2,18):
-#   if (sum(incomedata[1:i]) > total/2.0):
-#   lower_bucket = i-2
-# upper_bucket = i-1
-# if (i == 17):
-#   break
-# else:
-#   lower_sum = sum(incomedata[1:lower_bucket+1])
-# upper_sum = sum(incomedata[1:upper_bucket+1])
-# lower_perc = float(lower_sum)/total
-# upper_perc = float(upper_sum)/total
-# lower_income = bucket_tops[lower_bucket-1]
-# upper_income = bucket_tops[upper_bucket-1]
-# break
-# if (i==17):
-#   return 200000
-# 
-# #now use pareto interpolation to find the median within this range
-# if (lower_perc == 0.0):
-#   sample_median = lower_income + ((upper_income - lower_income)/2.0)
-# else:
-#   theta_hat = (log(1.0 - lower_perc) - log(1.0 - upper_perc)) / (log(upper_income) - log(lower_income))
-# k_hat = pow( (upper_perc - lower_perc) / ( (1/pow(lower_income, theta_hat)) - (1/pow(upper_income, theta_hat)) ), (1/theta_hat) )
-# sample_median = k_hat * pow(2, (1/theta_hat))
-# return sample_median
 
 # se <- rlang::expr(ilf_f / (ilf_f + nilf_f))
 # bc <- all_vars_info$tracts$`Income`$barCats
