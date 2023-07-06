@@ -181,9 +181,38 @@ labor_force_summary = c(
 labor_force_summary_expression <- rlang::expr(ilf_f / (ilf_f + nilf_f))
 
 prepare_data(
-  var_code = 'hbicn', 
+  var_code = 'hbicnlf', 
   sb_csv = 'data/hbic_neigh_labor_force_bins.csv', 
   agg_func = sum, 
   bin_col_names = labor_force_bins, 
   summary_expression = labor_force_summary_expression
+)
+
+# HBIC Neighborhoods Race and Ethnicity ##################
+
+race_ethn_bins = c(
+  "White" = "white",
+  "Black/African American" = "black",
+  "Hispanic/Latino" = "hisp",
+  "Native American" = "native",
+  "Asian/Pacific Islander" = "asian",
+  "Two or More" = "two_plus",
+  "Other" = "other"
+)
+
+race_ethn_summary = c(
+  "Non-white share of population" = "nw_share"
+)
+
+race_ethn_summary_expression <- rlang::expr(
+  (black + hisp + asian + native + two_plus + other) /
+    (white + black + hisp + asian + native + two_plus + other)
+)
+
+prepare_data(
+  var_code = 'hbicnre', 
+  sb_csv = 'data/hbic_neigh_race_ethn_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = race_ethn_bins, 
+  summary_expression = race_ethn_summary_expression
 )

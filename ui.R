@@ -39,10 +39,10 @@ geoTabPanelUI <- function(geo_type, variables) {
                 column(width=4, align = 'center',
                        HTML(sprintf("<b>2. Select one or more %s on the map to update the charts.</b>", geo_type))
                 ), # this may turn into a textOutput and live in the server if we want areas to say tracts/neighborhoods instead
-                column(width=3, align='center',
+                column(width=3, align='right',
                        actionButton(ns("clearSelections"), "Clear all selections")
                 ),
-                column(width=5, align='center',
+                column(width=5, align='left',
                        htmlOutput(ns("selectionText"))
                 )
                 

@@ -16,7 +16,23 @@ all_vars_info$neighborhoods <- list(
       , "Female not in labor force" = "nilf_f"
     ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f))
   )
-  # , "Age" = list(...)
+  , "Race and Ethnicity" = list(varcode = "hbicnre", start = 1950, end = 2020, step = 10,
+    lineTitle = "Non-white Share of Population", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Population by Race/Ethnicity", barhoverformat = ",.0f",
+    barCats = list(
+      "White" = "white",
+      "Black/African American" = "black",
+      "Hispanic/Latino" = "hisp",
+      "Asian/Pacific Islander" = "asian",
+      "Native American" = "native",
+      "Two or More" = "two_plus",
+      "Other" = "other"
+    ), summary_expression = rlang::expr(
+      (black + hisp + asian + native + two_plus + other) /
+        (white + black + hisp + asian + native + two_plus + other)
+    )
+  )
 ) # %>% as.data.frame() #%>% setNames(var_attrs)
 
 all_vars_info$tracts <- list(

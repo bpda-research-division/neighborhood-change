@@ -169,7 +169,7 @@ tabPanelServer <- function(geo_type) {
         ss <- var_data()$ss_df # ss_df is the portion of the data that we map
         yrdfs <- split(ss, ss$YEAR)
         pal <- colorNumeric(my_map_palette, domain = ss$SUMMARY_VALUE)
-        leafletProxy("map") %>% clearShapes()
+        leafletProxy("map") %>% clearShapes() %>% clearControls()
         
         # draw and add one layer of polygons for each year
         for (yr in names(yrdfs)) {
@@ -213,7 +213,7 @@ tabPanelServer <- function(geo_type) {
       })
       
       # Updates the map When the user changes the selected year on the time slider
-      observeEvent(input$yearSelect, {
+      observeEvent(list(input$yearSelect, input$variable), {
         leafletProxy("map") %>% hideGroup(group = var_years()) %>% showGroup(input$yearSelect)
       })
       
@@ -240,10 +240,18 @@ tabPanelServer <- function(geo_type) {
         }
       })
       
-      # Clears the map and updates the data in response to the user clearing all selections
-      observeEvent(input$clearSelections, {
+      # Clears the map and updates the data in response to the user clearing all selections or changing variables
+      observeEvent(list(input$clearSelections, input$variable), {
         selected$groups <- vector()
         leafletProxy("map") %>% hideGroup(group = var_data()$ss_df$GEOID)
+      })
+      
+      # Updates the slider input each time the user selects a different variable
+      observeEvent(input$variable, {
+        st <- var_params()$start
+
+        updateSliderInput(session, "yearSelect", value = st, min = st, 
+                          max = var_params()$end, step = var_params()$step)
       })
       
       # The text telling the user what data they are looking at (based on map selections)
