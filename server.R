@@ -260,11 +260,15 @@ tabPanelServer <- function(geo_type) {
                           max = var_params()$end, step = var_params()$step)
       })
       
+      selectionName <- reactive({
+        sprintf("%s selected %s", length(selected$groups), geo_namespace)
+      })
+      
       # The text telling the user what data they are looking at (based on map selections)
       output$selectionText <- reactive({
         msg <- "Currently viewing data for:<br>" 
         if (length(selected$groups) == 0) {paste(msg, "<b>the whole city<b>")}
-        else {paste(msg, sprintf("<b>%s selected %s<b>", length(selected$groups), geo_namespace))}
+        else {paste(msg, paste0('<b>', selectionName(), '<b>'))}
       })
       
       # The data that is displayed on the bar chart
@@ -350,7 +354,12 @@ tabPanelServer <- function(geo_type) {
       
       # The y-axis range for the line chart
       lineRange <- reactive ({
-        c(0, 1.1*max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE))
+        top_val <- max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE)
+        if (length(selected$groups) > 0) {
+          cw_val <- max(var_data()$cs_df$SUMMARY_VALUE, na.rm=TRUE)
+          if (cw_val > top_val) {top_val <- cw_val}
+        }
+        c(0, 1.1*top_val)
       })
       
       # "Bookend" is my term for the amount of padding to put on either end of
@@ -363,13 +372,21 @@ tabPanelServer <- function(geo_type) {
       # Renders the line chart
       output$line_chart <- renderPlotly({
         
-        plot_ly(selectedLine(), 
+        p <- plot_ly(selectedLine(), 
                 x = ~YEAR,
                 y = ~SUMMARY_VALUE,
                 hoverinfo = 'text'
         ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
-          add_lines(color=I(my_line_color), line=list(width = my_line_width), hoverinfo = "y") %>%
+          add_lines(color=I(my_line_color), line=list(width = my_line_width), 
+                    hoverinfo = "y", name=selectionName())
+        if (length(selected$groups) > 0) {
+          p <- p %>% add_lines(x = var_data()$cs_df$YEAR, 
+                               y = var_data()$cs_df$SUMMARY_VALUE,
+                               hoverinfo="y", name="Citywide", color=I(my_line_color),
+                               line = list(dash='dash'))
+        }
+        p %>%
           add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "y",
                       y = subset(selectedLine(), YEAR == input$yearSelect)$SUMMARY_VALUE,
                       marker = list(color=my_line_color, size=10), showlegend = F) %>%
@@ -390,6 +407,7 @@ tabPanelServer <- function(geo_type) {
                      )
                    ), 
                  title = var_params()$lineTitle,
+                 legend = list(orientation = 'h', x=0.5, y=1),
                  font=list(color="black", family = APP_FONT)
                  )
       })

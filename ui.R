@@ -97,7 +97,7 @@ ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;
                            ), # this css hides the minor tick marks on the slider
   # setSliderColor(c("DimGrey", "DimGray"), c(1,2)), # https://divadnojnarg.github.io/post/customsliderinput/
   tags$head(tags$style(HTML(sprintf('* {font-family: "%s"};', APP_FONT)))),
-  chooseSliderSkin("Square", color = "#112446"),
+  chooseSliderSkin("Shiny", color = "#112446"),
   headerPanel(h1("Boston Neighborhood Change Dashboard", align = "center")),
   do.call(tabsetPanel,
           lapply(append(names(all_vars_info), "About"), tabGenerator)
