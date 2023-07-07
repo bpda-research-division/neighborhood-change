@@ -1,5 +1,6 @@
 # Imports and Setup #####
 library(dplyr)
+APP_FONT <- "Arial Bold"
 
 # Define details for each variable ############
 all_vars_info <- list()

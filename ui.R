@@ -20,12 +20,13 @@ geoTabPanelUI <- function(geo_type, variables) {
   tabPanel(tools::toTitleCase(geo_type), style='padding:10px;',
     sidebarPanel(style = "height: 90vh;",
        fluidRow(
-         column(width = 6,
+         column(width = 5,
                 selectInput(ns("variable"), 
                             "1. Select data:", choices = names(variables)
                             )
+                , HTML(sprintf("<b>2. Select one or more %s on the map to update the charts.</b>", geo_type))
          ),
-         column(width = 6, 
+         column(width = 7, 
                 sliderInput(ns("yearSelect"), 
                             "3. Drag the slider to see change over time:",
                             initial_st, initial_end, sep = "", ticks=TRUE,
@@ -33,21 +34,29 @@ geoTabPanelUI <- function(geo_type, variables) {
                             animate = animationOptions(interval = 500 #, playButton = icon('play', "fa-3x"), pauseButton = icon('pause', "fa-3x")
                                                        )
                             )
+                , fluidRow(style='padding:10px;',
+                  column(width=5, align='center',
+                         actionButton(ns("clearSelections"), "Clear all selections")
+                  ),
+                  column(width=7, align='center',
+                         htmlOutput(ns("selectionText"))
+                  )
+                )
          )
        ),
-       fluidRow(style='padding:10px;',
-                column(width=4, align = 'center',
-                       HTML(sprintf("<b>2. Select one or more %s on the map to update the charts.</b>", geo_type))
-                ), # this may turn into a textOutput and live in the server if we want areas to say tracts/neighborhoods instead
-                column(width=3, align='right',
-                       actionButton(ns("clearSelections"), "Clear all selections")
-                ),
-                column(width=5, align='left',
-                       htmlOutput(ns("selectionText"))
-                )
-                
-                
-       ),
+       # fluidRow(style='padding:10px;',
+       #          column(width=4, align = 'center',
+       #                 HTML(sprintf("<b>2. Select one or more %s on the map to update the charts.</b>", geo_type))
+       #          ), # this may turn into a textOutput and live in the server if we want areas to say tracts/neighborhoods instead
+       #          column(width=3, align='right',
+       #                 actionButton(ns("clearSelections"), "Clear all selections")
+       #          ),
+       #          column(width=5, align='center',
+       #                 htmlOutput(ns("selectionText"))
+       #          )
+       #          
+       #          
+       # ),
        leafletOutput(ns("map"), height='65%') %>% 
          htmlwidgets::prependContent(html_fix), # apply the legend NA values fix
        width=6
@@ -87,7 +96,8 @@ tabGenerator <- function(name) {
 ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"
                            ), # this css hides the minor tick marks on the slider
   # setSliderColor(c("DimGrey", "DimGray"), c(1,2)), # https://divadnojnarg.github.io/post/customsliderinput/
-  chooseSliderSkin("Shiny"),
+  tags$head(tags$style(HTML(sprintf('* {font-family: "%s"};', APP_FONT)))),
+  chooseSliderSkin("Square", color = "#112446"),
   headerPanel(h1("Boston Neighborhood Change Dashboard", align = "center")),
   do.call(tabsetPanel,
           lapply(append(names(all_vars_info), "About"), tabGenerator)

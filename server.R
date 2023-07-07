@@ -170,10 +170,11 @@ tabPanelServer <- function(geo_type) {
         yrdfs <- split(ss, ss$YEAR)
         pal <- colorNumeric(my_map_palette, domain = ss$SUMMARY_VALUE)
         leafletProxy("map") %>% clearShapes() %>% clearControls()
+        m <- leafletProxy("map")
         
         # draw and add one layer of polygons for each year
         for (yr in names(yrdfs)) {
-          leafletProxy("map") %>% 
+          m <- m %>% 
             addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), 
                         fillColor = ~pal(SUMMARY_VALUE), fillOpacity = 0.7, 
                         weight = 1, smoothFactor = 0, label = ~htmlEscape(NAME),
@@ -190,7 +191,7 @@ tabPanelServer <- function(geo_type) {
             )
         } 
         # add a hidden layer of polygons that will display in response to clicks
-        leafletProxy("map") %>%
+        m <- m %>%
           addPolygons(data=yrdfs[[yr]], group=~GEOID, weight = 3, color = "red", 
                       fillOpacity=0, options = pathOptions(pane = "layer1")
           ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) %>%
@@ -205,6 +206,7 @@ tabPanelServer <- function(geo_type) {
                                   function(x) round(x*100), function (x) x)
                ),
              na.label = null_label, decreasing = TRUE, title = var_params()$lineTitle)
+        return(m)
       })
       
       # Keep track of the full set of years for the variable the user selects
@@ -256,7 +258,7 @@ tabPanelServer <- function(geo_type) {
       
       # The text telling the user what data they are looking at (based on map selections)
       output$selectionText <- reactive({
-        msg <- "Currently viewing data for: " 
+        msg <- "Currently viewing data for:<br>" 
         if (length(selected$groups) == 0) {paste(msg, "<b>the whole city<b>")}
         else {paste(msg, sprintf("<b>%s selected %s<b>", length(selected$groups), geo_namespace))}
       })
@@ -313,7 +315,8 @@ tabPanelServer <- function(geo_type) {
                    , fixedrange = TRUE
                    , categoryorder = 'array' # these 2 lines set the order of the bar categories
                    , categoryarray = names(var_params()$barCats)
-                  )
+                  ),
+                 font=list(color="black", family = APP_FONT)
                  )
       })
       
@@ -382,7 +385,8 @@ tabPanelServer <- function(geo_type) {
                      , as.numeric(var_params()$end) + var_xrange_bookend()
                      )
                    ), 
-                 title = var_params()$lineTitle
+                 title = var_params()$lineTitle,
+                 font=list(color="black", family = APP_FONT)
                  )
       })
     }
