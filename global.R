@@ -1,26 +1,14 @@
 # Imports and Setup #####
 library(dplyr)
 APP_FONT <- "Arial Bold"
-
-# Define details for each variable ############
 all_vars_info <- list()
 
+# Define parameters for each geography type and variable ############
 all_vars_info$neighborhoods <- list(
-  "Labor Force" = list(varcode = "hbicnlf", start = 1950, end = 2020, step = 10,
-    lineTitle = "Female Labor Force Participation Rate", linehoverformat = ".0%",
+  "Race and Ethnicity" = list(varcode = "hbicnre", start = 1950, end = 2020, step = 10,
+    lineTitle = "Non-white share of population", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
-    barTitle = "Labor Force Status by Sex", barhoverformat = ",.0f",
-    barCats = list(
-      "Male in labor force" = "ilf_m"
-      , "Male not in labor force" = "nilf_m"
-      , "Female in labor force" = "ilf_f"
-      , "Female not in labor force" = "nilf_f"
-    ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f))
-  )
-  , "Race and Ethnicity" = list(varcode = "hbicnre", start = 1950, end = 2020, step = 10,
-    lineTitle = "Non-white Share of Population", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
-    barTitle = "Population by Race/Ethnicity", barhoverformat = ",.0f",
+    barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
     barCats = list(
       "White" = "white",
       "Black/African American" = "black",
@@ -33,6 +21,62 @@ all_vars_info$neighborhoods <- list(
       (black + hisp + asian + native + two_plus + other) /
         (white + black + hisp + asian + native + two_plus + other)
     )
+  )
+  , "Age" = list(varcode = "hbicna", start = 1950, end = 2020, step = 10,
+    lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Population by age", barhoverformat = ",.0f",
+    barCats = list(
+      "0-9 years" = "zero_nine",
+      "10-19 years" = "ten_nineteen",
+      "20-34 years" = "twenty_thirtyfour",
+      "35-54 years" = "thirtyfive_fiftyfour",
+      "55-64 years" = "fiftyfive_sixtyfour",
+      "65 years and over" = "sixtyfive_more"
+    ), summary_expression = rlang::expr(
+      (twenty_thirtyfour) /
+        (zero_nine + ten_nineteen + twenty_thirtyfour + 
+           thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+    )
+  )
+  , "Nativity" = list(varcode = "hbicnnat", start = 1950, end = 2020, step = 10,
+    lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Population by nativity", barhoverformat = ",.0f",
+    barCats = list("Native-born" = "native", "Foreign-born" = "foreign"), 
+    summary_expression = rlang::expr(foreign / (foreign + native))
+  )
+  , "Educational Attainment" = list(varcode = "hbicnedu", start = 1950, end = 2020, step = 10,
+    lineTitle = "Share of population with a bachelor's or more", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Population by educational attainment", barhoverformat = ",.0f",
+    barCats = list(
+      "Less than high school" = "lhs",
+      "High school or some equivalent" = "he",
+      "Some college" = "sc",
+      "Bachelor's or more" = "bm"
+    ), summary_expression = rlang::expr(bm / (lhs + he + sc + bm))
+  )
+  , "Housing Tenure" = list(varcode = "hbicnhou", start = 1950, end = 2020, step = 10,
+    lineTitle = "Owner-occupied housing share", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Housing units by tenure", barhoverformat = ",.0f",
+    barCats = list(
+      "Owner Occupied" = "owner",
+      "Renter Occupied" = "renter",
+      "Vacant" = "vac"
+    ), summary_expression = rlang::expr(owner / (owner + renter))
+  )
+  , "Labor Force" = list(varcode = "hbicnlf", start = 1950, end = 2020, step = 10,
+    lineTitle = "Female labor force participation rate", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Labor force status by sex", barhoverformat = ",.0f",
+    barCats = list(
+      "Male in labor force" = "ilf_m"
+      , "Male not in labor force" = "nilf_m"
+      , "Female in labor force" = "ilf_f"
+      , "Female not in labor force" = "nilf_f"
+    ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f))
   )
 ) # %>% as.data.frame() #%>% setNames(var_attrs)
 

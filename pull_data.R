@@ -216,3 +216,108 @@ prepare_data(
   bin_col_names = race_ethn_bins, 
   summary_expression = race_ethn_summary_expression
 )
+
+
+# HBIC Neighborhoods Age ##################
+
+age_bins = c(
+  "0-9 years" = "zero_nine",
+  "10-19 years" = "ten_nineteen",
+  "20-34 years" = "twenty_thirtyfour",
+  "35-54 years" = "thirtyfive_fiftyfour",
+  "55-64 years" = "fiftyfive_sixtyfour",
+  "65 years and over" = "sixtyfive_more"
+)
+
+age_summary = c(
+  "Young adult (20-34) share of population" = "twenty_thirtyfour_share"
+)
+
+age_summary_expression <- rlang::expr(
+  (twenty_thirtyfour) /
+    (zero_nine + ten_nineteen + twenty_thirtyfour + 
+       thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+)
+
+prepare_data(
+  var_code = 'hbicna', 
+  sb_csv = 'data/hbic_neigh_age_year_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = age_bins, 
+  summary_expression = age_summary_expression
+)
+
+# HBIC Neighborhoods Educational Attainment ##################
+
+edu_att_bins = c(
+  "Less than high school" = "lhs",
+  "High school or some equivalent" = "he",
+  "Some college" = "sc",
+  "Bachelor's or more" = "bm"
+)
+
+edu_att_summary = c(
+  "Share of population with a bachelor's or more" = "bm_share"
+)
+
+edu_att_summary_expression <- rlang::expr(
+  (bm) /
+    (lhs + he + sc + bm)
+)
+
+prepare_data(
+  var_code = 'hbicnedu', 
+  sb_csv = 'data/hbic_neigh_edu_attain_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = edu_att_bins, 
+  summary_expression = edu_att_summary_expression
+)
+
+# HBIC Neighborhoods Housing ##################
+
+housing_bins = c(
+  "Owner Occupied" = "owner",
+  "Renter Occupied" = "renter",
+  "Vacant" = "vac"
+)
+
+housing_summary = c(
+  "Owner-occupied housing share" = "owner_share"
+)
+
+housing_summary_expression <- rlang::expr(
+  (owner) /
+    (owner + renter)
+)
+
+prepare_data(
+  var_code = 'hbicnhou', 
+  sb_csv = 'data/hbic_neigh_housing_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = housing_bins, 
+  summary_expression = housing_summary_expression
+)
+  
+# HBIC Neighborhoods Nativity ##################
+
+nativity_bins = c(
+  "Native-born" = "native",
+  "Foreign-born" = "foreign"
+)
+
+nativity_summary = c(
+  "Foreign born share of population" = "foreign_share"
+)
+
+nativity_summary_expression <- rlang::expr(
+  (foreign) /
+    (foreign + native)
+)
+
+prepare_data(
+  var_code = 'hbicnnat', 
+  sb_csv = 'data/hbic_neigh_nativity_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = nativity_bins, 
+  summary_expression = nativity_summary_expression
+)
