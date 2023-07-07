@@ -170,11 +170,10 @@ tabPanelServer <- function(geo_type) {
         yrdfs <- split(ss, ss$YEAR)
         pal <- colorNumeric(my_map_palette, domain = ss$SUMMARY_VALUE)
         leafletProxy("map") %>% clearShapes() %>% clearControls()
-        m <- leafletProxy("map")
         
         # draw and add one layer of polygons for each year
         for (yr in names(yrdfs)) {
-          m <- m %>% 
+          leafletProxy("map") %>% 
             addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), 
                         fillColor = ~pal(SUMMARY_VALUE), fillOpacity = 0.7, 
                         weight = 1, smoothFactor = 0, label = ~htmlEscape(NAME),
@@ -191,9 +190,10 @@ tabPanelServer <- function(geo_type) {
             )
         } 
         # add a hidden layer of polygons that will display in response to clicks
-        m <- m %>%
+        leafletProxy("map") %>%
           addPolygons(data=yrdfs[[yr]], group=~GEOID, weight = 3, color = "red", 
-                      fillOpacity=0, options = pathOptions(pane = "layer1")
+                      fillOpacity=0, label = ~htmlEscape(NAME),
+                      options = pathOptions(pane = "layer1")
           ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) %>%
           
           # add the map legend, formatting labels appropriately for the given variable
@@ -206,7 +206,6 @@ tabPanelServer <- function(geo_type) {
                                   function(x) round(x*100), function (x) x)
                ),
              na.label = null_label, decreasing = TRUE, title = var_params()$lineTitle)
-        return(m)
       })
       
       # Keep track of the full set of years for the variable the user selects
