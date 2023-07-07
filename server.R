@@ -233,8 +233,13 @@ tabPanelServer <- function(geo_type) {
           # last space-delimited word from the unselected polygon ID to extract
           # the NAME of the selected polygon to display where the user clicked.
           this_selection_id <- gsub("\\s*\\w*$", "", input$map_shape_click$id)
-          selected$groups <- c(selected$groups, this_selection_id)
-          leafletProxy("map") %>% showGroup(group = this_selection_id) 
+          
+          # only add clicked polygon to selected groups if its data is non-NA
+          if (!any(is.na(subset(var_data()$ss_df, GEOID == this_selection_id)$SUMMARY_VALUE))) {
+            selected$groups <- c(selected$groups, this_selection_id)
+            leafletProxy("map") %>% showGroup(group = this_selection_id) 
+          }
+          
         } else { # To deselect a polygon, we just hide the polygon and update the data
           selected$groups <- setdiff(selected$groups, input$map_shape_click$group)
           leafletProxy("map") %>% hideGroup(group = input$map_shape_click$group)
