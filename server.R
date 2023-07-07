@@ -334,7 +334,7 @@ tabPanelServer <- function(geo_type) {
                                         from = names(var_params()$barCats))
           t %>% pivot_wider(id_cols = "YEAR",
                                  names_from='CATEGORY',
-                                 values_from = 'VALUE') %>%
+                                 values_from = 'VALUE') %>% rowwise() %>%
             mutate(SUMMARY_VALUE = !!var_params()$summary_expression) %>%
             select(c("YEAR", "SUMMARY_VALUE"))
           

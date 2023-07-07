@@ -97,8 +97,10 @@ all_vars_info$tracts <- list(
       , "$150,000 to $199,999" = "S1901_C01_010"
       , "More than $200,000" = "S1901_C01_011"
     ), summary_expression = rlang::expr(pareto_median_income(
-      hh_by_income = S1901_C01_005 # TODO: vectorize the pareto function?
-      , cutoffs = c(35000, 50000, 75000, 100000)
+      hh_by_income = c(S1901_C01_002, S1901_C01_003, S1901_C01_004, 
+                       S1901_C01_005, S1901_C01_006, S1901_C01_007, 
+                       S1901_C01_008, S1901_C01_009, S1901_C01_010, S1901_C01_011)
+      , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
     ))
     # , "Age" = list(...)
   )
@@ -119,13 +121,12 @@ pareto_median <- function(lower_income, upper_income, lower_pct, upper_pct) {
   }
 }
 
+
 #' hh_by_income is a list with the numbers of households per income bucket,
 #' ordered from lowest income to highest income
 pareto_median_income <- function(hh_by_income, cutoffs) {
-  
+
   if (length(hh_by_income) - length(cutoffs) != 1) {
-    print(hh_by_income)
-    print(cutoffs)
     stop("Income data must have as many elements as the number of income cutoffs plus one.")
   }
   
