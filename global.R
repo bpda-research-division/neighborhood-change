@@ -6,7 +6,24 @@ all_vars_info <- list()
 
 # Define parameters for each geography type and variable ############
 all_vars_info$neighborhoods <- list(
-  "Race and Ethnicity" = list(varcode = "hbicnre", start = 1950, end = 2020, step = 10,
+  "Age" = list(varcode = "hbicna", start = 1950, end = 2020, step = 10,
+   lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
+   tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+   barTitle = "Population by age", barhoverformat = ",.0f",
+   barCats = list(
+     "0-9 years" = "zero_nine",
+     "10-19 years" = "ten_nineteen",
+     "20-34 years" = "twenty_thirtyfour",
+     "35-54 years" = "thirtyfive_fiftyfour",
+     "55-64 years" = "fiftyfive_sixtyfour",
+     "65 years and over" = "sixtyfive_more"
+   ), summary_expression = rlang::expr(
+     (twenty_thirtyfour) /
+       (zero_nine + ten_nineteen + twenty_thirtyfour + 
+          thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+   )
+  )
+  , "Race and Ethnicity" = list(varcode = "hbicnre", start = 1950, end = 2020, step = 10,
     lineTitle = "Non-white share of population", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
     barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
@@ -21,24 +38,7 @@ all_vars_info$neighborhoods <- list(
     ), summary_expression = rlang::expr(
       (black + hisp + asian + native + two_plus + other) /
         (white + black + hisp + asian + native + two_plus + other)
-    )
-  )
-  , "Age" = list(varcode = "hbicna", start = 1950, end = 2020, step = 10,
-    lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
-    barTitle = "Population by age", barhoverformat = ",.0f",
-    barCats = list(
-      "0-9 years" = "zero_nine",
-      "10-19 years" = "ten_nineteen",
-      "20-34 years" = "twenty_thirtyfour",
-      "35-54 years" = "thirtyfive_fiftyfour",
-      "55-64 years" = "fiftyfive_sixtyfour",
-      "65 years and over" = "sixtyfive_more"
-    ), summary_expression = rlang::expr(
-      (twenty_thirtyfour) /
-        (zero_nine + ten_nineteen + twenty_thirtyfour + 
-           thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
-    )
+    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories reported by the Census were White, Black, and Other."
   )
   , "Nativity" = list(varcode = "hbicnnat", start = 1950, end = 2020, step = 10,
     lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
@@ -48,7 +48,7 @@ all_vars_info$neighborhoods <- list(
     summary_expression = rlang::expr(foreign / (foreign + native))
   )
   , "Educational Attainment" = list(varcode = "hbicnedu", start = 1950, end = 2020, step = 10,
-    lineTitle = "Share of population with a bachelor's or more", linehoverformat = ".0%",
+    lineTitle = "Share of population with a bachelor's degree or higher", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
     barTitle = "Population by educational attainment", barhoverformat = ",.0f",
     barCats = list(

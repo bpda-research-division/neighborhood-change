@@ -131,10 +131,6 @@ tabPanelServer <- function(geo_type) {
   moduleServer(
     geo_type,
     function(input, output, session) {
-      # output$varText <- reactive ({
-      #   as.character(sum(var_data()$ss_df$SUMMARY_VALUE, na.rm = TRUE))
-      # }) # for debugging
-      
       # string representation of the namespaced geography type (e.g. "tracts")
       geo_namespace <- substr(session$ns(''), 1, nchar(session$ns('')) - 1)
       # Label for map polygons with null values - function of geography type
@@ -145,6 +141,10 @@ tabPanelServer <- function(geo_type) {
       var_params <- reactive({
         all_vars_info[[geo_namespace]][[input$variable]]
       })
+      
+      # output$varText <- reactive ({
+      #   var_params()$note
+      # }) # for debugging
       
       # Shortcut to the data for whichever variable the user has selected
       var_data <- reactive({
@@ -326,6 +326,7 @@ tabPanelServer <- function(geo_type) {
                    , categoryorder = 'array' # these 2 lines set the order of the bar categories
                    , categoryarray = names(var_params()$barCats)
                   ),
+                 annotations = list(xref = 'paper', x = 0.5, y=barRange()[2], showarrow=FALSE, text=ifelse(is.null(var_params()$note),"",var_params()$note)),
                  margin = list(t=40),
                  font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-1)
                  )

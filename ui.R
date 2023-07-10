@@ -76,9 +76,13 @@ geoTabPanelUI <- function(geo_type, variables) {
       #             rownames(subset(brewer.pal.info, category %in% c("seq", "div")))
       # ),
       # checkboxInput("legend", "Show legend", TRUE),
-      plotlyOutput(ns("bar_chart")),
-      # htmlOutput(ns("varText"), style='padding:10px;'), # for debugging
-      plotlyOutput(ns("line_chart")),
+      fluidRow(style='padding:10px;',
+               column(width=12, align='center',
+                      plotlyOutput(ns("bar_chart")),
+                      htmlOutput(ns("varText"), style='padding:10px;'), # for debugging
+                      plotlyOutput(ns("line_chart")),
+               )
+      ),
       width = 6
     )
   )
