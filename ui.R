@@ -22,9 +22,8 @@ geoTabPanelUI <- function(geo_type, variables) {
        fluidRow(
          column(width = 5,
                 selectInput(ns("variable"), 
-                            "1. Select data:", choices = names(variables)
+                            "1. Select data:", choices = names(variables) #%>% lapply(function (n) {paste0(n, " (", variables[[n]]$start, "-", variables[[n]]$end, ")")})
                             )
-                , HTML(sprintf("<b>2. Select one or more %s on the map to update the charts.</b>", geo_type))
          ),
          column(width = 7, 
                 sliderInput(ns("yearSelect"), 
@@ -34,14 +33,25 @@ geoTabPanelUI <- function(geo_type, variables) {
                             animate = animationOptions(interval = 500 #, playButton = icon('play', "fa-3x"), pauseButton = icon('pause', "fa-3x")
                                                        )
                             )
-                , fluidRow(style='padding:10px;',
-                  column(width=5, align='center',
-                         actionButton(ns("clearSelections"), "Clear all selections")
-                  ),
-                  column(width=7, align='center',
-                         htmlOutput(ns("selectionText"))
-                  )
-                )
+                # , fluidRow(style='padding:10px;',
+                #            column(width=6, align='right',
+                #                   actionButton(ns("clearSelections"), "Clear all selections")
+                #            ),
+                #            column(width=6, align='left',
+                #                   htmlOutput(ns("selectionText"))
+                #            )
+                # )
+         )
+       ),
+       fluidRow(style='padding:10px;',
+         column(width=5,
+                HTML(sprintf("<b>2. Select one or more %s on the map to update the charts.</b>", geo_type))
+         ),
+         column(width=3, align='right',
+                actionButton(ns("clearSelections"), "Clear all selections", style=sprintf("font-size:%spx", APP_FONT_SIZE))
+         ),
+         column(width=4, align='left',
+                htmlOutput(ns("selectionText"))
          )
        ),
        # fluidRow(style='padding:10px;',
@@ -93,11 +103,14 @@ tabGenerator <- function(name) {
 }
 
 # Creates as many tabs as there are geography types, plus one for the about page
-ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"
+ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}" # for shiny style, .irs-grid-text {font-size: 0px;} .irs--shiny .irs-from,.irs--shiny .irs-to,.irs--shiny .irs-single {font-size: 11px;}
                            ), # this css hides the minor tick marks on the slider
-  # setSliderColor(c("DimGrey", "DimGray"), c(1,2)), # https://divadnojnarg.github.io/post/customsliderinput/
-  tags$head(tags$style(HTML(sprintf('* {font-family: "%s"};', APP_FONT)))),
-  chooseSliderSkin("Shiny", color = "#112446"),
+  setSliderColor(c("#010f46"), c(1)), # https://divadnojnarg.github.io/post/customsliderinput/
+  tags$head(tags$style(HTML(sprintf('* {font-family: "%s"; font-size: %spx;};', APP_FONT, APP_FONT_SIZE)))),
+  # tags$style("body { font-size: 14px; line-height: 14px; }"),
+  tags$head(tags$style(type='text/css', ".slider-animate-button { font-size: 20pt !important; }")),
+  tags$head(tags$style('.selectize-dropdown {z-index: 10000}')), # place the variable selection in front of other elements
+  chooseSliderSkin("Square"),
   headerPanel(h1("Boston Neighborhood Change Dashboard", align = "center")),
   do.call(tabsetPanel,
           lapply(append(names(all_vars_info), "About"), tabGenerator)

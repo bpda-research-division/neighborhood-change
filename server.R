@@ -177,6 +177,7 @@ tabPanelServer <- function(geo_type) {
             addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), 
                         fillColor = ~pal(SUMMARY_VALUE), fillOpacity = 0.7, 
                         weight = 1, smoothFactor = 0, label = ~htmlEscape(NAME),
+                        labelOptions = labelOptions(style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2))),
                         options = pathOptions(pane = "layer2"), color = "gray", 
                         highlight = highlightOptions(
                           weight = 3,
@@ -192,7 +193,8 @@ tabPanelServer <- function(geo_type) {
         # add a hidden layer of polygons that will display in response to clicks
         leafletProxy("map") %>%
           addPolygons(data=yrdfs[[yr]], group=~GEOID, weight = 3, color = "red", 
-                      fillOpacity=0, label = ~htmlEscape(NAME),
+                      fillOpacity=0, label = ~htmlEscape(NAME), 
+                      labelOptions = labelOptions(style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2))),
                       options = pathOptions(pane = "layer1")
           ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) %>%
           
@@ -205,7 +207,7 @@ tabPanelServer <- function(geo_type) {
                transform = ifelse(grepl("%", var_params()$tickformat, fixed = TRUE), 
                                   function(x) round(x*100), function (x) x)
                ),
-             na.label = null_label, decreasing = TRUE, title = var_params()$lineTitle)
+             na.label = null_label, decreasing = TRUE, title = newline_every_3_words(var_params()$lineTitle)) # paste(c("hi", "<br>", "there"), collapse = ' ')
       })
       
       # Keep track of the full set of years for the variable the user selects
@@ -324,7 +326,8 @@ tabPanelServer <- function(geo_type) {
                    , categoryorder = 'array' # these 2 lines set the order of the bar categories
                    , categoryarray = names(var_params()$barCats)
                   ),
-                 font=list(color="black", family = APP_FONT)
+                 margin = list(t=40),
+                 font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-1)
                  )
       })
       
@@ -399,7 +402,7 @@ tabPanelServer <- function(geo_type) {
                   , range = lineRange()
                   ), 
                  xaxis = list(
-                   title = 'Year'
+                   title = ''
                    , fixedrange = TRUE
                    , range = c(
                      as.numeric(var_params()$start) - var_xrange_bookend()
@@ -407,8 +410,9 @@ tabPanelServer <- function(geo_type) {
                      )
                    ), 
                  title = var_params()$lineTitle,
-                 legend = list(orientation = 'h', x=0.5, y=1),
-                 font=list(color="black", family = APP_FONT)
+                 margin = list(t=40),
+                 legend = list(orientation = 'h', x=0.5, y=1.03),
+                 font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-1)
                  )
       })
     }

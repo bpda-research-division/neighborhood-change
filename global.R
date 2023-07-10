@@ -1,6 +1,7 @@
 # Imports and Setup #####
 library(dplyr)
 APP_FONT <- "Arial Bold"
+APP_FONT_SIZE <- 16
 all_vars_info <- list()
 
 # Define parameters for each geography type and variable ############
@@ -107,6 +108,16 @@ all_vars_info$tracts <- list(
 ) # %>% as.data.frame() #%>% setNames(var_attrs)
 
 # Miscellaneous Functions ###########
+
+newline_every_3_words <- function(s) {
+  words <- unlist(strsplit(s, " +"))
+  num_words <- length(words)
+  num_lines <- num_words %/% 3
+  for (i in num_lines:1) {
+    words <- append(words, "<br>", after=i*3)
+  }
+  paste(words, collapse = " ")
+}
 
 #' Implements https://en.wikipedia.org/wiki/Pareto_interpolation
 pareto_median <- function(lower_income, upper_income, lower_pct, upper_pct) {
