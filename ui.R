@@ -3,6 +3,8 @@
 css_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
 html_fix <- htmltools::tags$style(type = "text/css", css_fix)  # Convert CSS to HTML
 
+# UI Module and Functions ##########
+
 #' For each geography type with its given collection of variables, we create a
 #' tabPanel with the same set of components (map, line chart, bar chart, etc)
 #' This function creates those components, namespacing them using the geo_type
@@ -25,17 +27,9 @@ geoTabPanelUI <- function(geo_type, variables) {
                             HTML("3. Drag the slider or click &#9658; to see change over time:"),
                             initial_st, initial_end, sep = "", ticks=TRUE,
                             value = initial_st, step = initial_step, 
-                            animate = animationOptions(interval = 500 #, playButton = icon('play', "fa-3x"), pauseButton = icon('pause', "fa-3x")
+                            animate = animationOptions(interval = 600 #, playButton = icon('play', "fa-3x"), pauseButton = icon('pause', "fa-3x")
                                                        )
                             )
-                # , fluidRow(style='padding:10px;',
-                #            column(width=6, align='right',
-                #                   actionButton(ns("clearSelections"), "Clear all selections")
-                #            ),
-                #            column(width=6, align='left',
-                #                   htmlOutput(ns("selectionText"))
-                #            )
-                # )
          )
        ),
        fluidRow(style='padding:10px;',
@@ -49,28 +43,11 @@ geoTabPanelUI <- function(geo_type, variables) {
                 htmlOutput(ns("selectionText"))
          )
        ),
-       # fluidRow(style='padding:10px;',
-       #          column(width=4, align = 'center',
-       #                 HTML(sprintf("<b>2. Select one or more %s on the map to update the charts.</b>", geo_type))
-       #          ), # this may turn into a textOutput and live in the server if we want areas to say tracts/neighborhoods instead
-       #          column(width=3, align='right',
-       #                 actionButton(ns("clearSelections"), "Clear all selections")
-       #          ),
-       #          column(width=5, align='center',
-       #                 htmlOutput(ns("selectionText"))
-       #          )
-       #          
-       #          
-       # ),
        leafletOutput(ns("map"), height='65%') %>% 
          htmlwidgets::prependContent(html_fix), # apply the legend NA values fix
        width=6
     ),
     mainPanel( #style='padding:10px;',
-      # selectInput("colors", "Color Scheme",
-      #             rownames(subset(brewer.pal.info, category %in% c("seq", "div")))
-      # ),
-      # checkboxInput("legend", "Show legend", TRUE),
       fluidRow(style='padding:10px;',
                column(width=12, align='center',
                       plotlyOutput(ns("bar_chart")),
@@ -101,7 +78,7 @@ tabGenerator <- function(name) {
   }
 }
 
-sidebar_background_color = '#edeff2'
+# UI ##########
 
 # Creates as many tabs as there are geography types, plus one for the about page
 ui <- fluidPage(
@@ -119,6 +96,12 @@ ui <- fluidPage(
     h1("Boston Neighborhood Change Dashboard", align = "left", style = sprintf('font-size:40px; font-family: "%s";', APP_FONT))  
     , windowTitle = "Boston Neighborhood Change Dashboard"
   ),
+  # modalDialog(
+  #   "For instructions, see xyz. Terms and services, etc",
+  #   title = h3("Welcome to the Boston Neighborhood Change Explorer!", align="center"),
+  #   size = "l",
+  #   easyClose = FALSE
+  # ),
   # 4("A BPDA Research Division project", align = "left"),
   do.call(tabsetPanel,
           lapply(append(names(all_vars_info), "About"), tabGenerator)

@@ -38,77 +38,7 @@ for (geo_type in names(all_vars_data)) {
   }
 }
 
-# For each variable, we have (sub-city / citywide) * (binned data / central tendency)
-# each variable has a code, so we read in varcode_<sb/cb/ss/cs>.rds
-
-# tracts2010 <- read_sf('geoms/boston_tracts_2010.geojson') %>%
-#   mutate(GEOID10 = as.character(GEOID10))
-# 
-# df <- readRDS(file ="./data/acshhi_ss.rds") %>% 
-#   mutate(GEOID = as.character(GEOID)) %>%
-#   merge(tracts2010, by.y = "GEOID10", by.x = "GEOID") %>%
-#   st_as_sf()
-# # df_prev <- readRDS(file ="./data/tract_hh_income_geo.rds")
-# 
-# bdf <- readRDS(file = "./data/acshhi_sb.rds") %>%
-#   mutate(GEOID = as.character(GEOID)) # %>%
-#   # merge(tracts2010, by.y = "GEOID10", by.x = "GEOID")
-# 
-# cs_df <- readRDS(file = './data/acshhi_cs.rds')
-# cb_df <- readRDS(file = './data/acshhi_cb.rds')
-# t <- subset(bdf, GEOID %in% c('25025010802', '25025010801') & year == 2018) %>%
-#   group_by(variable) %>% summarise(estimate = mean(estimate))
-# t <- subset(df, GEOID == '25025010802' & year == 2018)$median_household_incomeE
-# d10 <- df[df$year == 2010,]
-# d18 <- df[df$year == 2018,]
-# yrdfs <- split(df, df$YEAR)
-# yrdfs_prev <- split(df_prev, df_prev$year)
-# pal <- colorNumeric("Purples", domain = df$SUMMARY_VALUE)
-
-# inc_bckts <- c(
-#   "Less than $10,000" = "S1901_C01_002"
-#   , "$10,000 to $14,999" = "S1901_C01_003"
-#   , "$15,000 to $24,999" = "S1901_C01_004"
-#   , "$25,000 to $34,999" = "S1901_C01_005"
-#   , "$35,000 to $49,999" = "S1901_C01_006"
-#   , "$50,000 to $74,999" = "S1901_C01_007"
-#   , "$75,000 to $99,999" = "S1901_C01_008"
-#   , "$100,000 to $149,999" = "S1901_C01_009"
-#   , "$150,000 to $199,999" = "S1901_C01_010"
-#   , "More than $200,000" = "S1901_C01_011"
-# )
-
-# t <- all_vars_data[["neighborhoods"]][["Labor Force"]]$ss_df %>% split(~YEAR)
-
-# 
-# addTimedLayers <- function(map) {
-#   map <- map %>% addMapPane("layer1", zIndex=420) %>% addMapPane("layer2",zIndex=410)
-#   for (yr in names(yrdfs)) {
-#     map <- map %>% 
-#       addPolygons(data=yrdfs[[yr]], group=yr, layerId = ~paste(GEOID, yr), fillColor = ~pal(SUMMARY_VALUE),
-#                  weight = 1, color = "gray", smoothFactor = 0, fillOpacity = 0.7, # label = ~htmlEscape(NAME),
-#                  options = pathOptions(pane = "layer2"), # lower pane
-#                  # Highlight polygons upon mouseover
-#                  highlight = highlightOptions(
-#                    weight = 3,
-#                    #stroke = 2,
-#                    fillOpacity = 0.7,
-#                    color = "black",
-#                    #opacity = 1.0,
-#                    #bringToFront = TRUE,
-#                    #sendToBack = TRUE
-#                    ), 
-#                  )
-#   } 
-#   map %>% # hidden layer of identical polygons that will be added in response to clicks
-#     addPolygons(data=yrdfs[[yr]], group=~GEOID, weight = 3, color = "red", fillOpacity=0,
-#                 options = pathOptions(pane = "layer1") # upper pane
-#                 ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) #
-# }
-
-# t <- subset(all_vars_data[['neighborhoods']][['Labor Force']]$cs_df, YEAR == 2010)$SUMMARY_VALUE
-
-# Server ##############
+# Server Module ##############
 #' Build the server for a tabPanel for a given namespaced geography type 
 tabPanelServer <- function(geo_type) {
   moduleServer(
@@ -164,12 +94,10 @@ tabPanelServer <- function(geo_type) {
                         options = pathOptions(pane = "layer2"), color = "gray", 
                         highlight = highlightOptions(
                           weight = 3,
-                          #stroke = 2,
                           fillOpacity = 0.7,
                           color = "black",
-                          #opacity = 1.0,
-                          bringToFront = TRUE,
-                          #sendToBack = TRUE
+                          # opacity = 1.0,
+                          bringToFront = TRUE
                         ), 
             )
         } 
@@ -287,15 +215,14 @@ tabPanelServer <- function(geo_type) {
         plot_ly(filteredBar(),
                 x = ~CATEGORY, 
                 y = ~VALUE, 
-                # xend=~variable, yend=0, # if using add_segments()
-                # marker = list(color = my_bar_color),
-                # name = "Household Income",
+                # marker = list(pattern = list(shape = "/")),
                 hoverinfo = 'text',
-                # type = "bar",
                 source = "bar_plot"
-        ) %>% #hide_legend %>%
+        ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
-          add_bars(color=I(my_bar_color), hoverinfo = 'y') %>% # line = list(width = 25) # if using add_segments() instead
+          add_bars(color=I(my_bar_color), 
+                   hoverinfo = 'y', marker = list(line = list(width=2, color=my_bar_color))
+                   ) %>% 
           layout(yaxis = list(
                   title = ''
                   , fixedrange = TRUE
@@ -334,9 +261,6 @@ tabPanelServer <- function(geo_type) {
                                  values_from = 'VALUE') %>% rowwise() %>%
             mutate(SUMMARY_VALUE = !!var_params()$summary_expression) %>%
             select(c("YEAR", "SUMMARY_VALUE"))
-          
-          # subset(var_data()$ss_df, GEOID %in% selected$groups) %>%
-          #   group_by(YEAR) %>% summarise(SUMMARY_VALUE = mean(SUMMARY_VALUE)) # TODO: aggregate from sb using a param'd summary expr
         }
       })
       
@@ -366,13 +290,13 @@ tabPanelServer <- function(geo_type) {
                 hoverinfo = 'text'
         ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
-          add_lines(color=I(my_line_color), line=list(width = my_line_width), 
+          add_lines(color=I(my_line_color), line=list(width = my_line_width, shape = 'spline', smoothing = 1.1), 
                     hoverinfo = "y", name=selectionName())
         if (length(selected$groups) > 0) {
           p <- p %>% add_lines(x = var_data()$cs_df$YEAR,
                                y = var_data()$cs_df$SUMMARY_VALUE,
                                hoverinfo="y", name="Citywide", color=I(my_line_color),
-                               line = list(dash='dash'))
+                               line = list(dash='dash', shape = 'spline', smoothing = 1.1))
         }
         p %>%
           add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "skip",
@@ -405,20 +329,7 @@ tabPanelServer <- function(geo_type) {
   )
 }
 
-# se <- rlang::expr(ilf_f / (ilf_f + nilf_f))
-# bc <- all_vars_info$tracts$`Income`$barCats
-# t <- subset(all_vars_data$tracts$`Income`$sb_df, GEOID %in% c("25025010801", "25025010802")) %>%
-#   group_by(CATEGORY, YEAR) %>%
-#   summarise(VALUE = all_vars_info[["tracts"]][["Income"]][["agg_func"]](VALUE), .groups = "drop")
-# t$CATEGORY <- plyr::mapvalues(t$CATEGORY,
-#                               to = unname(bc),
-#                               from = names(bc))
-# t <- t %>% pivot_wider(id_cols = "YEAR",
-#                        names_from='CATEGORY',
-#                        values_from = 'VALUE') %>%
-#   mutate(SUMMARY_VALUE = !!se) %>%
-#   select(c("YEAR", "SUMMARY_VALUE"))
-
+# Server ##############
 #' Each geography type gets its own server so that they can act independently
 server <- function(input, output, session) {
   lapply(names(all_vars_info), function(geo_type) {

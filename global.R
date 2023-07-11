@@ -11,7 +11,7 @@ library(htmltools)
 APP_FONT <- "Arial Bold"
 APP_FONT_SIZE <- 16
 my_map_palette <- "Purples" # https://www.rdocumentation.org/packages/leaflet/versions/2.1.2/topics/colorNumeric
-my_bar_color <- '#7f76b7'
+my_bar_color <- '#7f76b7' # 
 my_line_color <- "#756bb1" # 60809f
 my_line_width <- 2
 all_vars_info <- list()
@@ -167,28 +167,28 @@ all_vars_info$tracts <- list(
       , "Female not in labor force" = "nilf_f"
     ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f))
   )
-  # , "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
-  #   lineTitle = "Median Household Income", linehoverformat = ",.0f",
-  #   tickprefix = "$", tickformat = "~s", agg_func = sum,
-  #   barTitle = "Households by Income", barhoverformat = ",.0f",
-  #   barCats = list(
-  #     "Less than $10,000" = "S1901_C01_002"
-  #     , "$10,000 to $14,999" = "S1901_C01_003"
-  #     , "$15,000 to $24,999" = "S1901_C01_004"
-  #     , "$25,000 to $34,999" = "S1901_C01_005"
-  #     , "$35,000 to $49,999" = "S1901_C01_006"
-  #     , "$50,000 to $74,999" = "S1901_C01_007"
-  #     , "$75,000 to $99,999" = "S1901_C01_008"
-  #     , "$100,000 to $149,999" = "S1901_C01_009"
-  #     , "$150,000 to $199,999" = "S1901_C01_010"
-  #     , "More than $200,000" = "S1901_C01_011"
-  #   ), summary_expression = rlang::expr(pareto_median_income(
-  #     hh_by_income = c(S1901_C01_002, S1901_C01_003, S1901_C01_004, 
-  #                      S1901_C01_005, S1901_C01_006, S1901_C01_007, 
-  #                      S1901_C01_008, S1901_C01_009, S1901_C01_010, S1901_C01_011)
-  #     , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
-  #   ))
-  # )
+  , "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
+    lineTitle = "Median Household Income", linehoverformat = ",.0f",
+    tickprefix = "$", tickformat = "~s", agg_func = sum,
+    barTitle = "Households by Income", barhoverformat = ",.0f",
+    barCats = list(
+      "Less than $10,000" = "S1901_C01_002"
+      , "$10,000 to $14,999" = "S1901_C01_003"
+      , "$15,000 to $24,999" = "S1901_C01_004"
+      , "$25,000 to $34,999" = "S1901_C01_005"
+      , "$35,000 to $49,999" = "S1901_C01_006"
+      , "$50,000 to $74,999" = "S1901_C01_007"
+      , "$75,000 to $99,999" = "S1901_C01_008"
+      , "$100,000 to $149,999" = "S1901_C01_009"
+      , "$150,000 to $199,999" = "S1901_C01_010"
+      , "More than $200,000" = "S1901_C01_011"
+    ), summary_expression = rlang::expr(pareto_median_income(
+      hh_by_income = c(S1901_C01_002, S1901_C01_003, S1901_C01_004,
+                       S1901_C01_005, S1901_C01_006, S1901_C01_007,
+                       S1901_C01_008, S1901_C01_009, S1901_C01_010, S1901_C01_011)
+      , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
+    ))
+  )
 ) # %>% as.data.frame() #%>% setNames(var_attrs)
 
 # Miscellaneous Functions ###########
