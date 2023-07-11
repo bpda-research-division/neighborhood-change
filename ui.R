@@ -1,8 +1,3 @@
-library(dplyr)
-library(shinyWidgets)
-library(leaflet)
-library(plotly)
-
 # the below variables are used to reformat the map legend to place the NA value below the color
 # palette - default behavior in the current version of Leaflet is for them to be side by side
 css_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
@@ -22,12 +17,12 @@ geoTabPanelUI <- function(geo_type, variables) {
        fluidRow(
          column(width = 5,
                 selectInput(ns("variable"), 
-                            "1. Select data:", choices = names(variables) #%>% lapply(function (n) {paste0(n, " (", variables[[n]]$start, "-", variables[[n]]$end, ")")})
+                            "1. Select a variable:", choices = names(variables) #%>% lapply(function (n) {paste0(n, " (", variables[[n]]$start, "-", variables[[n]]$end, ")")})
                             )
          ),
          column(width = 7, 
                 sliderInput(ns("yearSelect"), 
-                            "3. Drag the slider to see change over time:",
+                            HTML("3. Drag the slider or click &#9658; to see change over time:"),
                             initial_st, initial_end, sep = "", ticks=TRUE,
                             value = initial_st, step = initial_step, 
                             animate = animationOptions(interval = 500 #, playButton = icon('play', "fa-3x"), pauseButton = icon('pause', "fa-3x")
@@ -106,16 +101,25 @@ tabGenerator <- function(name) {
   }
 }
 
+sidebar_background_color = '#edeff2'
+
 # Creates as many tabs as there are geography types, plus one for the about page
-ui <- fluidPage(tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}" # for shiny style, .irs-grid-text {font-size: 0px;} .irs--shiny .irs-from,.irs--shiny .irs-to,.irs--shiny .irs-single {font-size: 11px;}
-                           ), # this css hides the minor tick marks on the slider
-  setSliderColor(c("#010f46"), c(1)), # https://divadnojnarg.github.io/post/customsliderinput/
-  tags$head(tags$style(HTML(sprintf('* {font-family: "%s"; font-size: %spx;};', APP_FONT, APP_FONT_SIZE)))),
+ui <- fluidPage(
+  tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"), # this css hides the minor tick marks on the slider
+  # for shiny style, .irs-grid-text {font-size: 0px;} .irs--shiny .irs-from,.irs--shiny .irs-to,.irs--shiny .irs-single {font-size: 11px;}
+  setSliderColor(c("#201934"), c(1)), # https://divadnojnarg.github.io/post/customsliderinput/
+  tags$head(tags$style(HTML(sprintf('* {font-size: %spx;};', APP_FONT_SIZE)))),
+  tags$head(tags$style(HTML(sprintf('* {font-family: "%s";};', APP_FONT)))), 
+  # tags$head(tags$style(HTML('.well {background-color: #edeff2;}'))), #change background color of sidebarPanel
   # tags$style("body { font-size: 14px; line-height: 14px; }"),
   tags$head(tags$style(type='text/css', ".slider-animate-button { font-size: 20pt !important; }")),
   tags$head(tags$style('.selectize-dropdown {z-index: 10000}')), # place the variable selection in front of other elements
   chooseSliderSkin("Square"),
-  headerPanel(h1("Boston Neighborhood Change Dashboard", align = "center")),
+  headerPanel(
+    h1("Boston Neighborhood Change Dashboard", align = "left", style = sprintf('font-size:40px; font-family: "%s";', APP_FONT))  
+    , windowTitle = "Boston Neighborhood Change Dashboard"
+  ),
+  # 4("A BPDA Research Division project", align = "left"),
   do.call(tabsetPanel,
           lapply(append(names(all_vars_info), "About"), tabGenerator)
   )

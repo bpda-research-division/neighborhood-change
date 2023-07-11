@@ -1,7 +1,19 @@
 # Imports and Setup #####
+library(sf)
 library(dplyr)
+library(tidyr)
+library(shiny)
+library(shinyWidgets)
+library(plotly)
+library(leaflet)
+library(htmltools)
+
 APP_FONT <- "Arial Bold"
 APP_FONT_SIZE <- 16
+my_map_palette <- "Purples" # https://www.rdocumentation.org/packages/leaflet/versions/2.1.2/topics/colorNumeric
+my_bar_color <- '#7f76b7'
+my_line_color <- "#756bb1" # 60809f
+my_line_width <- 2
 all_vars_info <- list()
 
 # Define parameters for each geography type and variable ############
@@ -38,7 +50,7 @@ all_vars_info$neighborhoods <- list(
     ), summary_expression = rlang::expr(
       (black + hisp + asian + native + two_plus + other) /
         (white + black + hisp + asian + native + two_plus + other)
-    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories reported by the Census were White, Black, and Other."
+    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
   )
   , "Nativity" = list(varcode = "hbicnnat", start = 1950, end = 2020, step = 10,
     lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
@@ -82,29 +94,101 @@ all_vars_info$neighborhoods <- list(
 ) # %>% as.data.frame() #%>% setNames(var_attrs)
 
 all_vars_info$tracts <- list(
-  "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
-    lineTitle = "Median Household Income", linehoverformat = ",.0f",
-    tickprefix = "$", tickformat = "~s", agg_func = sum,
-    barTitle = "Households by Income", barhoverformat = ",.0f",
-    barCats = list(
-      "Less than $10,000" = "S1901_C01_002"
-      , "$10,000 to $14,999" = "S1901_C01_003"
-      , "$15,000 to $24,999" = "S1901_C01_004"
-      , "$25,000 to $34,999" = "S1901_C01_005"
-      , "$35,000 to $49,999" = "S1901_C01_006"
-      , "$50,000 to $74,999" = "S1901_C01_007"
-      , "$75,000 to $99,999" = "S1901_C01_008"
-      , "$100,000 to $149,999" = "S1901_C01_009"
-      , "$150,000 to $199,999" = "S1901_C01_010"
-      , "More than $200,000" = "S1901_C01_011"
-    ), summary_expression = rlang::expr(pareto_median_income(
-      hh_by_income = c(S1901_C01_002, S1901_C01_003, S1901_C01_004, 
-                       S1901_C01_005, S1901_C01_006, S1901_C01_007, 
-                       S1901_C01_008, S1901_C01_009, S1901_C01_010, S1901_C01_011)
-      , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
-    ))
-    # , "Age" = list(...)
+  "Age" = list(varcode = "hbicta", start = 1950, end = 2020, step = 10,
+   lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
+   tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+   barTitle = "Population by age", barhoverformat = ",.0f",
+   barCats = list(
+     "0-9 years" = "zero_nine",
+     "10-19 years" = "ten_nineteen",
+     "20-34 years" = "twenty_thirtyfour",
+     "35-54 years" = "thirtyfive_fiftyfour",
+     "55-64 years" = "fiftyfive_sixtyfour",
+     "65 years and over" = "sixtyfive_more"
+   ), summary_expression = rlang::expr(
+     (twenty_thirtyfour) /
+       (zero_nine + ten_nineteen + twenty_thirtyfour + 
+          thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+   )
   )
+  , "Race and Ethnicity" = list(varcode = "hbictre", start = 1950, end = 2020, step = 10,
+    lineTitle = "Non-white share of population", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
+    barCats = list(
+      "White" = "white",
+      "Black/African American" = "black",
+      "Hispanic/Latino" = "hisp",
+      "Asian/Pacific Islander" = "asian",
+      "Native American" = "native",
+      "Two or More" = "two_plus",
+      "Other" = "other"
+    ), summary_expression = rlang::expr(
+      (black + hisp + asian + native + two_plus + other) /
+        (white + black + hisp + asian + native + two_plus + other)
+    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
+  )
+  , "Nativity" = list(varcode = "hbictnat", start = 1950, end = 2020, step = 10,
+    lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Population by nativity", barhoverformat = ",.0f",
+    barCats = list("Native-born" = "native", "Foreign-born" = "foreign"), 
+    summary_expression = rlang::expr(foreign / (foreign + native))
+  )
+  , "Educational Attainment" = list(varcode = "hbictedu", start = 1950, end = 2020, step = 10,
+    lineTitle = "Share of population with a bachelor's degree or higher", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Population by educational attainment", barhoverformat = ",.0f",
+    barCats = list(
+      "Less than high school" = "lhs",
+      "High school or some equivalent" = "he",
+      "Some college" = "sc",
+      "Bachelor's or more" = "bm"
+    ), summary_expression = rlang::expr(bm / (lhs + he + sc + bm))
+  )
+  , "Housing Tenure" = list(varcode = "hbicthou", start = 1950, end = 2020, step = 10,
+    lineTitle = "Owner-occupied housing share", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Housing units by tenure", barhoverformat = ",.0f",
+    barCats = list(
+      "Owner Occupied" = "owner",
+      "Renter Occupied" = "renter",
+      "Vacant" = "vac"
+    ), summary_expression = rlang::expr(owner / (owner + renter))
+  )
+  , "Labor Force" = list(varcode = "hbictlf", start = 1950, end = 2020, step = 10,
+    lineTitle = "Female labor force participation rate", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Labor force status by sex", barhoverformat = ",.0f",
+    barCats = list(
+      "Male in labor force" = "ilf_m"
+      , "Male not in labor force" = "nilf_m"
+      , "Female in labor force" = "ilf_f"
+      , "Female not in labor force" = "nilf_f"
+    ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f))
+  )
+  # , "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
+  #   lineTitle = "Median Household Income", linehoverformat = ",.0f",
+  #   tickprefix = "$", tickformat = "~s", agg_func = sum,
+  #   barTitle = "Households by Income", barhoverformat = ",.0f",
+  #   barCats = list(
+  #     "Less than $10,000" = "S1901_C01_002"
+  #     , "$10,000 to $14,999" = "S1901_C01_003"
+  #     , "$15,000 to $24,999" = "S1901_C01_004"
+  #     , "$25,000 to $34,999" = "S1901_C01_005"
+  #     , "$35,000 to $49,999" = "S1901_C01_006"
+  #     , "$50,000 to $74,999" = "S1901_C01_007"
+  #     , "$75,000 to $99,999" = "S1901_C01_008"
+  #     , "$100,000 to $149,999" = "S1901_C01_009"
+  #     , "$150,000 to $199,999" = "S1901_C01_010"
+  #     , "More than $200,000" = "S1901_C01_011"
+  #   ), summary_expression = rlang::expr(pareto_median_income(
+  #     hh_by_income = c(S1901_C01_002, S1901_C01_003, S1901_C01_004, 
+  #                      S1901_C01_005, S1901_C01_006, S1901_C01_007, 
+  #                      S1901_C01_008, S1901_C01_009, S1901_C01_010, S1901_C01_011)
+  #     , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
+  #   ))
+  # )
 ) # %>% as.data.frame() #%>% setNames(var_attrs)
 
 # Miscellaneous Functions ###########

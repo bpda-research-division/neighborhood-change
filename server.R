@@ -1,20 +1,3 @@
-# Imports and Setup ##############
-library(sf)
-library(dplyr)
-library(tidyr)
-library(shiny)
-library(plotly)
-library(leaflet)
-# library(leafem)
-library(htmltools)
-# library(tidycensus)
-# library(RColorBrewer)
-
-my_map_palette <- "Purples" # https://www.rdocumentation.org/packages/leaflet/versions/2.1.2/topics/colorNumeric
-my_bar_color <- '#60809f'
-my_line_color <- "#60809f"
-my_line_width <- 2
-
 # Data loading ######################
 
 # subcity bins, subcity summary, citywide bins, citywide summary
@@ -39,7 +22,7 @@ all_vars_data <- all_vars_info %>% lapply(function(geo_type) geo_type %>% lapply
 # read one shapefile for each geography type that we have. Must have a unique
 # GEOID attribute that corresponds with the GEOID attribute in our tabular data
 geoms <- list()
-geoms$tracts <- read_sf('geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
+geoms$tracts <- read_sf('geoms/boston_tracts_2020.geojson') %>% mutate(GEOID = as.character(geoid20))
 geoms$neighborhoods <- read_sf('geoms/boston_neighborhoods_2020bg.geojson') %>% mutate(GEOID = BlockGr202)
 
 # Join each ss_df (the df that gets mapped) to its appropriate shapefile
@@ -326,6 +309,7 @@ tabPanelServer <- function(geo_type) {
                    , categoryorder = 'array' # these 2 lines set the order of the bar categories
                    , categoryarray = names(var_params()$barCats)
                   ),
+                 hoverlabel = list(bordercolor = 'white', font = list(color="white")),
                  annotations = list(xref = 'paper', x = 0.5, y=barRange()[2], showarrow=FALSE, text=ifelse(is.null(var_params()$note),"",var_params()$note)),
                  margin = list(t=40),
                  font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-1)
@@ -385,13 +369,13 @@ tabPanelServer <- function(geo_type) {
           add_lines(color=I(my_line_color), line=list(width = my_line_width), 
                     hoverinfo = "y", name=selectionName())
         if (length(selected$groups) > 0) {
-          p <- p %>% add_lines(x = var_data()$cs_df$YEAR, 
+          p <- p %>% add_lines(x = var_data()$cs_df$YEAR,
                                y = var_data()$cs_df$SUMMARY_VALUE,
                                hoverinfo="y", name="Citywide", color=I(my_line_color),
                                line = list(dash='dash'))
         }
         p %>%
-          add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "y",
+          add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "skip",
                       y = subset(selectedLine(), YEAR == input$yearSelect)$SUMMARY_VALUE,
                       marker = list(color=my_line_color, size=10), showlegend = F) %>%
           layout(yaxis = list(
@@ -399,7 +383,7 @@ tabPanelServer <- function(geo_type) {
                   , fixedrange = TRUE 
                   , tickprefix = var_params()$tickprefix 
                   , tickformat = var_params()$tickformat 
-                  , hoverformat = var_params()$linehoverformat 
+                  , hoverformat = var_params()$linehoverformat
                   , range = lineRange()
                   ), 
                  xaxis = list(
@@ -410,6 +394,7 @@ tabPanelServer <- function(geo_type) {
                      , as.numeric(var_params()$end) + var_xrange_bookend()
                      )
                    ), 
+                 hovermode = "x unified",
                  title = var_params()$lineTitle,
                  margin = list(t=40),
                  legend = list(orientation = 'h', x=0.5, y=1.03),
