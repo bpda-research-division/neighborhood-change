@@ -82,19 +82,21 @@ tabGenerator <- function(name) {
 
 # Creates as many tabs as there are geography types, plus one for the about page
 ui <- fluidPage(
+  # tags$style('.container-fluid {background-color: #007BA7;}'),
   tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"), # this css hides the minor tick marks on the slider
   # for shiny style, .irs-grid-text {font-size: 0px;} .irs--shiny .irs-from,.irs--shiny .irs-to,.irs--shiny .irs-single {font-size: 11px;}
   setSliderColor(c("#201934"), c(1)), # https://divadnojnarg.github.io/post/customsliderinput/
   tags$head(tags$style(HTML(sprintf('* {font-size: %spx;};', APP_FONT_SIZE)))),
   tags$head(tags$style(HTML(sprintf('* {font-family: "%s";};', APP_FONT)))), 
-  # tags$head(tags$style(HTML('.well {background-color: #edeff2;}'))), #change background color of sidebarPanel
+  #tags$style(HTML(".tabbable > .nav > li > a[data-value='About'] {background-color: #edeff2;}")), # change background color of About tab
+  tags$head(tags$style(HTML('.well {background-color: #edeff2;}'))), #change background color of sidebarPanel
   # tags$style("body { font-size: 14px; line-height: 14px; }"),
   tags$head(tags$style(type='text/css', ".slider-animate-button { font-size: 20pt !important; }")),
   tags$head(tags$style('.selectize-dropdown {z-index: 10000}')), # place the variable selection in front of other elements
   chooseSliderSkin("Square"),
-  headerPanel(
-    h1("Boston Neighborhood Change Dashboard", align = "left", style = sprintf('font-size:40px; font-family: "%s";', APP_FONT))  
-    , windowTitle = "Boston Neighborhood Change Dashboard"
+  div(#style = "background-color: #4163ff;", #headerPanel(
+    h1("Boston Neighborhood Change Dashboard", align = "left", style = sprintf('font-size:40px; font-family: "%s";', APP_FONT)) 
+    #, windowTitle = "Boston Neighborhood Change Dashboard"
   ),
   # modalDialog(
   #   "For instructions, see xyz. Terms and services, etc",

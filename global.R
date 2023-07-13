@@ -8,11 +8,11 @@ library(plotly)
 library(leaflet)
 library(htmltools)
 
-APP_FONT <- "Arial Bold"
-APP_FONT_SIZE <- 16
-my_map_palette <- "Purples" # https://www.rdocumentation.org/packages/leaflet/versions/2.1.2/topics/colorNumeric
-my_bar_color <- '#7f76b7' # 
-my_line_color <- "#756bb1" # 60809f
+APP_FONT <- "Helvetica"
+APP_FONT_SIZE <- 18
+my_map_palette <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
+my_bar_color <- '#60809f' # 60809f (blue), 7f76b7 (purple)
+my_line_color <- my_bar_color # could also change to a separate hex code if desired
 my_line_width <- 2
 all_vars_info <- list()
 

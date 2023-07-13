@@ -94,7 +94,7 @@ tabPanelServer <- function(geo_type) {
                         options = pathOptions(pane = "layer2"), color = "gray", 
                         highlight = highlightOptions(
                           weight = 3,
-                          fillOpacity = 0.7,
+                          fillOpacity = 0.85,
                           color = "black",
                           # opacity = 1.0,
                           bringToFront = TRUE
@@ -236,7 +236,7 @@ tabPanelServer <- function(geo_type) {
                    , categoryorder = 'array' # these 2 lines set the order of the bar categories
                    , categoryarray = names(var_params()$barCats)
                   ),
-                 hoverlabel = list(bordercolor = 'white', font = list(color="white")),
+                 hoverlabel = list(bordercolor = 'white', font = list(color="white", size=APP_FONT_SIZE-2)),
                  annotations = list(xref = 'paper', x = 0.5, y=barRange()[2], showarrow=FALSE, text=ifelse(is.null(var_params()$note),"",var_params()$note)),
                  margin = list(t=40),
                  font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-1)
@@ -290,18 +290,22 @@ tabPanelServer <- function(geo_type) {
                 hoverinfo = 'text'
         ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
-          add_lines(color=I(my_line_color), line=list(width = my_line_width, shape = 'spline', smoothing = 1.1), 
-                    hoverinfo = "y", name=selectionName())
+          add_lines(color=I(my_line_color), hoverinfo = "y", name=selectionName(),
+                    line=list(width = my_line_width, shape = 'spline', smoothing = 0.5),
+                    # mode = 'lines+markers', marker = list(color=my_line_color, size=6)
+                    )
         if (length(selected$groups) > 0) {
-          p <- p %>% add_lines(x = var_data()$cs_df$YEAR,
-                               y = var_data()$cs_df$SUMMARY_VALUE,
-                               hoverinfo="y", name="Citywide", color=I(my_line_color),
-                               line = list(dash='dash', shape = 'spline', smoothing = 1.1))
+          p <- p %>% 
+            add_lines(x = var_data()$cs_df$YEAR, y = var_data()$cs_df$SUMMARY_VALUE,
+               hoverinfo="y", name="Citywide", color=I(my_line_color),
+               line = list(dash='dash', shape = 'spline', smoothing = 0.5),
+               
+               )
         }
         p %>%
           add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "skip",
                       y = subset(selectedLine(), YEAR == input$yearSelect)$SUMMARY_VALUE,
-                      marker = list(color=my_line_color, size=10), showlegend = F) %>%
+                      marker = list(color=my_line_color, symbol="diamond", size=10), showlegend = F) %>%
           layout(yaxis = list(
                   title = '' 
                   , fixedrange = TRUE 
