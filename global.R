@@ -17,7 +17,7 @@ my_line_width <- 2
 all_vars_info <- list()
 
 # Define parameters for each geography type and variable ############
-all_vars_info$`census tracts` <- list(
+all_vars_info$tracts <- list(
   "Age" = list(varcode = "hbicta", start = 1950, end = 2020, step = 10,
    lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
    tickprefix = NULL, tickformat = ".0%", agg_func = sum,

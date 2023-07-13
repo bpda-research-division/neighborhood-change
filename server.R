@@ -19,24 +19,24 @@ all_vars_data <- all_vars_info %>% lapply(function(geo_type) geo_type %>% lapply
   )
 )
 
-# read one shapefile for each geography type that we have. Must have a unique
-# GEOID attribute that corresponds with the GEOID attribute in our tabular data
-geoms <- list()
-geoms$`census tracts` <- read_sf('geoms/boston_tracts_2020.geojson') %>% mutate(GEOID = as.character(geoid20))
-geoms$neighborhoods <- read_sf('geoms/boston_neighborhoods_2020bg.geojson') %>% mutate(GEOID = BlockGr202)
-
-# Join each ss_df (the df that gets mapped) to its appropriate shapefile
-for (geo_type in names(all_vars_data)) {
-  for (varname in names(all_vars_data[[geo_type]])) {
-    all_vars_data[[geo_type]][[varname]]$ss_df <- all_vars_data[[geo_type]][[varname]]$ss_df %>%
-      mutate(GEOID = as.character(GEOID)) %>%
-      merge(y=geoms[[geo_type]], by.y = "GEOID", by.x = "GEOID") %>%
-      st_as_sf()
-    
-    # all_vars_data[[geo_type]][[varname]]$sb_df <- all_vars_data[[geo_type]][[varname]]$sb_df %>%
-    #   mutate(GEOID = as.character(GEOID))
-  }
-}
+# # read one shapefile for each geography type that we have. Must have a unique
+# # GEOID attribute that corresponds with the GEOID attribute in our tabular data
+# geoms <- list()
+# geoms$`census tracts` <- read_sf('geoms/boston_tracts_2020.geojson') %>% mutate(GEOID = as.character(geoid20))
+# geoms$neighborhoods <- read_sf('geoms/boston_neighborhoods_2020bg.geojson') %>% mutate(GEOID = BlockGr202)
+# 
+# # Join each ss_df (the df that gets mapped) to its appropriate shapefile
+# for (geo_type in names(all_vars_data)) {
+#   for (varname in names(all_vars_data[[geo_type]])) {
+#     all_vars_data[[geo_type]][[varname]]$ss_df <- all_vars_data[[geo_type]][[varname]]$ss_df %>%
+#       mutate(GEOID = as.character(GEOID)) %>%
+#       merge(y=geoms[[geo_type]], by.y = "GEOID", by.x = "GEOID") %>%
+#       st_as_sf()
+#     
+#     # all_vars_data[[geo_type]][[varname]]$sb_df <- all_vars_data[[geo_type]][[varname]]$sb_df %>%
+#     #   mutate(GEOID = as.character(GEOID))
+#   }
+# }
 
 # Server Module ##############
 #' Build the server for a tabPanel for a given namespaced geography type 

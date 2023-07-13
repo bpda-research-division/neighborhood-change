@@ -4,10 +4,14 @@ library(tidyr)
 # library(tidycensus)
 # options(tigris_use_cache = TRUE)
 
+tract2020_geoms <- read_sf('geoms/boston_tracts_2020.geojson') %>% mutate(GEOID = as.character(geoid20))
+tract2010_geoms <- read_sf('geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
+neigh2020_geoms <- read_sf('geoms/boston_neighborhoods_2020bg.geojson') %>% mutate(GEOID = BlockGr202)
+
 # Functions ##############
 
 # assumes that sb_csv has columns GEOID, NAME, YEAR, <bin_col_names>
-prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expression, cb_csv, ss_csv, cs_csv) {
+prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expression, geoms, cb_csv, ss_csv, cs_csv) {
   if (missing(agg_func)) {
     stop("An agg_func is required")
   }
@@ -29,7 +33,7 @@ prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expr
   else {
     subcity_summary <- subcity_bins %>% 
       mutate(SUMMARY_VALUE = !!summary_expression) %>% 
-      select(-all_of(unname(bin_col_names)))
+      select(-all_of(unname(bin_col_names))) 
   }
   
   if (!missing(cs_csv)) {city_summary <- read.csv(cs_csv)}
@@ -51,11 +55,16 @@ prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expr
     out
   }
   
-  subcity_bins_app <- subcity_bins %>% pivot_long_and_rename_categories()
+  subcity_bins_app <- subcity_bins %>% pivot_long_and_rename_categories() %>%
+    mutate(GEOID = as.character(GEOID))
   city_bins_app <- city_bins %>% pivot_long_and_rename_categories()
+  subcity_summary_app <- subcity_summary %>%
+    mutate(GEOID = as.character(GEOID)) %>%
+    merge(y=geoms, by.y = "GEOID", by.x = "GEOID") %>%
+    st_as_sf()
   
   abbrs = list("sb", "cb", "ss", "cs")
-  dfs = list(subcity_bins_app, city_bins_app, subcity_summary, city_summary)
+  dfs = list(subcity_bins_app, city_bins_app, subcity_summary_app, city_summary)
   
   for (i in 1:4) {
     dfs[[i]] %>% saveRDS(file=sprintf('data/%s_%s.rds', var_code, abbrs[[i]]))
@@ -86,18 +95,18 @@ prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expr
 #   median_household_income = "S1901_C01_012"
 # )
 # 
-# inc_bckts <- c(
-#   "Less than $10,000" = "S1901_C01_002"
-#   , "$10,000 to $14,999" = "S1901_C01_003"
-#   , "$15,000 to $24,999" = "S1901_C01_004"
-#   , "$25,000 to $34,999" = "S1901_C01_005"
-#   , "$35,000 to $49,999" = "S1901_C01_006"
-#   , "$50,000 to $74,999" = "S1901_C01_007"
-#   , "$75,000 to $99,999" = "S1901_C01_008"
-#   , "$100,000 to $149,999" = "S1901_C01_009"
-#   , "$150,000 to $199,999" = "S1901_C01_010"
-#   , "More than $200,000" = "S1901_C01_011"
-# )
+inc_bckts <- c(
+  "Less than $10,000" = "S1901_C01_002"
+  , "$10,000 to $14,999" = "S1901_C01_003"
+  , "$15,000 to $24,999" = "S1901_C01_004"
+  , "$25,000 to $34,999" = "S1901_C01_005"
+  , "$35,000 to $49,999" = "S1901_C01_006"
+  , "$50,000 to $74,999" = "S1901_C01_007"
+  , "$75,000 to $99,999" = "S1901_C01_008"
+  , "$100,000 to $149,999" = "S1901_C01_009"
+  , "$150,000 to $199,999" = "S1901_C01_010"
+  , "More than $200,000" = "S1901_C01_011"
+)
 # 
 # years <- c(2010, 2012, 2014, 2016, 2018)
 # 
@@ -158,14 +167,15 @@ prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expr
 #   pivot_wider(names_from = variable, values_from = estimate)
 # subcity_bins %>% write.csv(file='data/acshhi_sb.csv', row.names=FALSE)
 # 
-# prepare_data(
-#   var_code = 'acshhi'
-#   , sb_csv = 'data/acshhi_sb.csv'
-#   , bin_col_names = inc_bckts
-#   , agg_func = sum
-#   , ss_csv = 'data/acshhi_ss.csv'
-#   , cs_csv = 'data/acshhi_cs.csv'
-# )
+prepare_data(
+  var_code = 'acshhi'
+  , sb_csv = 'data/acshhi_sb.csv'
+  , bin_col_names = inc_bckts
+  , agg_func = sum
+  , geoms = tract2010_geoms
+  , ss_csv = 'data/acshhi_ss.csv'
+  , cs_csv = 'data/acshhi_cs.csv'
+)
 
 # HBIC Neighborhoods Labor Force ##################
 
@@ -187,7 +197,8 @@ prepare_data(
   sb_csv = 'data/hbic_neigh_labor_force_bins.csv', 
   agg_func = sum, 
   bin_col_names = labor_force_bins, 
-  summary_expression = labor_force_summary_expression
+  summary_expression = labor_force_summary_expression,
+  geoms = neigh2020_geoms
 )
 
 # HBIC Neighborhoods Race and Ethnicity ##################
@@ -216,9 +227,9 @@ prepare_data(
   sb_csv = 'data/hbic_neigh_race_ethn_bins.csv', 
   agg_func = sum, 
   bin_col_names = race_ethn_bins, 
-  summary_expression = race_ethn_summary_expression
+  summary_expression = race_ethn_summary_expression,
+  geoms = neigh2020_geoms
 )
-
 
 # HBIC Neighborhoods Age ##################
 
@@ -246,7 +257,8 @@ prepare_data(
   sb_csv = 'data/hbic_neigh_age_year_bins.csv', 
   agg_func = sum, 
   bin_col_names = age_bins, 
-  summary_expression = age_summary_expression
+  summary_expression = age_summary_expression,
+  geoms = neigh2020_geoms
 )
 
 # HBIC Neighborhoods Educational Attainment ##################
@@ -272,7 +284,8 @@ prepare_data(
   sb_csv = 'data/hbic_neigh_edu_attain_bins.csv', 
   agg_func = sum, 
   bin_col_names = edu_att_bins, 
-  summary_expression = edu_att_summary_expression
+  summary_expression = edu_att_summary_expression,
+  geoms = neigh2020_geoms
 )
 
 # HBIC Neighborhoods Housing ##################
@@ -297,7 +310,8 @@ prepare_data(
   sb_csv = 'data/hbic_neigh_housing_bins.csv', 
   agg_func = sum, 
   bin_col_names = housing_bins, 
-  summary_expression = housing_summary_expression
+  summary_expression = housing_summary_expression,
+  geoms = neigh2020_geoms
 )
   
 # HBIC Neighborhoods Nativity ##################
@@ -321,7 +335,8 @@ prepare_data(
   sb_csv = 'data/hbic_neigh_nativity_bins.csv', 
   agg_func = sum, 
   bin_col_names = nativity_bins, 
-  summary_expression = nativity_summary_expression
+  summary_expression = nativity_summary_expression,
+  geoms = neigh2020_geoms
 )
 
 # HBIC Tracts Labor Force ##################
@@ -344,7 +359,8 @@ prepare_data(
   sb_csv = 'data/hbic_tract_labor_force_bins.csv', 
   agg_func = sum, 
   bin_col_names = labor_force_bins, 
-  summary_expression = labor_force_summary_expression
+  summary_expression = labor_force_summary_expression,
+  geoms = tract2020_geoms
 )
 
 # HBIC Tracts Race and Ethnicity ##################
@@ -373,7 +389,8 @@ prepare_data(
   sb_csv = 'data/hbic_tract_race_ethn_bins.csv', 
   agg_func = sum, 
   bin_col_names = race_ethn_bins, 
-  summary_expression = race_ethn_summary_expression
+  summary_expression = race_ethn_summary_expression,
+  geoms = tract2020_geoms
 )
 # HBIC Tracts Age ##################
 
@@ -401,7 +418,8 @@ prepare_data(
   sb_csv = 'data/hbic_tract_age_year_bins.csv', 
   agg_func = sum, 
   bin_col_names = age_bins, 
-  summary_expression = age_summary_expression
+  summary_expression = age_summary_expression,
+  geoms = tract2020_geoms
 )
 
 # HBIC Tracts Educational Attainment ##################
@@ -427,7 +445,8 @@ prepare_data(
   sb_csv = 'data/hbic_tract_edu_attain_bins.csv', 
   agg_func = sum, 
   bin_col_names = edu_att_bins, 
-  summary_expression = edu_att_summary_expression
+  summary_expression = edu_att_summary_expression,
+  geoms = tract2020_geoms
 )
 
 # HBIC Tracts Housing ##################
@@ -452,7 +471,8 @@ prepare_data(
   sb_csv = 'data/hbic_tract_housing_bins.csv', 
   agg_func = sum, 
   bin_col_names = housing_bins, 
-  summary_expression = housing_summary_expression
+  summary_expression = housing_summary_expression,
+  geoms = tract2020_geoms
 )
 
 # HBIC Tracts Nativity ##################
@@ -476,5 +496,6 @@ prepare_data(
   sb_csv = 'data/hbic_tract_nativity_bins.csv', 
   agg_func = sum, 
   bin_col_names = nativity_bins, 
-  summary_expression = nativity_summary_expression
+  summary_expression = nativity_summary_expression,
+  geoms = tract2020_geoms
 )

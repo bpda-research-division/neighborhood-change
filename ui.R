@@ -24,7 +24,7 @@ geoTabPanelUI <- function(geo_type, variables) {
          ),
          column(width = 7, 
                 sliderInput(ns("yearSelect"), 
-                            HTML("3. Drag the slider or click &#9658; to see change over time:"),
+                            HTML("3. Drag the slider or click &#9658; to see change over time:"), # this is the code for a play button symbol
                             initial_st, initial_end, sep = "", ticks=TRUE,
                             value = initial_st, step = initial_step, 
                             animate = animationOptions(interval = 600 #, playButton = icon('play', "fa-3x"), pauseButton = icon('pause', "fa-3x")
