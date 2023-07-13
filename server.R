@@ -178,8 +178,10 @@ tabPanelServer <- function(geo_type) {
       observeEvent(input$variable, {
         st <- var_params()$start
 
-        updateSliderInput(session, "yearSelect", value = st, min = st, 
-                          max = var_params()$end, step = var_params()$step)
+        updateSliderTextInput(session, "yearSelect", #value = st, min = st, 
+                          #max = var_params()$end, step = var_params()$step,
+                          choices = seq(st, var_params()$end, by=var_params()$step),
+                          selected = st)
       })
       
       selectionName <- reactive({
