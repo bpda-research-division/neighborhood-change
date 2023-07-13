@@ -1,4 +1,6 @@
-# Imports and Setup #####
+# Import all libraries, define parameters, and read all global data structures 
+
+# Imports #####
 library(sf)
 library(dplyr)
 library(tidyr)
@@ -8,16 +10,18 @@ library(plotly)
 library(leaflet)
 library(htmltools)
 
+# Define global formatting parameters #######
 APP_FONT <- "Helvetica"
 APP_FONT_SIZE <- 18
-my_map_palette <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
-my_bar_color <- '#60809f' # 60809f (blue), 7f76b7 (purple)
-my_line_color <- my_bar_color # could also change to a separate hex code if desired
-my_line_width <- 2
-all_vars_info <- list()
+MAP_PALETTE <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
+BAR_COLOR <- '#60809f' # previously, we set the map palette as Purples with bar/line color 7f76b7
+LINE_COLOR <- my_bar_color # could also change line to a separate hex code if desired
 
 # Define parameters for each geography type and variable ############
-all_vars_info$tracts <- list(
+ALL_VARS_INFO <- list()
+
+# TODO: documentation explaining what each of these parameters does, and the ordering
+ALL_VARS_INFO$tracts <- list(
   "Age" = list(varcode = "hbicta", start = 1950, end = 2020, step = 10,
    lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -50,7 +54,8 @@ all_vars_info$tracts <- list(
     ), summary_expression = rlang::expr(
       (black + hisp + asian + native + two_plus + other) /
         (white + black + hisp + asian + native + two_plus + other)
-    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
+    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories 
+                on the Census were White, Black, and Other."
   )
   , "Nativity" = list(varcode = "hbictnat", start = 1950, end = 2020, step = 10,
     lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
@@ -91,31 +96,31 @@ all_vars_info$tracts <- list(
       , "Female not in labor force" = "nilf_f"
     ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f))
   )
-  , "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
-    lineTitle = "Median Household Income", linehoverformat = ",.0f",
-    tickprefix = "$", tickformat = "~s", agg_func = sum,
-    barTitle = "Households by Income", barhoverformat = ",.0f",
-    barCats = list(
-      "Less than $10,000" = "S1901_C01_002"
-      , "$10,000 to $14,999" = "S1901_C01_003"
-      , "$15,000 to $24,999" = "S1901_C01_004"
-      , "$25,000 to $34,999" = "S1901_C01_005"
-      , "$35,000 to $49,999" = "S1901_C01_006"
-      , "$50,000 to $74,999" = "S1901_C01_007"
-      , "$75,000 to $99,999" = "S1901_C01_008"
-      , "$100,000 to $149,999" = "S1901_C01_009"
-      , "$150,000 to $199,999" = "S1901_C01_010"
-      , "More than $200,000" = "S1901_C01_011"
-    ), summary_expression = rlang::expr(pareto_median_income(
-      hh_by_income = c(S1901_C01_002, S1901_C01_003, S1901_C01_004,
-                       S1901_C01_005, S1901_C01_006, S1901_C01_007,
-                       S1901_C01_008, S1901_C01_009, S1901_C01_010, S1901_C01_011)
-      , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
-    ))
-  )
+  # , "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
+  #   lineTitle = "Median Household Income", linehoverformat = ",.0f",
+  #   tickprefix = "$", tickformat = "~s", agg_func = sum,
+  #   barTitle = "Households by Income", barhoverformat = ",.0f",
+  #   barCats = list(
+  #     "Less than $10,000" = "S1901_C01_002"
+  #     , "$10,000 to $14,999" = "S1901_C01_003"
+  #     , "$15,000 to $24,999" = "S1901_C01_004"
+  #     , "$25,000 to $34,999" = "S1901_C01_005"
+  #     , "$35,000 to $49,999" = "S1901_C01_006"
+  #     , "$50,000 to $74,999" = "S1901_C01_007"
+  #     , "$75,000 to $99,999" = "S1901_C01_008"
+  #     , "$100,000 to $149,999" = "S1901_C01_009"
+  #     , "$150,000 to $199,999" = "S1901_C01_010"
+  #     , "More than $200,000" = "S1901_C01_011"
+  #   ), summary_expression = rlang::expr(pareto_median_income(
+  #     hh_by_income = c(S1901_C01_002, S1901_C01_003, S1901_C01_004,
+  #                      S1901_C01_005, S1901_C01_006, S1901_C01_007,
+  #                      S1901_C01_008, S1901_C01_009, S1901_C01_010, S1901_C01_011)
+  #     , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
+  #   ))
+  # )
 )
 
-all_vars_info$neighborhoods <- list(
+ALL_VARS_INFO$neighborhoods <- list(
   "Age" = list(varcode = "hbicna", start = 1950, end = 2020, step = 10,
    lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -148,7 +153,8 @@ all_vars_info$neighborhoods <- list(
     ), summary_expression = rlang::expr(
       (black + hisp + asian + native + two_plus + other) /
         (white + black + hisp + asian + native + two_plus + other)
-    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
+    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories 
+                on the Census were White, Black, and Other."
   )
   , "Nativity" = list(varcode = "hbicnnat", start = 1950, end = 2020, step = 10,
     lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
@@ -191,18 +197,12 @@ all_vars_info$neighborhoods <- list(
   )
 ) 
 
-# Miscellaneous Functions ###########
+# Miscellaneous functions ###########
 
-newline_every_3_words <- function(s) {
-  words <- unlist(strsplit(s, " +"))
-  num_words <- length(words)
-  num_lines <- num_words %/% 3
-  for (i in num_lines:1) {
-    words <- append(words, "<br>", after=i*3)
-  }
-  paste(words, collapse = " ")
-}
-
+#' Given a string, returns that string with an HTML <br> inserted as close to 
+#' halfway through the string as possible without breaking up a word, so that 
+#' when the string is displayed, it will wrap onto two lines. The new line is 
+#' only inserted if the original string has more than 20 characters.
 split_max_2_lines <- function(s) {
   words <- unlist(strsplit(s, " +"))
   num_words <- length(words)
@@ -230,7 +230,11 @@ split_max_2_lines <- function(s) {
   }
 }
 
-#' Implements https://en.wikipedia.org/wiki/Pareto_interpolation
+#' Implements https://en.wikipedia.org/wiki/Pareto_interpolation, returning the
+#' estimated median income of a population given that lower_pct of the individuals
+#' in a sample have incomes below lower_income and upper_pct of the individuals in
+#' that sample have incomes below upper_income. The percentages should be passed
+#' in as decimals between 0 and 1.
 pareto_median <- function(lower_income, upper_income, lower_pct, upper_pct) {
   if (lower_pct == 0) {
     return(lower_income + ((upper_income - lower_income) / 2))
@@ -244,8 +248,10 @@ pareto_median <- function(lower_income, upper_income, lower_pct, upper_pct) {
 }
 
 
-#' hh_by_income is a list with the numbers of households per income bucket,
-#' ordered from lowest income to highest income
+#' Rhh_by_income is a list with the numbers of households per income bucket,
+#' ordered from lowest income to highest income, and cutoffs is a list with the
+#' dollar amounts at the top of each income bucket, again ordered from lowest to
+#' highest. The first element of hh_by_income
 pareto_median_income <- function(hh_by_income, cutoffs) {
 
   if (length(hh_by_income) - length(cutoffs) != 1) {
@@ -274,8 +280,10 @@ pareto_median_income <- function(hh_by_income, cutoffs) {
   return(cutoffs[length(cutoffs)])
 }
 
-# I grabbed the code for this function from GitHub user mpriem89, who wrote it as a workaround
-# for an open Leaflet issue regarding map legends: https://github.com/rstudio/leaflet/issues/256
+#' This code is by GitHub user mpriem89, who wrote it as a workaround for an open
+#' Leaflet issue regarding map legends: https://github.com/rstudio/leaflet/issues/256
+#' The function can be used on a leaflet map in place of addLegend when you want the
+#' values of the legend to decrease and have the color palette continue to match.
 addLegend_decreasing <- function (map, position = c("topright", "bottomright", "bottomleft","topleft"),
                                   pal, values, na.label = "NA", bins = 7, colors,
                                   opacity = 0.5, labels = NULL, labFormat = labelFormat(),
@@ -376,3 +384,23 @@ addLegend_decreasing <- function (map, position = c("topright", "bottomright", "
                  layerId = layerId, className = className, group = group)
   invokeMethod(map, data, "addLegend", legend)
 }
+
+# Data loading ######################
+
+# subcity bins, subcity summary, citywide bins, citywide summary
+df_types <- c('sb', 'ss', 'cb', 'cs')
+
+#' Reads in and returns the four dataframes for a given variable defined by
+#' varcode. The data files need to use the naming convention <varcode>_<df_type>.rds
+dfs_from_varcode <- function(varcode) {
+  dfs <- lapply(df_types, function(x) paste0("./data/", varcode, "_", x, ".rds")) %>%
+    lapply(readRDS) %>% `names<-`(lapply(df_types, function(x) paste0(x, '_df')))
+  dfs #%>% lapply(as.data.frame) %>% lapply(function(df) df %>% mutate(YEAR = as.character(YEAR)))
+}
+
+# using ALL_VARS_INFO, read in the four dataframes for each variable into ALL_VARS_DATA
+ALL_VARS_DATA <- ALL_VARS_INFO %>% lapply(function(geo_type) geo_type %>% lapply(
+  function(var) var$varcode %>% 
+    dfs_from_varcode
+)
+)

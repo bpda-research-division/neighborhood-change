@@ -1,42 +1,4 @@
-# Data loading ######################
-
-# subcity bins, subcity summary, citywide bins, citywide summary
-df_types <- c('sb', 'ss', 'cb', 'cs')
-
-#' Reads in and returns the four dataframes for a given variable defined by
-#' varcode. Files expected to use the naming convention <varcode>_<df_type>.rds
-dfs_from_varcode <- function(varcode) {
-  dfs <- lapply(df_types, function(x) paste0("./data/", varcode, "_", x, ".rds")) %>%
-    lapply(readRDS) %>% `names<-`(lapply(df_types, function(x) paste0(x, '_df')))
-  dfs #%>% lapply(as.data.frame) %>% lapply(function(df) df %>% mutate(YEAR = as.character(YEAR)))
-}
-
-# using all_vars_info, defined in global.R, read in the four dataframes for each
-# variable into all_vars_data
-all_vars_data <- all_vars_info %>% lapply(function(geo_type) geo_type %>% lapply(
-  function(var) var$varcode %>% 
-    dfs_from_varcode
-  )
-)
-
-# # read one shapefile for each geography type that we have. Must have a unique
-# # GEOID attribute that corresponds with the GEOID attribute in our tabular data
-# geoms <- list()
-# geoms$`census tracts` <- read_sf('geoms/boston_tracts_2020.geojson') %>% mutate(GEOID = as.character(geoid20))
-# geoms$neighborhoods <- read_sf('geoms/boston_neighborhoods_2020bg.geojson') %>% mutate(GEOID = BlockGr202)
 # 
-# # Join each ss_df (the df that gets mapped) to its appropriate shapefile
-# for (geo_type in names(all_vars_data)) {
-#   for (varname in names(all_vars_data[[geo_type]])) {
-#     all_vars_data[[geo_type]][[varname]]$ss_df <- all_vars_data[[geo_type]][[varname]]$ss_df %>%
-#       mutate(GEOID = as.character(GEOID)) %>%
-#       merge(y=geoms[[geo_type]], by.y = "GEOID", by.x = "GEOID") %>%
-#       st_as_sf()
-#     
-#     # all_vars_data[[geo_type]][[varname]]$sb_df <- all_vars_data[[geo_type]][[varname]]$sb_df %>%
-#     #   mutate(GEOID = as.character(GEOID))
-#   }
-# }
 
 # Server Module ##############
 #' Build the server for a tabPanel for a given namespaced geography type 
@@ -61,7 +23,7 @@ tabPanelServer <- function(geo_type) {
       
       # Shortcut to the parameters for whichever variable the user has selected
       var_params <- reactive({
-        all_vars_info[[geo_namespace]][[var_name()]]
+        ALL_VARS_INFO[[geo_namespace]][[var_name()]]
       })
       
       # output$varText <- reactive ({
@@ -70,7 +32,7 @@ tabPanelServer <- function(geo_type) {
       
       # Shortcut to the data for whichever variable the user has selected
       var_data <- reactive({
-        all_vars_data[[geo_namespace]][[var_name()]]
+        ALL_VARS_DATA[[geo_namespace]][[var_name()]]
       })
       
       # Static components of the map
@@ -90,7 +52,7 @@ tabPanelServer <- function(geo_type) {
       observeEvent(input$variable, { 
         ss <- var_data()$ss_df # ss_df is the portion of the data that we map
         yrdfs <- split(ss, ss$YEAR)
-        pal <- colorNumeric(my_map_palette, domain = ss$SUMMARY_VALUE)
+        pal <- colorNumeric(MAP_PALETTE, domain = ss$SUMMARY_VALUE)
         leafletProxy("map") %>% clearShapes() %>% clearControls()
         
         # draw and add one layer of polygons for each year
@@ -231,8 +193,8 @@ tabPanelServer <- function(geo_type) {
                 source = "bar_plot"
         ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
-          add_bars(color=I(my_bar_color), 
-                   hoverinfo = 'y', marker = list(line = list(width=2, color=my_bar_color))
+          add_bars(color=I(BAR_COLOR), 
+                   hoverinfo = 'y', marker = list(line = list(width=2, color=BAR_COLOR))
                    ) %>% 
           layout(yaxis = list(
                   title = ''
@@ -301,14 +263,14 @@ tabPanelServer <- function(geo_type) {
                 hoverinfo = 'text'
         ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
-          add_lines(color=I(my_line_color), hoverinfo = "y", name=selectionName(),
-                    line=list(width = my_line_width, shape = 'spline', smoothing = 1),
-                    # mode = 'lines+markers', marker = list(color=my_line_color, size=6)
+          add_lines(color=I(LINE_COLOR), hoverinfo = "y", name=selectionName(),
+                    line=list(width = 2, shape = 'spline', smoothing = 1),
+                    # mode = 'lines+markers', marker = list(color=LINE_COLOR, size=6)
                     )
         if (length(selected$groups) > 0) {
           p <- p %>% 
             add_lines(x = var_data()$cs_df$YEAR, y = var_data()$cs_df$SUMMARY_VALUE,
-               hoverinfo="y", name="Citywide", color=I(my_line_color),
+               hoverinfo="y", name="Citywide", color=I(LINE_COLOR),
                line = list(dash='dash', shape = 'spline', smoothing = 1),
                
                )
@@ -316,7 +278,7 @@ tabPanelServer <- function(geo_type) {
         p %>%
           add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "skip",
                       y = subset(selectedLine(), YEAR == input$yearSelect)$SUMMARY_VALUE,
-                      marker = list(color=my_line_color, symbol="diamond", size=10), showlegend = F) %>%
+                      marker = list(color=LINE_COLOR, symbol="diamond", size=10), showlegend = F) %>%
           layout(yaxis = list(
                   title = '' 
                   , fixedrange = TRUE 
@@ -347,7 +309,15 @@ tabPanelServer <- function(geo_type) {
 # Server ##############
 #' Each geography type gets its own server so that they can act independently
 server <- function(input, output, session) {
-  lapply(names(all_vars_info), function(geo_type) {
+  observeEvent(input$about, {
+    showModal(modalDialog(
+      title = h2("About", align='center'),
+      "Blah blah blah",
+      easyClose = TRUE
+    ))
+  })
+  
+  lapply(names(ALL_VARS_INFO), function(geo_type) {
     tabPanelServer(geo_type)
   })
 }

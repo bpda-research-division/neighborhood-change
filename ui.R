@@ -1,15 +1,18 @@
+# Define the basic skeleton of the user interface
+
 # the below variables are used to reformat the map legend to place the NA value below the color
 # palette - default behavior in the current version of Leaflet is for them to be side by side
-css_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
-html_fix <- htmltools::tags$style(type = "text/css", css_fix)  # Convert CSS to HTML
+css_legend_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
+html_legend_fix <- htmltools::tags$style(type = "text/css", css_legend_fix)  # Convert CSS to HTML
 
-# UI Module and Functions ##########
+# UI Module ##########
 
 #' For each geography type with its given collection of variables, we create a
-#' tabPanel with the same set of components (map, line chart, bar chart, etc)
+#' tabPanel with a uniform set of UI components (map, bar chart, line chart, etc)
 #' This function creates those components, namespacing them using the geo_type
-geoTabPanelUI <- function(geo_type, variables) {
+geoTabPanelUI <- function(geo_type) {
   ns <- NS(geo_type)
+  variables <- ALL_VARS_INFO[[geo_type]]
   initial_st <- as.numeric(variables[[1]]$start)
   initial_end <- as.numeric(variables[[1]]$end)
   initial_step <- as.numeric(variables[[1]]$step)
@@ -34,7 +37,7 @@ geoTabPanelUI <- function(geo_type, variables) {
                             )
          )
        ),
-       fluidRow(style='padding:10px;',
+       fluidRow(style='padding:5px;',
          column(width=5,
                 HTML(sprintf("<b>2. Select one or more %s on the map to update the charts.</b>", geo_type))
          ),
@@ -45,8 +48,8 @@ geoTabPanelUI <- function(geo_type, variables) {
                 htmlOutput(ns("selectionText"))
          )
        ),
-       leafletOutput(ns("map"), height='65%') %>% 
-         htmlwidgets::prependContent(html_fix), # apply the legend NA values fix
+       leafletOutput(ns("map"), height='70%') %>% 
+         htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
        width=6
     ),
     mainPanel( #style='padding:10px;',
@@ -57,32 +60,14 @@ geoTabPanelUI <- function(geo_type, variables) {
                       plotlyOutput(ns("line_chart")),
                )
       ),
+      h5("Data source: BPDA Research Division"),
       width = 6
     )
   )
 }
 
-#' Defines the About page
-aboutTabPanelUI <- function(title) {
-  tabPanel(title, style='padding:10px;',
-           "under construction",
-           "hbic labor force is 14+ for 1950 and 1960, 16+ since then. source = decennial except 2010 & 2020 are 5yr acs")
-}
-
-#' To create all tabPanels in a single lapply() below, this function generates
-#' tabs based on tab names. By default, each name is treated as a geo type. 
-tabGenerator <- function(name) {
-  if (name == "About") {
-    aboutTabPanelUI(name) # can pass in other data if we want a parameterized about page
-  }
-  else { # name is either About or a geography type (tracts, neighborhoods, etc)
-    geoTabPanelUI(name, all_vars_info[[name]])
-  }
-}
-
 # UI ##########
 
-# Creates as many tabs as there are geography types, plus one for the about page
 ui <- fluidPage(
   # tags$style('.container-fluid {background-color: #007BA7;}'),
   tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"), # this css hides the minor tick marks on the slider
@@ -96,18 +81,18 @@ ui <- fluidPage(
   tags$head(tags$style(type='text/css', ".slider-animate-button { font-size: 20pt !important; }")),
   tags$head(tags$style('.selectize-dropdown {z-index: 10000}')), # place the variable selection in front of other elements
   chooseSliderSkin("Square"),
-  div(#style = "background-color: #4163ff;", #headerPanel(
-    h1("Boston Neighborhood Change Dashboard", align = "left", style = sprintf('font-size:40px; font-family: "%s";', APP_FONT)) 
+  fluidRow(
+    column(11,
+      h1("Boston Neighborhood Change Explorer", align = "left", style = sprintf('font-size:40px; font-family: "%s";', APP_FONT)) 
+    ),
+    column(1, align='center',
+      div(style='padding:15px;',
+        actionButton("about", "About", style='padding:10px; font-size:120%') 
+      )
+    )
     #, windowTitle = "Boston Neighborhood Change Dashboard"
   ),
-  # modalDialog(
-  #   "For instructions, see xyz. Terms and services, etc",
-  #   title = h3("Welcome to the Boston Neighborhood Change Explorer!", align="center"),
-  #   size = "l",
-  #   easyClose = FALSE
-  # ),
-  # 4("A BPDA Research Division project", align = "left"),
   do.call(tabsetPanel,
-          lapply(append(names(all_vars_info), "About"), tabGenerator)
+          lapply(names(ALL_VARS_INFO), geoTabPanelUI)
   )
 )
