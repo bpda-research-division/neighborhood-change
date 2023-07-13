@@ -19,7 +19,7 @@ geoTabPanelUI <- function(geo_type, variables) {
        fluidRow(
          column(width = 5,
                 selectInput(ns("variable"), 
-                            "1. Select a variable:", choices = names(variables) #%>% lapply(function (n) {paste0(n, " (", variables[[n]]$start, "-", variables[[n]]$end, ")")})
+                            "1. Select a variable:", choices = names(variables) %>% lapply(function (n) {paste0(n, " (", variables[[n]]$start, "-", variables[[n]]$end, ")")})
                             )
          ),
          column(width = 7, 

@@ -53,9 +53,15 @@ tabPanelServer <- function(geo_type) {
         )
         , htmltools::HTML)
       
+      var_name <- reactive({
+        idxs <- gregexpr("\\((\\d)", input$variable)
+        idx <- idxs[[1]][length(idxs)]
+        substr(input$variable, 1, idx - 2)
+      })
+      
       # Shortcut to the parameters for whichever variable the user has selected
       var_params <- reactive({
-        all_vars_info[[geo_namespace]][[input$variable]]
+        all_vars_info[[geo_namespace]][[var_name()]]
       })
       
       # output$varText <- reactive ({
@@ -64,7 +70,7 @@ tabPanelServer <- function(geo_type) {
       
       # Shortcut to the data for whichever variable the user has selected
       var_data <- reactive({
-        all_vars_data[[geo_namespace]][[input$variable]]
+        all_vars_data[[geo_namespace]][[var_name()]]
       })
       
       # Static components of the map
