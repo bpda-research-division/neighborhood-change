@@ -22,7 +22,7 @@ all_vars_data <- all_vars_info %>% lapply(function(geo_type) geo_type %>% lapply
 # read one shapefile for each geography type that we have. Must have a unique
 # GEOID attribute that corresponds with the GEOID attribute in our tabular data
 geoms <- list()
-geoms$tracts <- read_sf('geoms/boston_tracts_2020.geojson') %>% mutate(GEOID = as.character(geoid20))
+geoms$`census tracts` <- read_sf('geoms/boston_tracts_2020.geojson') %>% mutate(GEOID = as.character(geoid20))
 geoms$neighborhoods <- read_sf('geoms/boston_neighborhoods_2020bg.geojson') %>% mutate(GEOID = BlockGr202)
 
 # Join each ss_df (the df that gets mapped) to its appropriate shapefile
@@ -47,8 +47,11 @@ tabPanelServer <- function(geo_type) {
       # string representation of the namespaced geography type (e.g. "tracts")
       geo_namespace <- substr(session$ns(''), 1, nchar(session$ns('')) - 1)
       # Label for map polygons with null values - function of geography type
-      null_label <- lapply(paste(tools::toTitleCase(geo_namespace), 
-                          'with little <br> or no population'), htmltools::HTML)
+      null_label <- lapply(
+        split_max_2_lines(paste(
+          tools::toTitleCase(geo_namespace), 'with little or no population')
+        )
+        , htmltools::HTML)
       
       # Shortcut to the parameters for whichever variable the user has selected
       var_params <- reactive({
@@ -118,7 +121,7 @@ tabPanelServer <- function(geo_type) {
                transform = ifelse(grepl("%", var_params()$tickformat, fixed = TRUE), 
                                   function(x) round(x*100), function (x) x)
                ),
-             na.label = null_label, decreasing = TRUE, title = newline_every_3_words(var_params()$lineTitle)) # paste(c("hi", "<br>", "there"), collapse = ' ')
+             na.label = null_label, decreasing = TRUE, title = split_max_2_lines(var_params()$lineTitle)) # paste(c("hi", "<br>", "there"), collapse = ' ')
       })
       
       # Keep track of the full set of years for the variable the user selects
@@ -291,14 +294,14 @@ tabPanelServer <- function(geo_type) {
         ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
           add_lines(color=I(my_line_color), hoverinfo = "y", name=selectionName(),
-                    line=list(width = my_line_width, shape = 'spline', smoothing = 0.5),
+                    line=list(width = my_line_width, shape = 'spline', smoothing = 1),
                     # mode = 'lines+markers', marker = list(color=my_line_color, size=6)
                     )
         if (length(selected$groups) > 0) {
           p <- p %>% 
             add_lines(x = var_data()$cs_df$YEAR, y = var_data()$cs_df$SUMMARY_VALUE,
                hoverinfo="y", name="Citywide", color=I(my_line_color),
-               line = list(dash='dash', shape = 'spline', smoothing = 0.5),
+               line = list(dash='dash', shape = 'spline', smoothing = 1),
                
                )
         }
@@ -326,7 +329,7 @@ tabPanelServer <- function(geo_type) {
                  title = var_params()$lineTitle,
                  margin = list(t=40),
                  legend = list(orientation = 'h', x=0.5, y=1.03),
-                 font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-1)
+                 font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-2)
                  )
       })
     }
