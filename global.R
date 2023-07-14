@@ -1,4 +1,4 @@
-# Import all libraries, define parameters, and read all global data structures 
+# Import all libraries, define data parameters, and read all global data structures 
 
 # Imports #####
 library(sf)
@@ -16,6 +16,13 @@ APP_FONT_SIZE <- 18
 MAP_PALETTE <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
 BAR_COLOR <- '#60809f' # previously, we set the map palette as Purples with bar/line color 7f76b7
 LINE_COLOR <- BAR_COLOR # could also change line to a separate hex code if desired
+
+# Define the about page ######
+ABOUT_PAGE <- modalDialog(
+  title = h2("About", align='center'),
+  "Blah blah blah",
+  easyClose = TRUE
+)
 
 # Define parameters for each geography type and variable ############
 ALL_VARS_INFO <- list()
@@ -54,8 +61,7 @@ ALL_VARS_INFO$tracts <- list(
     ), summary_expression = rlang::expr(
       (black + hisp + asian + native + two_plus + other) /
         (white + black + hisp + asian + native + two_plus + other)
-    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories 
-                on the Census were White, Black, and Other."
+    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
   )
   , "Nativity" = list(varcode = "hbictnat", start = 1950, end = 2020, step = 10,
     lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
@@ -248,10 +254,12 @@ pareto_median <- function(lower_income, upper_income, lower_pct, upper_pct) {
 }
 
 
-#' Rhh_by_income is a list with the numbers of households per income bucket,
-#' ordered from lowest income to highest income, and cutoffs is a list with the
+#' Returns Pareto median income given hh_by_income, a list with the numbers of households per 
+#' income bucket, ordered from lowest to highest income, and cutoffs, a list with the
 #' dollar amounts at the top of each income bucket, again ordered from lowest to
-#' highest. The first element of hh_by_income
+#' highest. The first element of hh_by_income should be the number of households making 
+#' incomes between 0 and the first cutoff, and the last element of hh_by_income should be 
+#' the number of households making incomes above the last cutoff.
 pareto_median_income <- function(hh_by_income, cutoffs) {
 
   if (length(hh_by_income) - length(cutoffs) != 1) {
@@ -280,8 +288,8 @@ pareto_median_income <- function(hh_by_income, cutoffs) {
   return(cutoffs[length(cutoffs)])
 }
 
-#' This code is by GitHub user mpriem89, who wrote it as a workaround for an open
-#' Leaflet issue regarding map legends: https://github.com/rstudio/leaflet/issues/256
+#' GitHub user mpriem89 wrote this method as a workaround for an open Leaflet
+#' issue regarding map legends: https://github.com/rstudio/leaflet/issues/256
 #' The function can be used on a leaflet map in place of addLegend when you want the
 #' values of the legend to decrease and have the color palette continue to match.
 addLegend_decreasing <- function (map, position = c("topright", "bottomright", "bottomleft","topleft"),
@@ -398,9 +406,13 @@ dfs_from_varcode <- function(varcode) {
   dfs #%>% lapply(as.data.frame) %>% lapply(function(df) df %>% mutate(YEAR = as.character(YEAR)))
 }
 
-# using ALL_VARS_INFO, read in the four dataframes for each variable into ALL_VARS_DATA
-ALL_VARS_DATA <- ALL_VARS_INFO %>% lapply(function(geo_type) geo_type %>% lapply(
-  function(var) var$varcode %>% 
-    dfs_from_varcode
-)
-)
+# using ALL_VARS_INFO, read the four data frames for each variable into ALL_VARS_DATA
+# ALL_VARS_DATA has the same structure as ALL_VARS_INFO, but with a list of data
+# frames instead of a list of parameters being stored for each variable
+ALL_VARS_DATA <- ALL_VARS_INFO %>% 
+  lapply(function(geo_type) geo_type %>% 
+    lapply(
+      function(var) var$varcode %>% 
+        dfs_from_varcode
+    )
+  )
