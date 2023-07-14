@@ -15,7 +15,7 @@ APP_FONT <- "Helvetica"
 APP_FONT_SIZE <- 18
 MAP_PALETTE <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
 BAR_COLOR <- '#60809f' # previously, we set the map palette as Purples with bar/line color 7f76b7
-LINE_COLOR <- my_bar_color # could also change line to a separate hex code if desired
+LINE_COLOR <- BAR_COLOR # could also change line to a separate hex code if desired
 
 # Define parameters for each geography type and variable ############
 ALL_VARS_INFO <- list()

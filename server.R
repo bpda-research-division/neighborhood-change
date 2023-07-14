@@ -163,9 +163,14 @@ tabPanelServer <- function(geo_type) {
           subset(var_data()$cb_df, YEAR == input$yearSelect)
         }
         else { # Otherwise, aggregate the data for the set of selected polygons
-          subset(var_data()$sb_df, GEOID %in% selected$groups & YEAR == input$yearSelect) %>%
+          data <- subset(var_data()$sb_df, GEOID %in% selected$groups & YEAR == input$yearSelect) %>%
             group_by(CATEGORY) %>% 
             summarise(VALUE = var_params()[["agg_func"]](VALUE))
+          if (nrow(data) == 0) {
+            data <- subset(var_data()$cb_df, YEAR == input$yearSelect)
+            data$VALUE <- 0
+          }
+          data
         }
       })
       
@@ -256,7 +261,6 @@ tabPanelServer <- function(geo_type) {
       
       # Renders the line chart
       output$line_chart <- renderPlotly({
-        
         p <- plot_ly(selectedLine(), 
                 x = ~YEAR,
                 y = ~SUMMARY_VALUE,
@@ -266,7 +270,30 @@ tabPanelServer <- function(geo_type) {
           add_lines(color=I(LINE_COLOR), hoverinfo = "y", name=selectionName(),
                     line=list(width = 2, shape = 'spline', smoothing = 1),
                     # mode = 'lines+markers', marker = list(color=LINE_COLOR, size=6)
-                    )
+                    ) %>%
+          layout(yaxis = list(
+            title = '' 
+            , fixedrange = TRUE 
+            , tickprefix = var_params()$tickprefix 
+            , tickformat = var_params()$tickformat 
+            , hoverformat = var_params()$linehoverformat
+            , range = lineRange()
+          ), 
+          xaxis = list(
+            title = ''
+            , fixedrange = TRUE
+            , range = c(
+              as.numeric(var_params()$start) - var_xrange_bookend()
+              , as.numeric(var_params()$end) + var_xrange_bookend()
+            )
+          ), 
+          hovermode = "x unified",
+          title = var_params()$lineTitle,
+          margin = list(t=40),
+          legend = list(orientation = 'h', x=0.3, y=1.03),
+          font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-2)
+          )
+        
         if (length(selected$groups) > 0) {
           p <- p %>% 
             add_lines(x = var_data()$cs_df$YEAR, y = var_data()$cs_df$SUMMARY_VALUE,
@@ -275,32 +302,14 @@ tabPanelServer <- function(geo_type) {
                
                )
         }
-        p %>%
-          add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "skip",
-                      y = subset(selectedLine(), YEAR == input$yearSelect)$SUMMARY_VALUE,
-                      marker = list(color=LINE_COLOR, symbol="diamond", size=10), showlegend = F) %>%
-          layout(yaxis = list(
-                  title = '' 
-                  , fixedrange = TRUE 
-                  , tickprefix = var_params()$tickprefix 
-                  , tickformat = var_params()$tickformat 
-                  , hoverformat = var_params()$linehoverformat
-                  , range = lineRange()
-                  ), 
-                 xaxis = list(
-                   title = ''
-                   , fixedrange = TRUE
-                   , range = c(
-                     as.numeric(var_params()$start) - var_xrange_bookend()
-                     , as.numeric(var_params()$end) + var_xrange_bookend()
-                     )
-                   ), 
-                 hovermode = "x unified",
-                 title = var_params()$lineTitle,
-                 margin = list(t=40),
-                 legend = list(orientation = 'h', x=0.5, y=1.03),
-                 font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-2)
-                 )
+        marker_y_data <- subset(selectedLine(), YEAR == input$yearSelect)
+        if (nrow(marker_y_data) > 0) {
+          p <- p %>%
+            add_markers(x = input$yearSelect, name = 'highlight', hoverinfo = "skip",
+                        y = marker_y_data$SUMMARY_VALUE,
+                        marker = list(color=LINE_COLOR, symbol="diamond", size=10), showlegend = F) 
+        }
+        p
       })
     }
   )
