@@ -81,15 +81,34 @@ ALL_VARS_INFO$tracts <- list(
       "Bachelor's or more" = "bm"
     ), summary_expression = rlang::expr(bm / (lhs + he + sc + bm))
   )
-  , "Housing Tenure" = list(varcode = "hbicthou", start = 1950, end = 2020, step = 10,
+  # , "Housing Tenure" = list(varcode = "hbicthou", start = 1950, end = 2020, step = 10,
+  #   lineTitle = "Owner-occupied housing share", linehoverformat = ".0%",
+  #   tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+  #   barTitle = "Housing units by tenure", barhoverformat = ",.0f",
+  #   barCats = list(
+  #     "Owner Occupied" = "owner",
+  #     "Renter Occupied" = "renter",
+  #     "Vacant" = "vac"
+  #   ), summary_expression = rlang::expr(owner / (owner + renter))
+  # )
+  , "Housing Tenure" = list(varcode = "hbicthouten", start = 1950, end = 2020, step = 10,
     lineTitle = "Owner-occupied housing share", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
-    barTitle = "Housing units by tenure", barhoverformat = ",.0f",
+    barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
     barCats = list(
-      "Owner Occupied" = "owner",
-      "Renter Occupied" = "renter",
+      "Owner-occupied" = "owner",
+      "Renter-occupied" = "renter",
       "Vacant" = "vac"
     ), summary_expression = rlang::expr(owner / (owner + renter))
+  )
+  , "Housing Occupancy" = list(varcode = "hbicthouvac", start = 1950, end = 2020, step = 10,
+    lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+    barCats = list(
+      "Occupied" = "occ",
+      "Vacant" = "vac"
+    ), summary_expression = rlang::expr(vac / (vac + occ))
   )
   , "Labor Force" = list(varcode = "hbictlf", start = 1950, end = 2020, step = 10,
     lineTitle = "Female labor force participation rate", linehoverformat = ".0%",
@@ -180,15 +199,24 @@ ALL_VARS_INFO$neighborhoods <- list(
       "Bachelor's or more" = "bm"
     ), summary_expression = rlang::expr(bm / (lhs + he + sc + bm))
   )
-  , "Housing Tenure" = list(varcode = "hbicnhou", start = 1950, end = 2020, step = 10,
+  , "Housing Tenure" = list(varcode = "hbicnhouten", start = 1950, end = 2020, step = 10,
     lineTitle = "Owner-occupied housing share", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
-    barTitle = "Housing units by tenure", barhoverformat = ",.0f",
+    barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
     barCats = list(
-      "Owner Occupied" = "owner",
-      "Renter Occupied" = "renter",
+      "Owner-occupied" = "owner",
+      "Renter-occupied" = "renter",
       "Vacant" = "vac"
     ), summary_expression = rlang::expr(owner / (owner + renter))
+  )
+  , "Housing Occupancy" = list(varcode = "hbicnhouvac", start = 1950, end = 2020, step = 10,
+    lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+    barCats = list(
+      "Occupied" = "occ",
+      "Vacant" = "vac"
+    ), summary_expression = rlang::expr(vac / (vac + occ))
   )
   , "Labor Force" = list(varcode = "hbicnlf", start = 1950, end = 2020, step = 10,
     lineTitle = "Female labor force participation rate", linehoverformat = ".0%",

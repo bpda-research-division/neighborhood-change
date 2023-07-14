@@ -1,6 +1,7 @@
 # Imports and Setup ##############
 library(dplyr)
 library(tidyr)
+library(sf)
 # library(tidycensus)
 # options(tigris_use_cache = TRUE)
 
@@ -288,29 +289,53 @@ prepare_data(
   geoms = neigh2020_geoms
 )
 
-# HBIC Neighborhoods Housing ##################
+# HBIC Neighborhoods Housing Tenure ##################
 
-housing_bins = c(
-  "Owner Occupied" = "owner",
-  "Renter Occupied" = "renter",
-  "Vacant" = "vac"
+houten_bins = c(
+  "Owner-occupied" = "owner",
+  "Renter-occupied" = "renter"
 )
 
-housing_summary = c(
+houten_summary = c(
   "Owner-occupied housing share" = "owner_share"
 )
 
-housing_summary_expression <- rlang::expr(
+houten_summary_expression <- rlang::expr(
   (owner) /
     (owner + renter)
 )
 
 prepare_data(
-  var_code = 'hbicnhou', 
-  sb_csv = 'data/hbic_neigh_housing_bins.csv', 
+  var_code = 'hbicnhouten', 
+  sb_csv = 'data/hbic_neigh_housing_tenure_bins.csv', 
   agg_func = sum, 
-  bin_col_names = housing_bins, 
-  summary_expression = housing_summary_expression,
+  bin_col_names = houten_bins, 
+  summary_expression = houten_summary_expression,
+  geoms = neigh2020_geoms
+)
+
+# HBIC Neighborhoods Housing Vacancy ##################
+
+houvac_bins = c(
+  "Occupied" = "occ",
+  "Vacant" = "vac"
+)
+
+houvac_summary = c(
+  "Housing vacancy rate" = "vacancy_rate"
+)
+
+houvac_summary_expression <- rlang::expr(
+  (vac) /
+    (occ + vac)
+)
+
+prepare_data(
+  var_code = 'hbicnhouvac', 
+  sb_csv = 'data/hbic_neigh_housing_vacancy_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = houvac_bins, 
+  summary_expression = houvac_summary_expression,
   geoms = neigh2020_geoms
 )
   
@@ -449,29 +474,53 @@ prepare_data(
   geoms = tract2020_geoms
 )
 
-# HBIC Tracts Housing ##################
+# HBIC Tracts Housing Tenure ##################
 
-housing_bins = c(
-  "Owner Occupied" = "owner",
-  "Renter Occupied" = "renter",
-  "Vacant" = "vac"
+houten_bins = c(
+  "Owner-occupied" = "owner",
+  "Renter-occupied" = "renter"
 )
 
-housing_summary = c(
+houten_summary = c(
   "Owner-occupied housing share" = "owner_share"
 )
 
-housing_summary_expression <- rlang::expr(
+houten_summary_expression <- rlang::expr(
   (owner) /
     (owner + renter)
 )
 
 prepare_data(
-  var_code = 'hbicthou', 
-  sb_csv = 'data/hbic_tract_housing_bins.csv', 
+  var_code = 'hbicthouten', 
+  sb_csv = 'data/hbic_tract_housing_tenure_bins.csv', 
   agg_func = sum, 
-  bin_col_names = housing_bins, 
-  summary_expression = housing_summary_expression,
+  bin_col_names = houten_bins, 
+  summary_expression = houten_summary_expression,
+  geoms = tract2020_geoms
+)
+
+# HBIC Tracts Housing Vacancy ##################
+
+houvac_bins = c(
+  "Occupied" = "occ",
+  "Vacant" = "vac"
+)
+
+houvac_summary = c(
+  "Housing vacancy rate" = "vacancy_rate"
+)
+
+houvac_summary_expression <- rlang::expr(
+  (vac) /
+    (occ + vac)
+)
+
+prepare_data(
+  var_code = 'hbicthouvac', 
+  sb_csv = 'data/hbic_tract_housing_vacancy_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = houvac_bins, 
+  summary_expression = houvac_summary_expression,
   geoms = tract2020_geoms
 )
 

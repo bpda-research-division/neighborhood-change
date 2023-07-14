@@ -18,7 +18,7 @@ geoTabPanelUI <- function(geo_type) {
   html_legend_fix <- htmltools::tags$style(type = "text/css", css_legend_fix)  # Convert CSS to HTML
   
   tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', 
-    sidebarPanel(width=6, style = "height: 84vh;", tags$style(".well {background-color:#ebedf2;}"),
+    sidebarPanel(width=6, style = "height: 85vh;", tags$style(".well {background-color:#ebedf2;}"),
        fluidRow( # top row of controls
          column(width = 5,
             selectInput(ns("variable"), 

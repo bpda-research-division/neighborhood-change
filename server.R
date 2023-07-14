@@ -173,7 +173,12 @@ tabPanelServer <- function(geo_type) {
       # Describes what the user currently has selected (e.g. "2 selected tracts")
       # This reactive is used for both the controls and the legend on the line chart
       selectionName <- reactive({
-        sprintf("%s selected %s", length(selected$groups), geo_namespace)
+        geo_type <- geo_namespace
+        num_selected <- length(selected$groups)
+        if (num_selected == 1) { # if only one polygon is selected, lop the "s" off
+          geo_type <- substr(geo_type, 1, nchar(geo_type) - 1)
+        }
+        sprintf("%s selected %s", num_selected, geo_type)
       })
       
       # Dynamic text on the controls telling the user what data they are currently looking at
@@ -266,17 +271,17 @@ tabPanelServer <- function(geo_type) {
           subset(var_data()$ss_df, GEOID %in% selected$groups)
         }
         else { # If multiple polygons are selected...
-          
+
           # we start by aggregating the binned subcity data for those polygons
           t <- subset(var_data()$sb_df, GEOID %in% selected$groups) %>%
             group_by(CATEGORY, YEAR) %>% # ...by category and year
             summarise(VALUE = var_params()[["agg_func"]](VALUE), .groups = "drop")
-          
+
           # then, we convert the category values from their labels to their identifiers...
           t$CATEGORY <- plyr::mapvalues(t$CATEGORY,
                                         to = unname(var_params()$barCats),
                                         from = names(var_params()$barCats))
-          
+
           # ...so that once we pivot the categories into their own columns...
           t %>% pivot_wider(id_cols = "YEAR",
                                  names_from='CATEGORY',
