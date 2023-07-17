@@ -20,7 +20,7 @@ geoTabPanelUI <- function(geo_type) {
   tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', 
     sidebarPanel(width=6, style="height:800px;", tags$style(".well {background-color:#ebedf2;}"),
        fluidRow( # top row of controls
-         column(width = 5,
+         column(width = 5, style="z-index:10000;", # ensure drop-down menu displays in front of all else
             selectInput(ns("variable"), 
               HTML("1. Select a variable:"), choices = names(variables) %>% 
                 lapply(function (n) { # display each variable with its start and end year
@@ -58,7 +58,7 @@ geoTabPanelUI <- function(geo_type) {
     mainPanel(width=6, # the right-hand side of the screen
        plotlyOutput(ns("bar_chart")),
        plotlyOutput(ns("line_chart")),
-       htmlOutput(style=sprintf("padding:10px; font-size:%spx;", APP_FONT_SIZE - 4), ns("sourceText"))
+       htmlOutput(style=sprintf('padding:10px; font-size:%spx', APP_FONT_SIZE - 4), ns("sourceText"))
        )
   )
 }
@@ -67,17 +67,18 @@ geoTabPanelUI <- function(geo_type) {
 styling_commands = c(
   ".container-fluid {background-color: #f5f7fb;}" # set app background
   , ".irs-grid-pol.small {height: 0px;}" # hide minor ticks on slider
-  , sprintf('* {font-size: %spx;}; * {font-family: "%s";};', 
-            APP_FONT_SIZE, APP_FONT
-            ) # standardize fonts across the app
-  , ".selectize-dropdown {z-index: 10000}" # ensure drop-down menu displays over everything
-  , ".slider-animate-button { font-size: 20pt !important; }" # increase play button size
+  , sprintf(
+    '* {font-size: %spx;}; * {font-family: "%s";};', APP_FONT_SIZE, APP_FONT
+    ) # standardize font type and size across the app
 )
 
 ui <- fluidPage(title = "Neighborhood Change Explorer",
   # set the browser icon for the page to be the BPDA logo
   tags$head(tags$link(rel="shortcut icon", href="favicon.ico")),
   tags$head(tags$style(HTML(paste(styling_commands)))), # apply other style commands
+  tags$head(tags$style( # increase the size of the the play button on the slider
+    type='text/css', ".slider-animate-button { font-size: 20pt !important; }"
+    )),
   chooseSliderSkin("Square"), # set slider style according to a template
   
   fluidRow( # top-of page / title area
