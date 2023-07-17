@@ -18,7 +18,6 @@ geoTabPanelUI <- function(geo_type) {
   html_legend_fix <- htmltools::tags$style(type = "text/css", css_legend_fix)  # Convert CSS to HTML
   
   tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', 
-    sidebarLayout(
     sidebarPanel(width=6, style="height:800px;", tags$style(".well {background-color:#ebedf2;}"),
        fluidRow( # top row of controls
          column(width = 5,
@@ -53,23 +52,14 @@ geoTabPanelUI <- function(geo_type) {
             htmlOutput(ns("selectionText"))
          )
        ),
-       # fluidRow(
-       #   column(width=12,
-          leafletOutput(ns("map"), height="550px") %>% # , height='57vh'
-            htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
-       #      )
-       # )
-       
-       
-       #width=6 # overall width of the sidebarPanel containing these components
+       leafletOutput(ns("map"), height="550px") %>%
+         htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
     ),
-    
     mainPanel(width=6, # the right-hand side of the screen
        plotlyOutput(ns("bar_chart")),
        plotlyOutput(ns("line_chart")),
        htmlOutput(style=sprintf("padding:10px; font-size:%spx;", APP_FONT_SIZE - 4), ns("sourceText"))
-    )
-    )
+       )
   )
 }
 
