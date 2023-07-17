@@ -12,7 +12,7 @@ library(htmltools)
 
 # Define global formatting parameters #######
 APP_FONT <- "Helvetica"
-APP_FONT_SIZE <- 18
+APP_FONT_SIZE <- 17
 MAP_PALETTE <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
 BAR_COLOR <- '#60809f' # previously, we set the map palette as Purples with bar/line color 7f76b7
 LINE_COLOR <- BAR_COLOR # could also change line to a separate hex code if desired
@@ -20,7 +20,7 @@ LINE_COLOR <- BAR_COLOR # could also change line to a separate hex code if desir
 # Define the about page ######
 ABOUT_PAGE <- modalDialog(
   title = h2("About", align='center'),
-  "Blah blah blah",
+  htmltools::includeMarkdown("about.md"),
   easyClose = TRUE
 )
 
@@ -44,8 +44,9 @@ ALL_VARS_INFO$tracts <- list(
      (twenty_thirtyfour) /
        (zero_nine + ten_nineteen + twenty_thirtyfour + 
           thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
-   )
+   ), source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
+  
   , "Race and Ethnicity" = list(varcode = "hbictre", start = 1950, end = 2020, step = 10,
     lineTitle = "Non-white share of population", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -61,15 +62,20 @@ ALL_VARS_INFO$tracts <- list(
     ), summary_expression = rlang::expr(
       (black + hisp + asian + native + two_plus + other) /
         (white + black + hisp + asian + native + two_plus + other)
-    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
+    ), 
+    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
+    note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
   )
+  
   , "Nativity" = list(varcode = "hbictnat", start = 1950, end = 2020, step = 10,
     lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
     barTitle = "Population by nativity", barhoverformat = ",.0f",
     barCats = list("Native-born" = "native", "Foreign-born" = "foreign"), 
-    summary_expression = rlang::expr(foreign / (foreign + native))
+    summary_expression = rlang::expr(foreign / (foreign + native)),
+    source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
+  
   , "Educational Attainment" = list(varcode = "hbictedu", start = 1950, end = 2020, step = 10,
     lineTitle = "Share of population with a bachelor's degree or higher", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -79,18 +85,10 @@ ALL_VARS_INFO$tracts <- list(
       "High school or some equivalent" = "he",
       "Some college" = "sc",
       "Bachelor's or more" = "bm"
-    ), summary_expression = rlang::expr(bm / (lhs + he + sc + bm))
+    ), summary_expression = rlang::expr(bm / (lhs + he + sc + bm)),
+    source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
-  # , "Housing Tenure" = list(varcode = "hbicthou", start = 1950, end = 2020, step = 10,
-  #   lineTitle = "Owner-occupied housing share", linehoverformat = ".0%",
-  #   tickprefix = NULL, tickformat = ".0%", agg_func = sum,
-  #   barTitle = "Housing units by tenure", barhoverformat = ",.0f",
-  #   barCats = list(
-  #     "Owner Occupied" = "owner",
-  #     "Renter Occupied" = "renter",
-  #     "Vacant" = "vac"
-  #   ), summary_expression = rlang::expr(owner / (owner + renter))
-  # )
+  
   , "Housing Tenure" = list(varcode = "hbicthouten", start = 1950, end = 2020, step = 10,
     lineTitle = "Owner-occupied housing share", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -99,8 +97,10 @@ ALL_VARS_INFO$tracts <- list(
       "Owner-occupied" = "owner",
       "Renter-occupied" = "renter",
       "Vacant" = "vac"
-    ), summary_expression = rlang::expr(owner / (owner + renter))
+    ), summary_expression = rlang::expr(owner / (owner + renter)),
+    source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
+  
   , "Housing Occupancy" = list(varcode = "hbicthouvac", start = 1950, end = 2020, step = 10,
     lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -108,8 +108,10 @@ ALL_VARS_INFO$tracts <- list(
     barCats = list(
       "Occupied" = "occ",
       "Vacant" = "vac"
-    ), summary_expression = rlang::expr(vac / (vac + occ))
+    ), summary_expression = rlang::expr(vac / (vac + occ)),
+    source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
+  
   , "Labor Force" = list(varcode = "hbictlf", start = 1950, end = 2020, step = 10,
     lineTitle = "Female labor force participation rate", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -119,7 +121,8 @@ ALL_VARS_INFO$tracts <- list(
       , "Male not in labor force" = "nilf_m"
       , "Female in labor force" = "ilf_f"
       , "Female not in labor force" = "nilf_f"
-    ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f))
+    ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
+    source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   # , "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
   #   lineTitle = "Median Household Income", linehoverformat = ",.0f",
@@ -161,8 +164,10 @@ ALL_VARS_INFO$neighborhoods <- list(
      (twenty_thirtyfour) /
        (zero_nine + ten_nineteen + twenty_thirtyfour + 
           thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
-   )
+   ),
+   source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
+  
   , "Race and Ethnicity" = list(varcode = "hbicnre", start = 1950, end = 2020, step = 10,
     lineTitle = "Non-white share of population", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -178,16 +183,20 @@ ALL_VARS_INFO$neighborhoods <- list(
     ), summary_expression = rlang::expr(
       (black + hisp + asian + native + two_plus + other) /
         (white + black + hisp + asian + native + two_plus + other)
-    ), note = "Note: In 1950 and 1960, the only race/ethnicity categories 
-                on the Census were White, Black, and Other."
+    ), 
+    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
+    note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
   )
+  
   , "Nativity" = list(varcode = "hbicnnat", start = 1950, end = 2020, step = 10,
     lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
     barTitle = "Population by nativity", barhoverformat = ",.0f",
     barCats = list("Native-born" = "native", "Foreign-born" = "foreign"), 
-    summary_expression = rlang::expr(foreign / (foreign + native))
+    summary_expression = rlang::expr(foreign / (foreign + native)),
+    source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
+  
   , "Educational Attainment" = list(varcode = "hbicnedu", start = 1950, end = 2020, step = 10,
     lineTitle = "Share of population with a bachelor's degree or higher", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -197,8 +206,10 @@ ALL_VARS_INFO$neighborhoods <- list(
       "High school or some equivalent" = "he",
       "Some college" = "sc",
       "Bachelor's or more" = "bm"
-    ), summary_expression = rlang::expr(bm / (lhs + he + sc + bm))
+    ), summary_expression = rlang::expr(bm / (lhs + he + sc + bm)),
+    source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
+  
   , "Housing Tenure" = list(varcode = "hbicnhouten", start = 1950, end = 2020, step = 10,
     lineTitle = "Owner-occupied housing share", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -207,8 +218,10 @@ ALL_VARS_INFO$neighborhoods <- list(
       "Owner-occupied" = "owner",
       "Renter-occupied" = "renter",
       "Vacant" = "vac"
-    ), summary_expression = rlang::expr(owner / (owner + renter))
+    ), summary_expression = rlang::expr(owner / (owner + renter)),
+    source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
+  
   , "Housing Occupancy" = list(varcode = "hbicnhouvac", start = 1950, end = 2020, step = 10,
     lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -216,8 +229,10 @@ ALL_VARS_INFO$neighborhoods <- list(
     barCats = list(
       "Occupied" = "occ",
       "Vacant" = "vac"
-    ), summary_expression = rlang::expr(vac / (vac + occ))
+    ), summary_expression = rlang::expr(vac / (vac + occ)),
+    source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
+  
   , "Labor Force" = list(varcode = "hbicnlf", start = 1950, end = 2020, step = 10,
     lineTitle = "Female labor force participation rate", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
@@ -227,7 +242,8 @@ ALL_VARS_INFO$neighborhoods <- list(
       , "Male not in labor force" = "nilf_m"
       , "Female in labor force" = "ilf_f"
       , "Female not in labor force" = "nilf_f"
-    ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f))
+    ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
+    source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
 ) 
 

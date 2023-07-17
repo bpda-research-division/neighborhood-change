@@ -18,7 +18,8 @@ geoTabPanelUI <- function(geo_type) {
   html_legend_fix <- htmltools::tags$style(type = "text/css", css_legend_fix)  # Convert CSS to HTML
   
   tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', 
-    sidebarPanel(width=6, style = "height: 85vh;", tags$style(".well {background-color:#ebedf2;}"),
+    sidebarLayout(
+    sidebarPanel(width=6, style="height:800px;", tags$style(".well {background-color:#ebedf2;}"),
        fluidRow( # top row of controls
          column(width = 5,
             selectInput(ns("variable"), 
@@ -52,15 +53,22 @@ geoTabPanelUI <- function(geo_type) {
             htmlOutput(ns("selectionText"))
          )
        ),
-       leafletOutput(ns("map"), height='57vh') %>% 
-         htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
+       # fluidRow(
+       #   column(width=12,
+          leafletOutput(ns("map"), height="550px") %>% # , height='57vh'
+            htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
+       #      )
+       # )
+       
        
        #width=6 # overall width of the sidebarPanel containing these components
     ),
+    
     mainPanel(width=6, # the right-hand side of the screen
-      plotlyOutput(ns("bar_chart")),
-      plotlyOutput(ns("line_chart")),
-      h5(style = "padding: 10px;", "Data source: BPDA Research Division")
+       plotlyOutput(ns("bar_chart")),
+       plotlyOutput(ns("line_chart")),
+       htmlOutput(style=sprintf("padding:10px; font-size:%spx;", APP_FONT_SIZE - 4), ns("sourceText"))
+    )
     )
   )
 }
@@ -83,13 +91,13 @@ ui <- fluidPage(title = "Neighborhood Change Explorer",
   chooseSliderSkin("Square"), # set slider style according to a template
   
   fluidRow( # top-of page / title area
-    column(11, # title
+    column(10, # title
       h1("Boston Neighborhood Change Explorer", 
          align = "left", 
-         style = sprintf('font-size:40px; font-family: "%s";', APP_FONT)
+         style = sprintf('font-size:36px; font-family: "%s";', APP_FONT)
         ) 
     ),
-    column(1, align='center', # about button
+    column(2, align='right', # about button
       div(style='padding:15px;',
         actionButton("about", "About", style='padding:10px; font-size:120%')
         )

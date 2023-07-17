@@ -195,21 +195,22 @@ tabPanelServer <- function(geo_type) {
       # the current variable and map selection as well as the year on the slider.
       filteredBar <- reactive({ # if the user doesn't have any polygons selected...
         if (length(selected$groups) == 0) { # ...show citywide data for the given year
-          subset(var_data()$cb_df, YEAR == input$yearSelect) 
+          data <- subset(var_data()$cb_df, YEAR == input$yearSelect) 
         } else if (length(selected$groups) == 1) { # if only one polygon is selected...
           # ...use the subcity binned data filtered to that polygon
-          subset(var_data()$sb_df, GEOID %in% selected$groups & YEAR == input$yearSelect)
+          data <- subset(var_data()$sb_df, GEOID %in% selected$groups & YEAR == input$yearSelect)
         } else { # If multiple polygons are selected...
           # ...we aggregate the data for the set of selected polygons for each year...
           data <- subset(var_data()$sb_df, GEOID %in% selected$groups & YEAR == input$yearSelect) %>%
             group_by(CATEGORY) %>% # ...by category, using the agg_func that's defined for the given variable
             summarise(VALUE = var_params()[["agg_func"]](VALUE))
-          if (nrow(data) == 0) { # if there's missing data for a given year...
-            data <- subset(var_data()$cb_df, YEAR == input$yearSelect)
-            data$VALUE <- 0 # ... display the bar chart with all 0s for the given categories
-          }
-          return(data)
         }
+        
+        if (nrow(data) == 0) { # if there's missing data for a given year...
+          data <- subset(var_data()$cb_df, YEAR == input$yearSelect)
+          data$VALUE <- 0 # ... display the bar chart with all 0s for the given categories
+        }
+        return(data)
       })
       
       # The y-axis range for the bar chart is a function of the map selection, but
@@ -368,6 +369,10 @@ tabPanelServer <- function(geo_type) {
                         )           
         }
         return(p)
+      })
+      
+      output$sourceText <- reactive({
+        paste("Source:", var_params()$source)
       })
     }
   )
