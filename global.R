@@ -17,13 +17,6 @@ MAP_PALETTE <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.
 BAR_COLOR <- '#60809f' # previously, we set the map palette as Purples with bar/line color 7f76b7
 LINE_COLOR <- BAR_COLOR # could also change line to a separate hex code if desired
 
-# Define the about page ######
-ABOUT_PAGE <- modalDialog(
-  title = h2("About", align='center'),
-  htmltools::includeMarkdown("about.md"),
-  easyClose = TRUE
-)
-
 # Define parameters for each geography type and variable ############
 ALL_VARS_INFO <- list()
 
@@ -439,12 +432,13 @@ addLegend_decreasing <- function (map, position = c("topright", "bottomright", "
 
 # Data loading ######################
 
-# subcity bins, subcity summary, citywide bins, citywide summary
-df_types <- c('sb', 'ss', 'cb', 'cs')
-
 #' Reads in and returns the four dataframes for a given variable defined by
 #' varcode. The data files need to use the naming convention <varcode>_<df_type>.rds
 dfs_from_varcode <- function(varcode) {
+  
+  # subcity bins, subcity summary, citywide bins, citywide summary
+  df_types <- c('sb', 'ss', 'cb', 'cs')
+  
   dfs <- lapply(df_types, function(x) paste0("./data/", varcode, "_", x, ".rds")) %>%
     lapply(readRDS) %>% `names<-`(lapply(df_types, function(x) paste0(x, '_df')))
   dfs #%>% lapply(as.data.frame) %>% lapply(function(df) df %>% mutate(YEAR = as.character(YEAR)))

@@ -19,38 +19,45 @@ geoTabPanelUI <- function(geo_type) {
   
   tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', 
     sidebarPanel(width=6, style="height:800px;", tags$style(".well {background-color:#ebedf2;}"),
-       fluidRow( # top row of controls
-         column(width = 5, style="z-index:10000;", # ensure drop-down menu displays in front of all else
-            selectInput(ns("variable"), 
-              HTML("1. Select a variable:"), choices = names(variables) %>% 
-                lapply(function (n) { # display each variable with its start and end year
-                  paste0(n, " (", variables[[n]]$start, "-", variables[[n]]$end, ")")
-                })
-            )
+        fluidRow(
+          column(width=4,  
+                 HTML("<b>1. Choose a topic:</b>")
+                 ),
+          column(width=8, style="z-index:1010;", # ensure drop-down menu displays in front of other stuff
+                 selectInput(ns("variable"), 
+                             NULL, choices = names(variables) %>% 
+                               lapply(function (n) { # display each variable with its start and end year
+                                 paste0(n, " (", variables[[n]]$start, "-", variables[[n]]$end, ")")
+                               })
+                 )
+                 )
+        ),
+        fluidRow( # top row of controls
+         column(width = 4, 
+            HTML("<b>2. Select one or more areas on the map.</b>")
          ),
-         column(width = 7, 
-            sliderTextInput(inputId = ns("yearSelect"), 
-                label = HTML(
-                  "3. Drag the slider or click &#9658; to see change over time:"
-                ), # the above jumble of characters is the code for a play button symbol
-                choices = seq(initial_st, initial_end, by=initial_step),
-                selected = initial_st, grid=TRUE, 
-                animate = animationOptions(interval = 800) # set animation speed here
-            )
+         column(width = 3, align="right",
+                actionButton(ns("clearSelections"), "Clear all selections", 
+                             style=sprintf("font-size:%spx", APP_FONT_SIZE)),
+                
+         ),
+         column(width = 5, align="left", style="padding-left:40px;",
+                htmlOutput(ns("selectionText"))
          )
-       ),
-       fluidRow(style='padding:5px;', # bottom row of controls
-         column(width=5,
-            HTML(sprintf("<b>2. Select one or more %s on the map to update the charts.</b>", geo_type))
-         ),
-         column(width=3, align='right',
-            actionButton(ns("clearSelections"), "Clear all selections", 
-                style=sprintf("font-size:%spx", APP_FONT_SIZE)
-            )
-         ),
-         column(width=4, align='left',
-            htmlOutput(ns("selectionText"))
-         )
+        ),
+         fluidRow(
+           column(width=4, style="margin-top:25px;",
+                  HTML(
+                    "<b>3. Drag the slider or click &#9658; to move through time:</b>"
+                  ), # the above jumble of characters is the code for a play button symbol
+                  ),
+           column(width=8, style="margin-top:5px;",
+                  sliderTextInput(inputId = ns("yearSelect"), 
+                      choices = seq(initial_st, initial_end, by=initial_step),
+                      selected = initial_st, grid=TRUE, label = NULL,
+                      animate = animationOptions(interval = 800) # set animation speed here
+                  )
+                  )
        ),
        leafletOutput(ns("map"), height="550px") %>%
          htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
@@ -74,7 +81,7 @@ styling_commands = c(
 
 ui <- fluidPage(title = "Neighborhood Change Explorer",
   # set the browser icon for the page to be the BPDA logo
-  tags$head(tags$link(rel="shortcut icon", href="favicon.ico")),
+  tags$head(tags$link(rel="shortcut icon", href="bpda_logo.ico")),
   tags$head(tags$style(HTML(paste(styling_commands)))), # apply other style commands
   tags$head(tags$style( # increase the size of the the play button on the slider
     type='text/css', ".slider-animate-button { font-size: 20pt !important; }"
@@ -83,14 +90,14 @@ ui <- fluidPage(title = "Neighborhood Change Explorer",
   
   fluidRow( # top-of page / title area
     column(10, # title
-      h1("Boston Neighborhood Change Explorer", 
+      h3("Boston Neighborhood Change Explorer", 
          align = "left", 
-         style = sprintf('font-size:36px; font-family: "%s";', APP_FONT)
+         style = sprintf('font-size:32px; font-family: "%s"; padding: 0px;', APP_FONT)
         ) 
     ),
     column(2, align='right', # about button
-      div(style='padding:15px;',
-        actionButton("about", "About", style='padding:10px; font-size:120%')
+      div(style='padding:10px;',
+        actionButton("about", "About", style='padding:7px; font-size:120%')
         )
       )
   ),

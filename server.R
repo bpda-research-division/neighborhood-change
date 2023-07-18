@@ -76,7 +76,7 @@ tabPanelServer <- function(geo_type) {
                 ), # set font size for the tooltips a bit smaller than in the rest of app
               highlight = highlightOptions( 
                 weight = 3,
-                fillOpacity = 0.85,
+                fillOpacity = 0.7,
                 color = "black",
                 bringToFront = TRUE
               ), # give these polygons a black border when you hover over them
@@ -183,7 +183,7 @@ tabPanelServer <- function(geo_type) {
       
       # Dynamic text on the controls telling the user what data they are currently looking at
       output$selectionText <- reactive({
-        msg <- "Currently viewing data for:<br>" 
+        msg <- "Viewing data for:<br>" 
         if (length(selected$groups) == 0) { # if nothing is currently selected,
           paste(msg, "<b>the whole city<b>") # it's citywide data
         } else { # but if at least one polygon is selected,
@@ -382,9 +382,27 @@ tabPanelServer <- function(geo_type) {
 #' Each geography type gets its own module server so that they can act independently
 server <- function(input, output, session) {
   
-  # show the about page modal dialog when the user clicks the "About" button
-  observeEvent(input$about, {
-    showModal(ABOUT_PAGE)
+  showModal( # Welcome page which only shows when page is loaded
+    modalDialog(
+      title = h2("Welcome!", align='center'),
+      htmltools::includeMarkdown("welcome.md"),
+      tags$video(
+        id = "video", type = "mp4",
+        src = "demo_v1.mp4",
+        controls=TRUE, width="100%"
+      ),
+      footer = modalButton("Got it!"),
+      easyClose = TRUE, size="l"
+    )
+  )
+  
+  observeEvent(input$about, { # show the about page when the user clicks the "About" button
+    showModal(modalDialog(
+      title = h2("About", align='center'),
+      htmltools::includeMarkdown("about.md"),
+      easyClose = TRUE
+      )
+    )
   })
   
   # build the module servers for each geography type in ALL_VARS_INFO
