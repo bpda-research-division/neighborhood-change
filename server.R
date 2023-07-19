@@ -39,6 +39,7 @@ tabPanelServer <- function(geo_type) {
           # currently selected by the user are always displayed in front of other polygons
           addMapPane("layer1", zIndex=420) %>% addMapPane("layer2",zIndex=410) %>%
           
+          
           # could be worth parameterizing the initial map center and zoom level at some point
           setView(-71.075, 42.318, zoom = 12)
       })
@@ -60,7 +61,12 @@ tabPanelServer <- function(geo_type) {
         # this palette shades the polygons on a continuous scale that's consistent between years
         pal <- colorNumeric(MAP_PALETTE, domain = ss$SUMMARY_VALUE)
         
-        leafletProxy("map") %>% clearShapes() %>% clearControls() # clear existing stuff before redrawing
+        leafletProxy("map") %>% clearShapes() %>% clearControls() %>%
+          addControl(
+            actionButton(session$ns("clearSelections"), "Clear all selections",
+                         style=sprintf("font-size:%spx", APP_FONT_SIZE)),
+            position="topright", className = "fieldset {border: 0;}"
+          )# clear existing stuff before redrawing
         
         for (yr in names(yrdfs)) { # draw and add one layer of polygons for each year
           leafletProxy("map") %>% 
@@ -154,7 +160,7 @@ tabPanelServer <- function(geo_type) {
       })
       
       # In response to the user clearing all selections or choosing a new variable...
-      observeEvent(list(input$clearSelections, input$variable), {
+      observeEvent(list(session$input$clearSelections, input$variable), {
         selected$groups <- vector() # ...unselect all polygons and hide them on the map.
         leafletProxy("map") %>% hideGroup(group = var_data()$ss_df$GEOID)
       })

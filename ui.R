@@ -21,7 +21,7 @@ geoTabPanelUI <- function(geo_type) {
     sidebarPanel(width=6, style="height:800px;", tags$style(".well {background-color:#ebedf2;}"),
         fluidRow(
           column(width=4,  
-                 HTML("<b>1. Choose a topic:</b>")
+                 HTML("<b>Choose a topic:</b>")
                  ),
           column(width=8, style="z-index:1010;", # ensure drop-down menu displays in front of other stuff
                  selectInput(ns("variable"), 
@@ -32,23 +32,10 @@ geoTabPanelUI <- function(geo_type) {
                  )
                  )
         ),
-        fluidRow( # top row of controls
-         column(width = 4, 
-            HTML("<b>2. Select one or more areas on the map.</b>")
-         ),
-         column(width = 3, align="right",
-                actionButton(ns("clearSelections"), "Clear all selections", 
-                             style=sprintf("font-size:%spx", APP_FONT_SIZE)),
-                
-         ),
-         column(width = 5, align="left", style="padding-left:40px;",
-                htmlOutput(ns("selectionText"))
-         )
-        ),
          fluidRow(
-           column(width=4, style="margin-top:25px;",
+           column(width=4, style="margin-top:10px;",
                   HTML(
-                    "<b>3. Drag the slider or click &#9658; to move through time:</b>"
+                    "<b>Drag the slider or click &#9658; to see change over time:</b>"
                   ), # the above jumble of characters is the code for a play button symbol
                   ),
            column(width=8, style="margin-top:5px;",
@@ -58,6 +45,14 @@ geoTabPanelUI <- function(geo_type) {
                       animate = animationOptions(interval = 800) # set animation speed here
                   )
                   )
+       ),
+       fluidRow(style="padding-bottom:10px", # top row of controls
+         column(width = 7, 
+                HTML("<b>Select one or more areas on the map to filter the data shown on the charts.</b>")
+         ),
+         column(width = 5, align="left", style="padding-left:40px;",
+                htmlOutput(ns("selectionText"))
+         )
        ),
        leafletOutput(ns("map"), height="550px") %>%
          htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
