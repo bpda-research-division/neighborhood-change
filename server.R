@@ -339,9 +339,11 @@ tabPanelServer <- function(geo_type) {
         p <- plot_ly(selectedLine(), 
                 x = ~YEAR,
                 y = ~SUMMARY_VALUE,
+                source = session$ns("line_chart"),
                 hoverinfo = 'text'
         ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
+          #event_register("plotly_click") %>% # register clicks
           add_lines(color=I(LINE_COLOR), # set the line formatting options
                     line=list(width = 2, shape = 'spline', smoothing = 1),
                     hoverinfo = "y", # display y-values when hovering over line chart
@@ -391,6 +393,16 @@ tabPanelServer <- function(geo_type) {
         return(p)
       })
       
+      clickedYear <- reactive({
+        event_data("plotly_click", source=session$ns("line_chart"))[['x']][1]
+      })
+      
+      observeEvent(clickedYear(), {
+        # d <- event_data("plotly_click", source=session$ns("line_chart"))
+        # print(d[['x']][1])
+        updateSliderTextInput(session, "yearSelect", selected = clickedYear())
+      })
+      
       output$sourceText <- reactive({
         paste("Source:", var_params()$source)
       })
@@ -424,6 +436,8 @@ server <- function(input, output, session) {
       )
     )
   })
+  
+
   
   # build the module servers for each geography type in ALL_VARS_INFO
   lapply(names(ALL_VARS_INFO), function(geo_type) {
