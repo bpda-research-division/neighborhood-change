@@ -4,15 +4,25 @@ For further analysis, see our [Historical Trends in Boston's Neighborhoods](http
 
 ### Data
 
-Data on this website are drawn from 1950-2020 Decennial Censuses and the 2006-2010 and 2016-2020 American Community Surveys. 
+Data on this website are drawn from 1950-2020 Decennial Censuses and the 2006-2010 and 2016-2020 American Community Surveys.  
 
-The smallest available geography for some variables is the Census tract. Therefore, neighborhood boundaries are approximated using 2020 Census tract boundaries. Older data are crosswalked to the 2020 tracts to provide a consistent geography over the decades (see the "Methodology" section below for more details).
+The smallest available geography for some variables is the Census tract. Therefore, neighborhood boundaries are approximated using 2020 Census tract boundaries. Older data are crosswalked to the 2020 tracts to provide a consistent geography over the decades (see the "Crosswalk Methodology" section below for more details).
 
 Because they cannot be separately identified at the Census tract level, the Leather District is combined with Downtown and Bay Village is combined with the South End.
 
 Census Tract 9815.02 is partially in East Boston and partially in Revere, but almost the entire population is in Revere so it is excluded from the East Boston approximation.
 
-### Methodology
+### A note on Boston's total population
+
+The City of Boston, working with the BPDA Research Division, successfully challenged the 2020 Decennial Census' count of Boston's total population. The Census has acknowledged that Boston's 2020 group quarters population was underestimated by ~6,500 people, but as of July 2023, it has not yet published revised 2020 population figures that take Boston's group quarters challenge into account. 
+
+On this website, the data on total population by sex reflect Boston's group quarters challenge, which puts Boston's total population at ~682,000 people. 
+
+To present Boston's updated population on this website, the BPDA Research Division allocated the city's net group quarters population to tracts and neighborhoods using the locations of dormitories and correctional facilities where those populations were mis-estimated in the 2020 decennial census. The net group quarters populations were additionally apportioned by sex based on citywide male-to-female ratios for students in dormitories and people in correctional facilities. 
+
+However, our updated data on Boston's group quarters population do not include detailed demographic information, so this website's data on race/ethnicity reflect the unadjusted 2020 decennial census. Other demographic variables on this website may add up to different estimated totals of Boston's 2020 population because their data come from the American Community Survey's 2016-2020 5-Year estimates rather than from the decennial census.
+
+### Crosswalk Methodology
 
 To create neighborhood-level data, we use U.S. Census Tracts to define neighborhood boundaries. The Census Bureau, however, has
 changed the boundaries of its Census Tracts across the decades. We use the most recent map of Census Tracts (from the 2020

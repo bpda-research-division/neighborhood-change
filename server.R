@@ -274,8 +274,9 @@ tabPanelServer <- function(geo_type) {
                  #                    ),
                  showlegend=T, # always show legend, even when 
                  legend = list(orientation = 'h', # place legend items side by side
-                               x=0.01, y=1.05 # position legend near the top center
-                 ),
+                               x=0.01, y=1.05, # position legend near the top center
+                               itemclick = FALSE, itemdoubleclick = FALSE
+                               ),
                  margin = list(t=50) # top padding to make sure chart title is visible
                  )
       })
@@ -318,7 +319,7 @@ tabPanelServer <- function(geo_type) {
         top_val <- max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE)
         
         # but if we want to show a citywide comparison... 
-        if (length(selected$groups) > 0) {
+        if (length(selected$groups) > 0 & var_params()$citywide_comparison) {
           cw_val <- max(var_data()$cs_df$SUMMARY_VALUE, na.rm=TRUE)
           # ...and the maximum summary value citywide is bigger than teh default upper value...
           if (cw_val > top_val) {top_val <- cw_val} # ... we use the citywide max as the top.
@@ -363,13 +364,14 @@ tabPanelServer <- function(geo_type) {
                               ),
                  showlegend = T,
                  legend = list(orientation = 'h', # place legend items side by side
-                               x=0.01, y=1.05 # position legend near the top center
+                               x=0.01, y=1.05, # position legend near the top center
+                               itemclick = FALSE, itemdoubleclick = FALSE
                                ), # legend will only appear if there are multiple lines
                  hovermode = "x unified", # show the data values for all lines upon hover
                  margin = list(t=40) # top padding to make sure chart title is visible
           )
         
-        if (length(selected$groups) > 0) { # if at least one polygon is selected...
+        if (length(selected$groups) > 0 & var_params()$citywide_comparison) { # if at least one polygon is selected...
           p <- p %>% # ...add a dashed line showing the citywide comparison for the summary value over time
             add_lines(x = var_data()$cs_df$YEAR, y = var_data()$cs_df$SUMMARY_VALUE,
                hoverinfo="y", name="Citywide", color=I(LINE_COLOR),
@@ -403,7 +405,7 @@ server <- function(input, output, session) {
   showModal( # Welcome page which only shows when page is loaded
     modalDialog(
       title = h2("Welcome!", align='center'),
-      htmltools::includeMarkdown("welcome.md"),
+      htmltools::includeMarkdown("dialog/welcome.md"),
       tags$video(
         id = "video", type = "mp4",
         src = "demo_v1.mp4",
@@ -417,7 +419,7 @@ server <- function(input, output, session) {
   observeEvent(input$about, { # show the about page when the user clicks the "About" button
     showModal(modalDialog(
       title = h2("About", align='center'),
-      htmltools::includeMarkdown("about.md"),
+      htmltools::includeMarkdown("dialog/about.md"),
       easyClose = TRUE
       )
     )

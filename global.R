@@ -23,8 +23,8 @@ ALL_VARS_INFO <- list()
 # TODO: documentation explaining what each of these parameters does, and the ordering
 ALL_VARS_INFO$tracts <- list(
   "Total Population" = list(varcode = "hbicttp", start = 1950, end = 2020, step = 10,
-   lineTitle = "Total population", linehoverformat = ",.0f",
-   tickprefix = NULL, tickformat = "~s", agg_func = sum,
+   lineTitle = "Total population", linehoverformat = ",.0f", 
+   tickprefix = NULL, tickformat = "~s", agg_func = sum, citywide_comparison = FALSE,
    barTitle = "Population by sex", barhoverformat = ",.0f",
    barCats = list(
      "Male" = "male"
@@ -35,7 +35,7 @@ ALL_VARS_INFO$tracts <- list(
   
   , "Age" = list(varcode = "hbicta", start = 1950, end = 2020, step = 10,
    lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
-   tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+   tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
    barTitle = "Population by age", barhoverformat = ",.0f",
    barCats = list(
      "0-9 years" = "zero_nine",
@@ -53,7 +53,7 @@ ALL_VARS_INFO$tracts <- list(
   
   , "Race and Ethnicity" = list(varcode = "hbictre", start = 1950, end = 2020, step = 10,
     lineTitle = "Non-white share of population", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
     barCats = list(
       "White" = "white",
@@ -73,7 +73,7 @@ ALL_VARS_INFO$tracts <- list(
   
   , "Nativity" = list(varcode = "hbictnat", start = 1950, end = 2020, step = 10,
     lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by nativity", barhoverformat = ",.0f",
     barCats = list("Native-born" = "native", "Foreign-born" = "foreign"), 
     summary_expression = rlang::expr(foreign / (foreign + native)),
@@ -82,7 +82,7 @@ ALL_VARS_INFO$tracts <- list(
   
   , "Educational Attainment" = list(varcode = "hbictedu", start = 1950, end = 2020, step = 10,
     lineTitle = "Share of population with a bachelor's degree or higher", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by educational attainment", barhoverformat = ",.0f",
     barCats = list(
       "Less than high school" = "lhs",
@@ -95,7 +95,7 @@ ALL_VARS_INFO$tracts <- list(
   
   , "Housing Tenure" = list(varcode = "hbicthouten", start = 1950, end = 2020, step = 10,
     lineTitle = "Owner occupancy rate", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
     barCats = list(
       "Owner-occupied" = "owner",
@@ -106,7 +106,7 @@ ALL_VARS_INFO$tracts <- list(
   
   , "Housing Occupancy" = list(varcode = "hbicthouvac", start = 1950, end = 2020, step = 10,
     lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
     barCats = list(
       "Occupied" = "occ",
@@ -117,7 +117,7 @@ ALL_VARS_INFO$tracts <- list(
   
   , "Labor Force" = list(varcode = "hbictlf", start = 1950, end = 2020, step = 10,
     lineTitle = "Female labor force participation rate (16+)", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
     barCats = list(
       "Male in labor force" = "ilf_m"
@@ -129,7 +129,7 @@ ALL_VARS_INFO$tracts <- list(
   )
   # , "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
   #   lineTitle = "Median Household Income", linehoverformat = ",.0f",
-  #   tickprefix = "$", tickformat = "~s", agg_func = sum,
+  #   tickprefix = "$", tickformat = "~s", agg_func = sum, citywide_comparison = TRUE,
   #   barTitle = "Households by Income", barhoverformat = ",.0f",
   #   barCats = list(
   #     "Less than $10,000" = "S1901_C01_002"
@@ -154,7 +154,7 @@ ALL_VARS_INFO$tracts <- list(
 ALL_VARS_INFO$neighborhoods <- list(
   "Total Population" = list(varcode = "hbicntp", start = 1950, end = 2020, step = 10,
    lineTitle = "Total population", linehoverformat = ",.0f",
-   tickprefix = NULL, tickformat = "~s", agg_func = sum,
+   tickprefix = NULL, tickformat = "~s", agg_func = sum, citywide_comparison = FALSE,
    barTitle = "Population by sex", barhoverformat = ",.0f",
    barCats = list(
      "Male" = "male"
@@ -165,7 +165,7 @@ ALL_VARS_INFO$neighborhoods <- list(
   
   , "Age" = list(varcode = "hbicna", start = 1950, end = 2020, step = 10,
    lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
-   tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+   tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
    barTitle = "Population by age", barhoverformat = ",.0f",
    barCats = list(
      "0-9 years" = "zero_nine",
@@ -184,7 +184,7 @@ ALL_VARS_INFO$neighborhoods <- list(
   
   , "Race and Ethnicity" = list(varcode = "hbicnre", start = 1950, end = 2020, step = 10,
     lineTitle = "Non-white share of population", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
     barCats = list(
       "White" = "white",
@@ -204,7 +204,7 @@ ALL_VARS_INFO$neighborhoods <- list(
   
   , "Nativity" = list(varcode = "hbicnnat", start = 1950, end = 2020, step = 10,
     lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by nativity", barhoverformat = ",.0f",
     barCats = list("Native-born" = "native", "Foreign-born" = "foreign"), 
     summary_expression = rlang::expr(foreign / (foreign + native)),
@@ -213,7 +213,7 @@ ALL_VARS_INFO$neighborhoods <- list(
   
   , "Educational Attainment" = list(varcode = "hbicnedu", start = 1950, end = 2020, step = 10,
     lineTitle = "Share of population with a bachelor's degree or higher", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by educational attainment", barhoverformat = ",.0f",
     barCats = list(
       "Less than high school" = "lhs",
@@ -226,7 +226,7 @@ ALL_VARS_INFO$neighborhoods <- list(
   
   , "Housing Tenure" = list(varcode = "hbicnhouten", start = 1950, end = 2020, step = 10,
     lineTitle = "Owner occupancy rate", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
     barCats = list(
       "Owner-occupied" = "owner",
@@ -237,7 +237,7 @@ ALL_VARS_INFO$neighborhoods <- list(
   
   , "Housing Occupancy" = list(varcode = "hbicnhouvac", start = 1950, end = 2020, step = 10,
     lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
     barCats = list(
       "Occupied" = "occ",
@@ -248,7 +248,7 @@ ALL_VARS_INFO$neighborhoods <- list(
   
   , "Labor Force" = list(varcode = "hbicnlf", start = 1950, end = 2020, step = 10,
     lineTitle = "Female labor force participation rate (16+)", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
     barCats = list(
       "Male in labor force" = "ilf_m"
