@@ -168,11 +168,12 @@ tabPanelServer <- function(geo_type) {
       # To update the slider input each time the user selects a different variable...
       observeEvent(input$variable, {
         st <- var_params()$start
+        end <- var_params()$end
 
         updateSliderTextInput(session, "yearSelect",
           # ...reset the choices on the slider based on the new variable's parameters...
-          choices = seq(st, var_params()$end, by=var_params()$step),
-          selected = st # ...and reset the slider back to the start.
+          choices = seq(st, end, by=var_params()$step),
+          selected = end # ...and reset the slider back to the start.
           )
       })
       
@@ -181,20 +182,25 @@ tabPanelServer <- function(geo_type) {
       selectionName <- reactive({
         geo_type <- geo_namespace
         num_selected <- length(selected$groups)
-        if (num_selected == 1) { # if only one polygon is selected, lop the "s" off
+        if (num_selected == 0) {return("Citywide")}
+        else if (num_selected == 1) { # if only one polygon is selected, lop the "s" off
           geo_type <- substr(geo_type, 1, nchar(geo_type) - 1)
         }
         sprintf("%s selected %s", num_selected, geo_type)
       })
       
       # Dynamic text on the controls telling the user what data they are currently looking at
-      output$selectionText <- reactive({
-        msg <- "Viewing data for:<br>" 
-        if (length(selected$groups) == 0) { # if nothing is currently selected,
-          paste(msg, "<b>the whole city<b>") # it's citywide data
-        } else { # but if at least one polygon is selected,
-          paste(msg, paste0('<b>', selectionName(), '<b>')) # then we show selectionName() in bold
-        }
+      # output$selectionText <- reactive({
+      #   msg <- "Currently showing data for: " 
+      #   if (length(selected$groups) == 0) { # if nothing is currently selected,
+      #     paste(msg, "<b>the whole city<b>") # it's citywide data
+      #   } else { # but if at least one polygon is selected,
+      #     paste(msg, paste0('<b>', selectionName(), '<b>')) # then we show selectionName() in bold
+      #   }
+      # })
+      
+      output$note <- reactive({
+        var_params()$note
       })
       
       # This is the data that is displayed on the bar chart. It's a function of 
@@ -240,6 +246,7 @@ tabPanelServer <- function(geo_type) {
         plot_ly(filteredBar(),
                 x = ~CATEGORY, 
                 y = ~VALUE, 
+                name = selectionName(), # name the series according to the selection
                 hoverinfo = 'text'
                 ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
@@ -259,13 +266,17 @@ tabPanelServer <- function(geo_type) {
                  hoverlabel = list(bordercolor = 'white', # hover text formatting options
                                    font = list(color="white", size=APP_FONT_SIZE-2)
                                    ),
-                 annotations = list(# if a "note" has been specified for a given
-                                    # variable, display the note as an annotation
-                                    text=ifelse(is.null(var_params()$note),"",var_params()$note),
-                                    xref = 'paper', x = 0.5, y=barRange()[2], # annotation placement
-                                    showarrow=FALSE, font = list(size = APP_FONT_SIZE - 4) 
-                                    ),
-                 margin = list(t=55) # top padding to make sure chart title is visible
+                 # annotations = list(# if a "note" has been specified for a given
+                 #                    # variable, display the note as an annotation
+                 #                    text=ifelse(is.null(var_params()$note),"",var_params()$note),
+                 #                    xref = 'paper', x = 0.5, y=barRange()[2], # annotation placement
+                 #                    showarrow=FALSE, font = list(size = APP_FONT_SIZE - 6) 
+                 #                    ),
+                 showlegend=T, # always show legend, even when 
+                 legend = list(orientation = 'h', # place legend items side by side
+                               x=0.01, y=1.05 # position legend near the top center
+                 ),
+                 margin = list(t=50) # top padding to make sure chart title is visible
                  )
       })
       
@@ -350,8 +361,9 @@ tabPanelServer <- function(geo_type) {
                               tickprefix = var_params()$tickprefix, 
                               tickformat = var_params()$tickformat
                               ),
+                 showlegend = T,
                  legend = list(orientation = 'h', # place legend items side by side
-                               x=0.3, y=1.03 # position legend near the top center
+                               x=0.01, y=1.05 # position legend near the top center
                                ), # legend will only appear if there are multiple lines
                  hovermode = "x unified", # show the data values for all lines upon hover
                  margin = list(t=40) # top padding to make sure chart title is visible

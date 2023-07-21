@@ -18,9 +18,9 @@ geoTabPanelUI <- function(geo_type) {
   html_legend_fix <- htmltools::tags$style(type = "text/css", css_legend_fix)  # Convert CSS to HTML
   
   tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', 
-    sidebarPanel(width=6, style="height:800px;", tags$style(".well {background-color:#ebedf2;}"),
+    sidebarPanel(width=6, style="height:850px;", tags$style(".well {background-color:#ebedf2;}"),
         fluidRow(
-          column(width=4,  
+          column(width=4, style="margin-top:5px;",
                  HTML("<b>Choose a topic:</b>")
                  ),
           column(width=8, style="z-index:1010;", # ensure drop-down menu displays in front of other stuff
@@ -33,32 +33,30 @@ geoTabPanelUI <- function(geo_type) {
                  )
         ),
          fluidRow(
-           column(width=4, style="margin-top:10px;",
+           column(width=4, style="margin-top:5px;", 
                   HTML(
-                    "<b>Drag the slider or click &#9658; to see change over time:</b>"
-                  ), # the above jumble of characters is the code for a play button symbol
+                    "<b>Drag the slider or click &#9658; to move through time:</b>"
+                  ), # the above jumble of characters is the HTML code for a play button symbol
                   ),
-           column(width=8, style="margin-top:5px;",
+           column(width=8, #style="margin-top:5px;",
                   sliderTextInput(inputId = ns("yearSelect"), 
                       choices = seq(initial_st, initial_end, by=initial_step),
-                      selected = initial_st, grid=TRUE, label = NULL,
+                      selected = initial_end, grid=TRUE, label = NULL,
                       animate = animationOptions(interval = 800) # set animation speed here
                   )
                   )
        ),
-       fluidRow(style="padding-bottom:10px", # top row of controls
-         column(width = 7, 
-                HTML("<b>Select one or more areas on the map to filter the data shown on the charts.</b>")
-         ),
-         column(width = 5, align="left", style="padding-left:40px;",
-                htmlOutput(ns("selectionText"))
-         )
-       ),
-       leafletOutput(ns("map"), height="550px") %>%
+       div(style="padding-bottom:5px;", HTML(
+         sprintf("<b>Select one or more %s on the map:</b>", geo_type)
+       )),
+       leafletOutput(ns("map"), height="600px") %>%
          htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
     ),
     mainPanel(width=6, # the right-hand side of the screen
+       # div(style="padding-bottom:5px; padding-top:5px; background-color: #ffffff; color: #60809f;", # color: #60809f; background-color: #ffffff;
+       #     align="center", htmlOutput(ns("selectionText"))),
        plotlyOutput(ns("bar_chart")),
+       htmlOutput(align="center", style="font-size:9pt; background-color: #ffffff; padding-bottom:5px;", ns("note")),
        plotlyOutput(ns("line_chart")),
        htmlOutput(style=sprintf('padding:10px; font-size:%spx', APP_FONT_SIZE - 4), ns("sourceText"))
        )

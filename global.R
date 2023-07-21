@@ -83,13 +83,12 @@ ALL_VARS_INFO$tracts <- list(
   )
   
   , "Housing Tenure" = list(varcode = "hbicthouten", start = 1950, end = 2020, step = 10,
-    lineTitle = "Owner-occupied housing share", linehoverformat = ".0%",
+    lineTitle = "Owner occupancy rate", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
     barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
     barCats = list(
       "Owner-occupied" = "owner",
-      "Renter-occupied" = "renter",
-      "Vacant" = "vac"
+      "Renter-occupied" = "renter"
     ), summary_expression = rlang::expr(owner / (owner + renter)),
     source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
@@ -106,9 +105,9 @@ ALL_VARS_INFO$tracts <- list(
   )
   
   , "Labor Force" = list(varcode = "hbictlf", start = 1950, end = 2020, step = 10,
-    lineTitle = "Female labor force participation rate", linehoverformat = ".0%",
+    lineTitle = "Female labor force participation rate (16+)", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
-    barTitle = "Labor force status by sex", barhoverformat = ",.0f",
+    barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
     barCats = list(
       "Male in labor force" = "ilf_m"
       , "Male not in labor force" = "nilf_m"
@@ -204,13 +203,12 @@ ALL_VARS_INFO$neighborhoods <- list(
   )
   
   , "Housing Tenure" = list(varcode = "hbicnhouten", start = 1950, end = 2020, step = 10,
-    lineTitle = "Owner-occupied housing share", linehoverformat = ".0%",
+    lineTitle = "Owner occupancy rate", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
     barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
     barCats = list(
       "Owner-occupied" = "owner",
-      "Renter-occupied" = "renter",
-      "Vacant" = "vac"
+      "Renter-occupied" = "renter"
     ), summary_expression = rlang::expr(owner / (owner + renter)),
     source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
@@ -227,9 +225,9 @@ ALL_VARS_INFO$neighborhoods <- list(
   )
   
   , "Labor Force" = list(varcode = "hbicnlf", start = 1950, end = 2020, step = 10,
-    lineTitle = "Female labor force participation rate", linehoverformat = ".0%",
+    lineTitle = "Female labor force participation rate (16+)", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum,
-    barTitle = "Labor force status by sex", barhoverformat = ",.0f",
+    barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
     barCats = list(
       "Male in labor force" = "ilf_m"
       , "Male not in labor force" = "nilf_m"
