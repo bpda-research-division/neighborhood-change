@@ -17,7 +17,8 @@ geoTabPanelUI <- function(geo_type) {
   css_legend_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
   html_legend_fix <- htmltools::tags$style(type = "text/css", css_legend_fix)  # Convert CSS to HTML
   
-  tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', 
+  tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', # within each tab,
+    # the left side of the screen will be filled by a sidebarPanel containing the controls
     sidebarPanel(width=6, style="height:850px;", tags$style(".well {background-color:#ebedf2;}"),
         fluidRow(
           column(width=4, style="margin-top:5px;",
@@ -29,21 +30,21 @@ geoTabPanelUI <- function(geo_type) {
                                lapply(function (n) { # display each variable with its start and end year
                                  paste0(n, " (", variables[[n]]$start, "-", variables[[n]]$end, ")")
                                })
-                 )
+                             )
                  )
         ),
          fluidRow(
            column(width=4, style="margin-top:5px;", 
                   HTML(
                     "<b>Drag the slider or click &#9658; to move through time:</b>"
-                  ), # the above jumble of characters is the HTML code for a play button symbol
+                    ), # the above jumble of characters is the HTML code for a play button symbol
                   ),
            column(width=8, #style="margin-top:5px;",
                   sliderTextInput(inputId = ns("yearSelect"), 
                       choices = seq(initial_st, initial_end, by=initial_step),
                       selected = initial_end, grid=TRUE, label = NULL,
                       animate = animationOptions(interval = 800) # set animation speed here
-                  )
+                      )
                   )
        ),
        div(style="padding-bottom:5px;", HTML(
@@ -52,10 +53,8 @@ geoTabPanelUI <- function(geo_type) {
        leafletOutput(ns("map"), height="600px") %>%
          htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
     ),
-    mainPanel(width=6, # the right-hand side of the screen
-       # div(style="padding-bottom:5px; padding-top:5px; background-color: #ffffff; color: #60809f;", # color: #60809f; background-color: #ffffff;
-       #     align="center", htmlOutput(ns("selectionText"))),
-       plotlyOutput(ns("bar_chart")),
+    mainPanel(width=6, # the right-hand side of the screen displays the charts, any notes, and source citations
+       plotlyOutput(ns("bar_chart")), # default background color for plotly charts is white, so our note matches that
        htmlOutput(align="center", style="font-size:9pt; background-color: #ffffff; padding-bottom:5px;", ns("note")),
        plotlyOutput(ns("line_chart")),
        htmlOutput(style=sprintf('padding:10px; font-size:%spx', APP_FONT_SIZE - 4), ns("sourceText"))
@@ -67,9 +66,9 @@ geoTabPanelUI <- function(geo_type) {
 styling_commands = c(
   ".container-fluid {background-color: #f5f7fb;}" # set app background
   , ".irs-grid-pol.small {height: 0px;}" # hide minor ticks on slider
-  , sprintf(
+  , sprintf( # standardize font type and size across the app
     '* {font-size: %spx;}; * {font-family: "%s";};', APP_FONT_SIZE, APP_FONT
-    ) # standardize font type and size across the app
+    ) 
 )
 
 ui <- fluidPage(title = "Neighborhood Change Explorer",
@@ -81,14 +80,14 @@ ui <- fluidPage(title = "Neighborhood Change Explorer",
     )),
   chooseSliderSkin("Square"), # set slider style according to a template
   
-  fluidRow( # top-of page / title area
+  fluidRow( # this is the top of the page / title area
     column(10, # title
       h3("Boston Neighborhood Change Explorer", 
          align = "left", 
          style = sprintf('font-size:32px; font-family: "%s"; padding: 0px;', APP_FONT)
         ) 
     ),
-    column(2, align='right', # about button
+    column(2, align='right', # about button goes at the top right
       div(style='padding:10px;',
         actionButton("about", "About", style='padding:7px; font-size:120%')
         )
