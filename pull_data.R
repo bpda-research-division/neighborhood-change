@@ -179,6 +179,24 @@ prepare_data(
   , cs_csv = 'data/acshhi_cs.csv'
 )
 
+# HBIC Neighborhoods Total Population ##################
+
+totpop_bins = c(
+  "Male" = "male"
+  , "Female" = "female"
+)
+
+totpop_summary_expression <- rlang::expr(male + female)
+
+prepare_data(
+  var_code = 'hbicntp', 
+  sb_csv = 'data/hbic_neigh_totpop_sex_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = totpop_bins, 
+  summary_expression = totpop_summary_expression,
+  geoms = neigh2020_geoms
+)
+
 # HBIC Neighborhoods Labor Force ##################
 
 labor_force_bins = c(
@@ -186,10 +204,6 @@ labor_force_bins = c(
   , "Female in labor force" = "ilf_f"
   , "Male not in labor force" = "nilf_m"
   , "Female not in labor force" = "nilf_f"
-)
-
-labor_force_summary = c(
-  "Female labor force participation rate" = "lbf_rate_f"
 )
 
 labor_force_summary_expression <- rlang::expr(ilf_f / (ilf_f + nilf_f))
@@ -213,10 +227,6 @@ race_ethn_bins = c(
   "Asian/Pacific Islander" = "asian",
   "Two or More" = "two_plus",
   "Other" = "other"
-)
-
-race_ethn_summary = c(
-  "Non-white share of population" = "nw_share"
 )
 
 race_ethn_summary_expression <- rlang::expr(
@@ -244,10 +254,6 @@ age_bins = c(
   "65 years and over" = "sixtyfive_more"
 )
 
-age_summary = c(
-  "Young adult (20-34) share of population" = "twenty_thirtyfour_share"
-)
-
 age_summary_expression <- rlang::expr(
   (twenty_thirtyfour) /
     (zero_nine + ten_nineteen + twenty_thirtyfour + 
@@ -272,10 +278,6 @@ edu_att_bins = c(
   "Bachelor's or more" = "bm"
 )
 
-edu_att_summary = c(
-  "Share of population with a bachelor's or more" = "bm_share"
-)
-
 edu_att_summary_expression <- rlang::expr(
   (bm) /
     (lhs + he + sc + bm)
@@ -295,10 +297,6 @@ prepare_data(
 houten_bins = c(
   "Owner-occupied" = "owner",
   "Renter-occupied" = "renter"
-)
-
-houten_summary = c(
-  "Owner-occupied housing share" = "owner_share"
 )
 
 houten_summary_expression <- rlang::expr(
@@ -322,10 +320,6 @@ houvac_bins = c(
   "Vacant" = "vac"
 )
 
-houvac_summary = c(
-  "Housing vacancy rate" = "vacancy_rate"
-)
-
 houvac_summary_expression <- rlang::expr(
   (vac) /
     (occ + vac)
@@ -347,10 +341,6 @@ nativity_bins = c(
   "Foreign-born" = "foreign"
 )
 
-nativity_summary = c(
-  "Foreign born share of population" = "foreign_share"
-)
-
 nativity_summary_expression <- rlang::expr(
   (foreign) /
     (foreign + native)
@@ -365,6 +355,24 @@ prepare_data(
   geoms = neigh2020_geoms
 )
 
+# HBIC Tracts Total Population ##################
+
+totpop_bins = c(
+  "Male" = "male"
+  , "Female" = "female"
+)
+
+totpop_summary_expression <- rlang::expr(male + female)
+
+prepare_data(
+  var_code = 'hbicttp', 
+  sb_csv = 'data/hbic_tract_totpop_sex_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = totpop_bins, 
+  summary_expression = totpop_summary_expression,
+  geoms = tract2020_geoms
+)
+
 # HBIC Tracts Labor Force ##################
 
 labor_force_bins = c(
@@ -372,10 +380,6 @@ labor_force_bins = c(
   , "Female in labor force" = "ilf_f"
   , "Male not in labor force" = "nilf_m"
   , "Female not in labor force" = "nilf_f"
-)
-
-labor_force_summary = c(
-  "Female labor force participation rate" = "lbf_rate_f"
 )
 
 labor_force_summary_expression <- rlang::expr(ilf_f / (ilf_f + nilf_f))
@@ -399,10 +403,6 @@ race_ethn_bins = c(
   "Asian/Pacific Islander" = "asian",
   "Two or More" = "two_plus",
   "Other" = "other"
-)
-
-race_ethn_summary = c(
-  "Non-white share of population" = "nw_share"
 )
 
 race_ethn_summary_expression <- rlang::expr(
@@ -429,10 +429,6 @@ age_bins = c(
   "65 years and over" = "sixtyfive_more"
 )
 
-age_summary = c(
-  "Young adult (20-34) share of population" = "twenty_thirtyfour_share"
-)
-
 age_summary_expression <- rlang::expr(
   (twenty_thirtyfour) /
     (zero_nine + ten_nineteen + twenty_thirtyfour + 
@@ -457,10 +453,6 @@ edu_att_bins = c(
   "Bachelor's or more" = "bm"
 )
 
-edu_att_summary = c(
-  "Share of population with a bachelor's or more" = "bm_share"
-)
-
 edu_att_summary_expression <- rlang::expr(
   (bm) /
     (lhs + he + sc + bm)
@@ -480,10 +472,6 @@ prepare_data(
 houten_bins = c(
   "Owner-occupied" = "owner",
   "Renter-occupied" = "renter"
-)
-
-houten_summary = c(
-  "Owner-occupied housing share" = "owner_share"
 )
 
 houten_summary_expression <- rlang::expr(
@@ -507,10 +495,6 @@ houvac_bins = c(
   "Vacant" = "vac"
 )
 
-houvac_summary = c(
-  "Housing vacancy rate" = "vacancy_rate"
-)
-
 houvac_summary_expression <- rlang::expr(
   (vac) /
     (occ + vac)
@@ -530,10 +514,6 @@ prepare_data(
 nativity_bins = c(
   "Native-born" = "native",
   "Foreign-born" = "foreign"
-)
-
-nativity_summary = c(
-  "Foreign born share of population" = "foreign_share"
 )
 
 nativity_summary_expression <- rlang::expr(

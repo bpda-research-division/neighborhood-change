@@ -22,7 +22,18 @@ ALL_VARS_INFO <- list()
 
 # TODO: documentation explaining what each of these parameters does, and the ordering
 ALL_VARS_INFO$tracts <- list(
-  "Age" = list(varcode = "hbicta", start = 1950, end = 2020, step = 10,
+  "Total Population" = list(varcode = "hbicttp", start = 1950, end = 2020, step = 10,
+   lineTitle = "Total population", linehoverformat = ",.0f",
+   tickprefix = NULL, tickformat = "~s", agg_func = sum,
+   barTitle = "Population by sex", barhoverformat = ",.0f",
+   barCats = list(
+     "Male" = "male"
+     , "Female" = "female"
+   ), summary_expression = rlang::expr(male + female), 
+   source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted to reflect Boston's successful group quarters challenge); IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+  )
+  
+  , "Age" = list(varcode = "hbicta", start = 1950, end = 2020, step = 10,
    lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
    barTitle = "Population by age", barhoverformat = ",.0f",
@@ -141,7 +152,18 @@ ALL_VARS_INFO$tracts <- list(
 )
 
 ALL_VARS_INFO$neighborhoods <- list(
-  "Age" = list(varcode = "hbicna", start = 1950, end = 2020, step = 10,
+  "Total Population" = list(varcode = "hbicntp", start = 1950, end = 2020, step = 10,
+   lineTitle = "Total population", linehoverformat = ",.0f",
+   tickprefix = NULL, tickformat = "~s", agg_func = sum,
+   barTitle = "Population by sex", barhoverformat = ",.0f",
+   barCats = list(
+     "Male" = "male"
+     , "Female" = "female"
+   ), summary_expression = rlang::expr(male + female), 
+   source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted to reflect Boston's successful group quarters challenge); IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+  )
+  
+  , "Age" = list(varcode = "hbicna", start = 1950, end = 2020, step = 10,
    lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
    tickprefix = NULL, tickformat = ".0%", agg_func = sum,
    barTitle = "Population by age", barhoverformat = ",.0f",
