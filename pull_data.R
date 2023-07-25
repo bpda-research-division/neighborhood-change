@@ -334,6 +334,23 @@ prepare_data(
   geoms = neigh2020_geoms
 )
   
+# HBIC Neighborhoods Total Housing Units ##################
+
+houvac_bins = c(
+  "Occupied" = "occ",
+  "Vacant" = "vac"
+)
+
+houvac_summary_expression <- rlang::expr(occ + vac)
+
+prepare_data(
+  var_code = 'hbicnhou', 
+  sb_csv = 'data/hbic_neigh_housing_vacancy_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = houvac_bins, 
+  summary_expression = houvac_summary_expression,
+  geoms = neigh2020_geoms
+)
 # HBIC Neighborhoods Nativity ##################
 
 nativity_bins = c(
@@ -502,6 +519,24 @@ houvac_summary_expression <- rlang::expr(
 
 prepare_data(
   var_code = 'hbicthouvac', 
+  sb_csv = 'data/hbic_tract_housing_vacancy_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = houvac_bins, 
+  summary_expression = houvac_summary_expression,
+  geoms = tract2020_geoms
+)
+
+# HBIC Tracts Total Housing Units ##################
+
+houvac_bins = c(
+  "Occupied" = "occ",
+  "Vacant" = "vac"
+)
+
+houvac_summary_expression <- rlang::expr(occ + vac)
+
+prepare_data(
+  var_code = 'hbicthou', 
   sb_csv = 'data/hbic_tract_housing_vacancy_bins.csv', 
   agg_func = sum, 
   bin_col_names = houvac_bins, 

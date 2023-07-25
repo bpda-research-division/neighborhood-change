@@ -24,7 +24,7 @@ ALL_VARS_INFO <- list()
 ALL_VARS_INFO$tracts <- list(
   "Total Population" = list(varcode = "hbicttp", start = 1950, end = 2020, step = 10,
    lineTitle = "Total population", linehoverformat = ",.0f", 
-   tickprefix = NULL, tickformat = "~s", agg_func = sum, citywide_comparison = FALSE,
+   tickprefix = NULL, tickformat = NULL, agg_func = sum, citywide_comparison = FALSE,
    barTitle = "Population by sex", barhoverformat = ",.0f",
    barCats = list(
      "Male" = "male"
@@ -93,28 +93,6 @@ ALL_VARS_INFO$tracts <- list(
     source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Housing Tenure" = list(varcode = "hbicthouten", start = 1950, end = 2020, step = 10,
-    lineTitle = "Owner occupancy rate", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
-    barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
-    barCats = list(
-      "Owner-occupied" = "owner",
-      "Renter-occupied" = "renter"
-    ), summary_expression = rlang::expr(owner / (owner + renter)),
-    source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
-  )
-  
-  , "Housing Occupancy" = list(varcode = "hbicthouvac", start = 1950, end = 2020, step = 10,
-    lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
-    barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
-    barCats = list(
-      "Occupied" = "occ",
-      "Vacant" = "vac"
-    ), summary_expression = rlang::expr(vac / (vac + occ)),
-    source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
-  )
-  
   , "Labor Force" = list(varcode = "hbictlf", start = 1950, end = 2020, step = 10,
     lineTitle = "Female labor force participation rate (16+)", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
@@ -127,34 +105,68 @@ ALL_VARS_INFO$tracts <- list(
     ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
     source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
-  , "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
-    lineTitle = "Median Household Income", linehoverformat = ",.0f",
-    tickprefix = "$", tickformat = "~s", agg_func = sum, citywide_comparison = TRUE,
-    barTitle = "Households by Income", barhoverformat = ",.0f",
+  
+  # , "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
+  #   lineTitle = "Median Household Income", linehoverformat = ",.0f",
+  #   tickprefix = "$", tickformat = "~s", agg_func = sum, citywide_comparison = TRUE,
+  #   barTitle = "Households by Income", barhoverformat = ",.0f",
+  #   barCats = list(
+  #     "Less than $10,000" = "S1901_C01_002"
+  #     , "$10,000 to $14,999" = "S1901_C01_003"
+  #     , "$15,000 to $24,999" = "S1901_C01_004"
+  #     , "$25,000 to $34,999" = "S1901_C01_005"
+  #     , "$35,000 to $49,999" = "S1901_C01_006"
+  #     , "$50,000 to $74,999" = "S1901_C01_007"
+  #     , "$75,000 to $99,999" = "S1901_C01_008"
+  #     , "$100,000 to $149,999" = "S1901_C01_009"
+  #     , "$150,000 to $199,999" = "S1901_C01_010"
+  #     , "More than $200,000" = "S1901_C01_011"
+  #   ), summary_expression = rlang::expr(pareto_median_income(
+  #     hh_by_income = c(S1901_C01_002, S1901_C01_003, S1901_C01_004,
+  #                      S1901_C01_005, S1901_C01_006, S1901_C01_007,
+  #                      S1901_C01_008, S1901_C01_009, S1901_C01_010, S1901_C01_011)
+  #     , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
+  #   ))
+  # )
+  
+  , "Total Housing Units" = list(varcode = "hbicthou", start = 1950, end = 2020, step = 10,
+    lineTitle = "Total housing units", linehoverformat = ",.0f",
+    tickprefix = NULL, tickformat = NULL, agg_func = sum, citywide_comparison = FALSE,
+    barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
     barCats = list(
-      "Less than $10,000" = "S1901_C01_002"
-      , "$10,000 to $14,999" = "S1901_C01_003"
-      , "$15,000 to $24,999" = "S1901_C01_004"
-      , "$25,000 to $34,999" = "S1901_C01_005"
-      , "$35,000 to $49,999" = "S1901_C01_006"
-      , "$50,000 to $74,999" = "S1901_C01_007"
-      , "$75,000 to $99,999" = "S1901_C01_008"
-      , "$100,000 to $149,999" = "S1901_C01_009"
-      , "$150,000 to $199,999" = "S1901_C01_010"
-      , "More than $200,000" = "S1901_C01_011"
-    ), summary_expression = rlang::expr(pareto_median_income(
-      hh_by_income = c(S1901_C01_002, S1901_C01_003, S1901_C01_004,
-                       S1901_C01_005, S1901_C01_006, S1901_C01_007,
-                       S1901_C01_008, S1901_C01_009, S1901_C01_010, S1901_C01_011)
-      , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
-    ))
+      "Occupied" = "occ",
+      "Vacant" = "vac"
+    ), summary_expression = rlang::expr(vac + occ),
+    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+  )
+  
+  , "Housing Occupancy" = list(varcode = "hbicthouvac", start = 1950, end = 2020, step = 10,
+    lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
+    barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+    barCats = list(
+      "Occupied" = "occ",
+      "Vacant" = "vac"
+    ), summary_expression = rlang::expr(vac / (vac + occ)),
+    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+  )
+  
+  , "Housing Tenure" = list(varcode = "hbicthouten", start = 1950, end = 2020, step = 10,
+    lineTitle = "Owner occupancy rate", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
+    barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
+    barCats = list(
+      "Owner-occupied" = "owner",
+      "Renter-occupied" = "renter"
+    ), summary_expression = rlang::expr(owner / (owner + renter)),
+    source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
 )
 
 ALL_VARS_INFO$neighborhoods <- list(
   "Total Population" = list(varcode = "hbicntp", start = 1950, end = 2020, step = 10,
    lineTitle = "Total population", linehoverformat = ",.0f",
-   tickprefix = NULL, tickformat = "~s", agg_func = sum, citywide_comparison = FALSE,
+   tickprefix = NULL, tickformat = NULL, agg_func = sum, citywide_comparison = FALSE,
    barTitle = "Population by sex", barhoverformat = ",.0f",
    barCats = list(
      "Male" = "male"
@@ -224,28 +236,6 @@ ALL_VARS_INFO$neighborhoods <- list(
     source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Housing Tenure" = list(varcode = "hbicnhouten", start = 1950, end = 2020, step = 10,
-    lineTitle = "Owner occupancy rate", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
-    barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
-    barCats = list(
-      "Owner-occupied" = "owner",
-      "Renter-occupied" = "renter"
-    ), summary_expression = rlang::expr(owner / (owner + renter)),
-    source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
-  )
-  
-  , "Housing Occupancy" = list(varcode = "hbicnhouvac", start = 1950, end = 2020, step = 10,
-    lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
-    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
-    barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
-    barCats = list(
-      "Occupied" = "occ",
-      "Vacant" = "vac"
-    ), summary_expression = rlang::expr(vac / (vac + occ)),
-    source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
-  )
-  
   , "Labor Force" = list(varcode = "hbicnlf", start = 1950, end = 2020, step = 10,
     lineTitle = "Female labor force participation rate (16+)", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
@@ -257,6 +247,39 @@ ALL_VARS_INFO$neighborhoods <- list(
       , "Female not in labor force" = "nilf_f"
     ), summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
     source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+  )
+  
+  , "Total Housing Units" = list(varcode = "hbicnhou", start = 1950, end = 2020, step = 10,
+    lineTitle = "Total housing units", linehoverformat = ",.0f",
+    tickprefix = NULL, tickformat = NULL, agg_func = sum, citywide_comparison = FALSE,
+    barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+    barCats = list(
+      "Occupied" = "occ",
+      "Vacant" = "vac"
+    ), summary_expression = rlang::expr(vac + occ),
+    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+  )
+  
+  , "Housing Occupancy" = list(varcode = "hbicnhouvac", start = 1950, end = 2020, step = 10,
+    lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
+    barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+    barCats = list(
+      "Occupied" = "occ",
+      "Vacant" = "vac"
+    ), summary_expression = rlang::expr(vac / (vac + occ)),
+    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+  )
+  
+  , "Housing Tenure" = list(varcode = "hbicnhouten", start = 1950, end = 2020, step = 10,
+    lineTitle = "Owner occupancy rate", linehoverformat = ".0%",
+    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
+    barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
+    barCats = list(
+      "Owner-occupied" = "owner",
+      "Renter-occupied" = "renter"
+    ), summary_expression = rlang::expr(owner / (owner + renter)),
+    source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
 ) 
 

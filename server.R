@@ -399,11 +399,11 @@ server <- function(input, output, session) {
     modalDialog(
       title = h2("Welcome!", align='center'),
       htmltools::includeMarkdown("dialog/welcome.md"),
-      tags$video(
-        id = "video", type = "mp4",
-        src = "demo_v1.mp4",
-        controls=TRUE, width="100%"
-      ),
+      # tags$video(
+      #   id = "video", type = "mp4",
+      #   src = "demo_v1.mp4", # place the video in the www folder
+      #   controls=TRUE, width="100%"
+      # ),
       footer = modalButton("Got it!"),
       easyClose = TRUE, size="l"
     )
