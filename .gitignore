@@ -2,4 +2,6 @@
 data/*
 geoms/*
 extra/*
+renv/*
 rsconnect/*
+.Rproj.user

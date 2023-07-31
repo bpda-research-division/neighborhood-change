@@ -384,6 +384,8 @@ totpop_summary_expression <- rlang::expr(male + female)
 prepare_data(
   var_code = 'hbicttp', 
   sb_csv = 'data/hbic_tract_totpop_sex_bins.csv', 
+  cb_csv = 'data/hbictpop_cb.csv',
+  cs_csv = 'data/hbictpop_cs.csv',
   agg_func = sum, 
   bin_col_names = totpop_bins, 
   summary_expression = totpop_summary_expression,
@@ -520,6 +522,7 @@ houvac_summary_expression <- rlang::expr(
 prepare_data(
   var_code = 'hbicthouvac', 
   sb_csv = 'data/hbic_tract_housing_vacancy_bins.csv', 
+  cb_csv = 'data/hbicthou_cb.csv',
   agg_func = sum, 
   bin_col_names = houvac_bins, 
   summary_expression = houvac_summary_expression,
@@ -538,6 +541,8 @@ houvac_summary_expression <- rlang::expr(occ + vac)
 prepare_data(
   var_code = 'hbicthou', 
   sb_csv = 'data/hbic_tract_housing_vacancy_bins.csv', 
+  cb_csv = 'data/hbicthou_cb.csv',
+  cs_csv = 'data/hbicthou_cs.csv',
   agg_func = sum, 
   bin_col_names = houvac_bins, 
   summary_expression = houvac_summary_expression,

@@ -24,7 +24,7 @@ ALL_VARS_INFO <- list()
 ALL_VARS_INFO$tracts <- list(
   "Total Population" = list(varcode = "hbicttp", start = 1950, end = 2020, step = 10,
    lineTitle = "Total population", linehoverformat = ",.0f", 
-   tickprefix = NULL, tickformat = NULL, agg_func = sum, citywide_comparison = FALSE,
+   tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
    barTitle = "Population by sex", barhoverformat = ",.0f",
    barCats = list(
      "Male" = "male"
@@ -131,7 +131,7 @@ ALL_VARS_INFO$tracts <- list(
   
   , "Total Housing Units" = list(varcode = "hbicthou", start = 1950, end = 2020, step = 10,
     lineTitle = "Total housing units", linehoverformat = ",.0f",
-    tickprefix = NULL, tickformat = NULL, agg_func = sum, citywide_comparison = FALSE,
+    tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
     barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
     barCats = list(
       "Occupied" = "occ",
@@ -166,7 +166,7 @@ ALL_VARS_INFO$tracts <- list(
 ALL_VARS_INFO$neighborhoods <- list(
   "Total Population" = list(varcode = "hbicntp", start = 1950, end = 2020, step = 10,
    lineTitle = "Total population", linehoverformat = ",.0f",
-   tickprefix = NULL, tickformat = NULL, agg_func = sum, citywide_comparison = FALSE,
+   tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
    barTitle = "Population by sex", barhoverformat = ",.0f",
    barCats = list(
      "Male" = "male"
@@ -251,7 +251,7 @@ ALL_VARS_INFO$neighborhoods <- list(
   
   , "Total Housing Units" = list(varcode = "hbicnhou", start = 1950, end = 2020, step = 10,
     lineTitle = "Total housing units", linehoverformat = ",.0f",
-    tickprefix = NULL, tickformat = NULL, agg_func = sum, citywide_comparison = FALSE,
+    tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
     barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
     barCats = list(
       "Occupied" = "occ",

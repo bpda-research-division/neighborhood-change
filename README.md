@@ -1,2 +1,4 @@
 # neighborhood-change
-Web dashboard for interactively exploring tract- and neighborhood-level change (R Shiny)
+Website for interactively exploring tract- and neighborhood-level change, built in R Shiny
+
+https://bpda-research-division.shinyapps.io/neighborhood-change/ 
