@@ -3,13 +3,13 @@ Explore how neighborhoods and cities have changed over time through interactive 
 
 [![Screenshot of Neighborhood Change Explorer](img/demo.gif)](https://bpda-research.shinyapps.io/neighborhood-change/)
 
-### Data visualization features
+## Data visualization features
 
 * simultaneous view of multiple types of variation (over space, over time, and within a population)
 * users "move through time" at their own pace using interactive controls
 * multi-selection of small geographies for users to create custom areas of interest (supported by on-the-fly data aggregation)
 
-### About
+## About
 
 The Neighborhood Change Explorer was originally built by the Research Division of the Boston Planning and Development Agency to display demographic and housing data for the city of Boston. However, it is designed to be a more generalized framework for the interactive visualization of aggregated geographic time-series data. 
 
