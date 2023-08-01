@@ -2,12 +2,8 @@
 library(dplyr)
 library(tidyr)
 library(sf)
-# library(tidycensus)
-# options(tigris_use_cache = TRUE)
 
 tract2020_geoms <- read_sf('../geoms/boston_tracts_2020_complex.geojson') %>% mutate(GEOID = as.character(geoid20))
-tract2010_geoms <- read_sf('../geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
-# neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020bg.geojson') %>% mutate(GEOID = BlockGr202)
 neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020tract.geojson') %>% mutate(GEOID = nbhd)
 
 # Functions ##############
@@ -69,7 +65,7 @@ prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expr
   dfs = list(subcity_bins_app, city_bins_app, subcity_summary_app, city_summary)
   
   for (i in 1:4) {
-    dfs[[i]] %>% saveRDS(file=sprintf('data/%s_%s.rds', var_code, abbrs[[i]]))
+    dfs[[i]] %>% saveRDS(file=sprintf('../data/%s_%s.rds', var_code, abbrs[[i]]))
   }
 }
 
@@ -87,8 +83,259 @@ prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expr
 # In the distant future, this code could be the basis for some kind of interactive wizard where you specify
 # a csv and it has you enter the labels as well as the summary expression
 
-# Median Household Income ######################
-# census_api_key(read.csv('extra/census_api_key.csv')$key)
+# HBIC Neighborhoods Total Population ##################
+prepare_data(
+  var_code = 'hbicntp', 
+  sb_csv = 'csv/hbic_neigh_totpop_sex_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c("Male" = "male", "Female" = "female"), 
+  summary_expression = rlang::expr(male + female),
+  geoms = neigh2020_geoms
+)
+
+# HBIC Neighborhoods Labor Force ##################
+prepare_data(
+  var_code = 'hbicnlf', 
+  sb_csv = 'csv/hbic_neigh_labor_force_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c(
+    "Male in labor force" = "ilf_m"
+    , "Female in labor force" = "ilf_f"
+    , "Male not in labor force" = "nilf_m"
+    , "Female not in labor force" = "nilf_f"
+  ), 
+  summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
+  geoms = neigh2020_geoms
+)
+
+# HBIC Neighborhoods Race and Ethnicity ##################
+prepare_data(
+  var_code = 'hbicnre', 
+  sb_csv = 'csv/hbic_neigh_race_ethn_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c(
+    "White" = "white",
+    "Black/African American" = "black",
+    "Hispanic/Latino" = "hisp",
+    "Native American" = "native",
+    "Asian/Pacific Islander" = "asian",
+    "Two or More" = "two_plus",
+    "Other" = "other"
+  ), 
+  summary_expression = rlang::expr(
+    (black + hisp + asian + native + two_plus + other) /
+      (white + black + hisp + asian + native + two_plus + other)
+  ),
+  geoms = neigh2020_geoms
+)
+# HBIC Neighborhoods Age ##################
+prepare_data(
+  var_code = 'hbicna', 
+  sb_csv = 'csv/hbic_neigh_age_year_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c(
+    "0-9 years" = "zero_nine",
+    "10-19 years" = "ten_nineteen",
+    "20-34 years" = "twenty_thirtyfour",
+    "35-54 years" = "thirtyfive_fiftyfour",
+    "55-64 years" = "fiftyfive_sixtyfour",
+    "65 years and over" = "sixtyfive_more"
+  ), 
+  summary_expression = rlang::expr(
+    (twenty_thirtyfour) /
+      (zero_nine + ten_nineteen + twenty_thirtyfour + 
+         thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+  ),
+  geoms = neigh2020_geoms
+)
+
+# HBIC Neighborhoods Educational Attainment ##################
+prepare_data(
+  var_code = 'hbicnedu', 
+  sb_csv = 'csv/hbic_neigh_edu_attain_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c(
+    "Less than high school" = "lhs",
+    "High school or some equivalent" = "he",
+    "Some college" = "sc",
+    "Bachelor's or more" = "bm"
+  ), 
+  summary_expression = rlang::expr( (bm) / (lhs + he + sc + bm) ),
+  geoms = neigh2020_geoms
+)
+
+# HBIC Neighborhoods Housing Tenure ##################
+prepare_data(
+  var_code = 'hbicnhouten', 
+  sb_csv = 'csv/hbic_neigh_housing_tenure_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c("Owner-occupied" = "owner", "Renter-occupied" = "renter"), 
+  summary_expression = rlang::expr( (owner) / (owner + renter) ),
+  geoms = neigh2020_geoms
+)
+
+# HBIC Neighborhoods Housing Vacancy ##################
+prepare_data(
+  var_code = 'hbicnhouvac', 
+  sb_csv = 'csv/hbic_neigh_housing_vacancy_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c("Occupied" = "occ", "Vacant" = "vac"),
+  summary_expression = rlang::expr( (vac) / (occ + vac) ),
+  geoms = neigh2020_geoms
+)
+
+# HBIC Neighborhoods Total Housing Units ##################
+prepare_data(
+  var_code = 'hbicnhou', 
+  sb_csv = 'csv/hbic_neigh_housing_vacancy_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c("Occupied" = "occ", "Vacant" = "vac"), 
+  summary_expression = rlang::expr(occ + vac),
+  geoms = neigh2020_geoms
+)
+
+# HBIC Neighborhoods Nativity ##################
+prepare_data(
+  var_code = 'hbicnnat', 
+  sb_csv = 'csv/hbic_neigh_nativity_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c("Native-born" = "native", "Foreign-born" = "foreign"), 
+  summary_expression = rlang::expr( (foreign) / (foreign + native) ),
+  geoms = neigh2020_geoms
+)
+
+# HBIC Tracts Total Population ##################
+prepare_data(
+  var_code = 'hbicttp', 
+  sb_csv = 'csv/hbic_tract_totpop_sex_bins.csv', 
+  cb_csv = 'csv/hbictpop_cb.csv',
+  cs_csv = 'csv/hbictpop_cs.csv',
+  agg_func = sum, 
+  bin_col_names = c("Male" = "male", "Female" = "female"), 
+  summary_expression = rlang::expr(male + female),
+  geoms = tract2020_geoms
+)
+
+# HBIC Tracts Labor Force ##################
+prepare_data(
+  var_code = 'hbictlf', 
+  sb_csv = 'csv/hbic_tract_labor_force_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c(
+    "Male in labor force" = "ilf_m"
+    , "Female in labor force" = "ilf_f"
+    , "Male not in labor force" = "nilf_m"
+    , "Female not in labor force" = "nilf_f"
+  ), 
+  summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
+  geoms = tract2020_geoms
+)
+
+# HBIC Tracts Race and Ethnicity ##################
+prepare_data(
+  var_code = 'hbictre', 
+  sb_csv = 'csv/hbic_tract_race_ethn_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c(
+    "White" = "white",
+    "Black/African American" = "black",
+    "Hispanic/Latino" = "hisp",
+    "Native American" = "native",
+    "Asian/Pacific Islander" = "asian",
+    "Two or More" = "two_plus",
+    "Other" = "other"
+  ), 
+  summary_expression = rlang::expr(
+    (black + hisp + asian + native + two_plus + other) /
+      (white + black + hisp + asian + native + two_plus + other)
+  ),
+  geoms = tract2020_geoms
+)
+# HBIC Tracts Age ##################
+prepare_data(
+  var_code = 'hbicta', 
+  sb_csv = 'csv/hbic_tract_age_year_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c(
+    "0-9 years" = "zero_nine",
+    "10-19 years" = "ten_nineteen",
+    "20-34 years" = "twenty_thirtyfour",
+    "35-54 years" = "thirtyfive_fiftyfour",
+    "55-64 years" = "fiftyfive_sixtyfour",
+    "65 years and over" = "sixtyfive_more"
+  ), 
+  summary_expression = rlang::expr(
+    (twenty_thirtyfour) /
+      (zero_nine + ten_nineteen + twenty_thirtyfour + 
+         thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+  ),
+  geoms = tract2020_geoms
+)
+
+# HBIC Tracts Educational Attainment ##################
+prepare_data(
+  var_code = 'hbictedu', 
+  sb_csv = 'csv/hbic_tract_edu_attain_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c(
+    "Less than high school" = "lhs",
+    "High school or some equivalent" = "he",
+    "Some college" = "sc",
+    "Bachelor's or more" = "bm"
+  ), 
+  summary_expression = rlang::expr( (bm) / (lhs + he + sc + bm) ),
+  geoms = tract2020_geoms
+)
+
+# HBIC Tracts Housing Tenure ##################
+prepare_data(
+  var_code = 'hbicthouten', 
+  sb_csv = 'csv/hbic_tract_housing_tenure_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c("Owner-occupied" = "owner", "Renter-occupied" = "renter"), 
+  summary_expression = rlang::expr( (owner) / (owner + renter) ),
+  geoms = tract2020_geoms
+)
+
+# HBIC Tracts Housing Vacancy ##################
+prepare_data(
+  var_code = 'hbicthouvac', 
+  sb_csv = 'csv/hbic_tract_housing_vacancy_bins.csv', 
+  cb_csv = 'csv/hbicthou_cb.csv',
+  agg_func = sum, 
+  bin_col_names = c("Occupied" = "occ", "Vacant" = "vac"),
+  summary_expression = rlang::expr( (vac) / (occ + vac) ),
+  geoms = tract2020_geoms
+)
+
+# HBIC Tracts Total Housing Units ##################
+prepare_data(
+  var_code = 'hbicthou', 
+  sb_csv = 'csv/hbic_tract_housing_vacancy_bins.csv', 
+  cb_csv = 'csv/hbicthou_cb.csv',
+  cs_csv = 'csv/hbicthou_cs.csv',
+  agg_func = sum, 
+  bin_col_names = c("Occupied" = "occ", "Vacant" = "vac"), 
+  summary_expression = rlang::expr(occ + vac),
+  geoms = tract2020_geoms
+)
+
+# HBIC Tracts Nativity ##################
+prepare_data(
+  var_code = 'hbictnat', 
+  sb_csv = 'csv/hbic_tract_nativity_bins.csv', 
+  agg_func = sum, 
+  bin_col_names = c("Native-born" = "native", "Foreign-born" = "foreign"), 
+  summary_expression = rlang::expr( (foreign) / (foreign + native) ),
+  geoms = tract2020_geoms
+)
+
+
+# ACS Median Household Income (not currently used) ######################
+# library(tidycensus)
+# options(tigris_use_cache = TRUE)
+# census_api_key(read.csv('../extra/census_api_key.csv')$key)
+tract2010_geoms <- read_sf('../geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
 # 
 # v21 <- load_variables(2021, "acs5/subject", cache = TRUE)
 # 
@@ -146,15 +393,14 @@ inc_bckts <- c(
 # mhi_bos <- lapply(years, get_acs_place_by_year) %>% bind_rows()
 # city_summary <- mhi_bos %>% select(-c("GEOID", "NAME")) %>%
 #   rename(MOE = median_household_incomeM, SUMMARY_VALUE = median_household_incomeE)
-# city_summary %>% write.csv(file='data/acshhi_cs.csv', row.names=FALSE)
+# city_summary %>% write.csv(file='csv/acshhi_cs.csv', row.names=FALSE)
 # 
 # med_hh_income <- lapply(years, get_acs_tract_by_yr, vars=mhi, output_type="wide", include_geom=FALSE) %>% bind_rows()
 # subcity_summary <- med_hh_income %>%
 #   mutate(SUMMARY_VALUE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeE)) %>%
 #   mutate(MOE = ifelse(startsWith(NAME, "Census Tract 98"), NaN,median_household_incomeM)) %>%
 #   select(-c("median_household_incomeM", "median_household_incomeE"))
-# subcity_summary %>% write.csv(file='data/acshhi_ss.csv', row.names=FALSE)
-# # subcity_summary %>% saveRDS(file='data/acshhi_ss.rds')
+# subcity_summary %>% write.csv(file='csv/acshhi_ss.csv', row.names=FALSE)
 # 
 # total_hh <- lapply(years, get_acs_tract_by_yr, vars=c("S1901_C01_001"), output_type="wide", include_geom=FALSE) %>% bind_rows()
 # df <- lapply(years, get_acs_tract_by_yr, vars=unname(inc_bckts), output_type = "tidy", include_geom=FALSE) %>% bind_rows() 
@@ -167,405 +413,14 @@ inc_bckts <- c(
 #   mutate_at(.vars = c("estimate"), # names(df)[!names(df) %in% c("GEOID", "NAME", "YEAR")]
 #             list(~ifelse(startsWith(NAME, "Census Tract 98"), NaN, .))) %>%
 #   pivot_wider(names_from = variable, values_from = estimate)
-# subcity_bins %>% write.csv(file='data/acshhi_sb.csv', row.names=FALSE)
+# subcity_bins %>% write.csv(file='csv/acshhi_sb.csv', row.names=FALSE)
 # 
 prepare_data(
   var_code = 'acshhi'
-  , sb_csv = 'data/acshhi_sb.csv'
+  , sb_csv = 'csv/acshhi_sb.csv'
   , bin_col_names = inc_bckts
   , agg_func = sum
   , geoms = tract2010_geoms
-  , ss_csv = 'data/acshhi_ss.csv'
-  , cs_csv = 'data/acshhi_cs.csv'
-)
-
-# HBIC Neighborhoods Total Population ##################
-
-totpop_bins = c(
-  "Male" = "male"
-  , "Female" = "female"
-)
-
-totpop_summary_expression <- rlang::expr(male + female)
-
-prepare_data(
-  var_code = 'hbicntp', 
-  sb_csv = 'data/hbic_neigh_totpop_sex_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = totpop_bins, 
-  summary_expression = totpop_summary_expression,
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Labor Force ##################
-
-labor_force_bins = c(
-  "Male in labor force" = "ilf_m"
-  , "Female in labor force" = "ilf_f"
-  , "Male not in labor force" = "nilf_m"
-  , "Female not in labor force" = "nilf_f"
-)
-
-labor_force_summary_expression <- rlang::expr(ilf_f / (ilf_f + nilf_f))
-
-prepare_data(
-  var_code = 'hbicnlf', 
-  sb_csv = 'data/hbic_neigh_labor_force_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = labor_force_bins, 
-  summary_expression = labor_force_summary_expression,
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Race and Ethnicity ##################
-
-race_ethn_bins = c(
-  "White" = "white",
-  "Black/African American" = "black",
-  "Hispanic/Latino" = "hisp",
-  "Native American" = "native",
-  "Asian/Pacific Islander" = "asian",
-  "Two or More" = "two_plus",
-  "Other" = "other"
-)
-
-race_ethn_summary_expression <- rlang::expr(
-  (black + hisp + asian + native + two_plus + other) /
-    (white + black + hisp + asian + native + two_plus + other)
-)
-
-prepare_data(
-  var_code = 'hbicnre', 
-  sb_csv = 'data/hbic_neigh_race_ethn_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = race_ethn_bins, 
-  summary_expression = race_ethn_summary_expression,
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Age ##################
-
-age_bins = c(
-  "0-9 years" = "zero_nine",
-  "10-19 years" = "ten_nineteen",
-  "20-34 years" = "twenty_thirtyfour",
-  "35-54 years" = "thirtyfive_fiftyfour",
-  "55-64 years" = "fiftyfive_sixtyfour",
-  "65 years and over" = "sixtyfive_more"
-)
-
-age_summary_expression <- rlang::expr(
-  (twenty_thirtyfour) /
-    (zero_nine + ten_nineteen + twenty_thirtyfour + 
-       thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
-)
-
-prepare_data(
-  var_code = 'hbicna', 
-  sb_csv = 'data/hbic_neigh_age_year_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = age_bins, 
-  summary_expression = age_summary_expression,
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Educational Attainment ##################
-
-edu_att_bins = c(
-  "Less than high school" = "lhs",
-  "High school or some equivalent" = "he",
-  "Some college" = "sc",
-  "Bachelor's or more" = "bm"
-)
-
-edu_att_summary_expression <- rlang::expr(
-  (bm) /
-    (lhs + he + sc + bm)
-)
-
-prepare_data(
-  var_code = 'hbicnedu', 
-  sb_csv = 'data/hbic_neigh_edu_attain_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = edu_att_bins, 
-  summary_expression = edu_att_summary_expression,
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Housing Tenure ##################
-
-houten_bins = c(
-  "Owner-occupied" = "owner",
-  "Renter-occupied" = "renter"
-)
-
-houten_summary_expression <- rlang::expr(
-  (owner) /
-    (owner + renter)
-)
-
-prepare_data(
-  var_code = 'hbicnhouten', 
-  sb_csv = 'data/hbic_neigh_housing_tenure_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = houten_bins, 
-  summary_expression = houten_summary_expression,
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Housing Vacancy ##################
-
-houvac_bins = c(
-  "Occupied" = "occ",
-  "Vacant" = "vac"
-)
-
-houvac_summary_expression <- rlang::expr(
-  (vac) /
-    (occ + vac)
-)
-
-prepare_data(
-  var_code = 'hbicnhouvac', 
-  sb_csv = 'data/hbic_neigh_housing_vacancy_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = houvac_bins, 
-  summary_expression = houvac_summary_expression,
-  geoms = neigh2020_geoms
-)
-  
-# HBIC Neighborhoods Total Housing Units ##################
-
-houvac_bins = c(
-  "Occupied" = "occ",
-  "Vacant" = "vac"
-)
-
-houvac_summary_expression <- rlang::expr(occ + vac)
-
-prepare_data(
-  var_code = 'hbicnhou', 
-  sb_csv = 'data/hbic_neigh_housing_vacancy_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = houvac_bins, 
-  summary_expression = houvac_summary_expression,
-  geoms = neigh2020_geoms
-)
-# HBIC Neighborhoods Nativity ##################
-
-nativity_bins = c(
-  "Native-born" = "native",
-  "Foreign-born" = "foreign"
-)
-
-nativity_summary_expression <- rlang::expr(
-  (foreign) /
-    (foreign + native)
-)
-
-prepare_data(
-  var_code = 'hbicnnat', 
-  sb_csv = 'data/hbic_neigh_nativity_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = nativity_bins, 
-  summary_expression = nativity_summary_expression,
-  geoms = neigh2020_geoms
-)
-
-# HBIC Tracts Total Population ##################
-
-totpop_bins = c(
-  "Male" = "male"
-  , "Female" = "female"
-)
-
-totpop_summary_expression <- rlang::expr(male + female)
-
-prepare_data(
-  var_code = 'hbicttp', 
-  sb_csv = 'data/hbic_tract_totpop_sex_bins.csv', 
-  cb_csv = 'data/hbictpop_cb.csv',
-  cs_csv = 'data/hbictpop_cs.csv',
-  agg_func = sum, 
-  bin_col_names = totpop_bins, 
-  summary_expression = totpop_summary_expression,
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Labor Force ##################
-
-labor_force_bins = c(
-  "Male in labor force" = "ilf_m"
-  , "Female in labor force" = "ilf_f"
-  , "Male not in labor force" = "nilf_m"
-  , "Female not in labor force" = "nilf_f"
-)
-
-labor_force_summary_expression <- rlang::expr(ilf_f / (ilf_f + nilf_f))
-
-prepare_data(
-  var_code = 'hbictlf', 
-  sb_csv = 'data/hbic_tract_labor_force_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = labor_force_bins, 
-  summary_expression = labor_force_summary_expression,
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Race and Ethnicity ##################
-
-race_ethn_bins = c(
-  "White" = "white",
-  "Black/African American" = "black",
-  "Hispanic/Latino" = "hisp",
-  "Native American" = "native",
-  "Asian/Pacific Islander" = "asian",
-  "Two or More" = "two_plus",
-  "Other" = "other"
-)
-
-race_ethn_summary_expression <- rlang::expr(
-  (black + hisp + asian + native + two_plus + other) /
-    (white + black + hisp + asian + native + two_plus + other)
-)
-
-prepare_data(
-  var_code = 'hbictre', 
-  sb_csv = 'data/hbic_tract_race_ethn_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = race_ethn_bins, 
-  summary_expression = race_ethn_summary_expression,
-  geoms = tract2020_geoms
-)
-# HBIC Tracts Age ##################
-
-age_bins = c(
-  "0-9 years" = "zero_nine",
-  "10-19 years" = "ten_nineteen",
-  "20-34 years" = "twenty_thirtyfour",
-  "35-54 years" = "thirtyfive_fiftyfour",
-  "55-64 years" = "fiftyfive_sixtyfour",
-  "65 years and over" = "sixtyfive_more"
-)
-
-age_summary_expression <- rlang::expr(
-  (twenty_thirtyfour) /
-    (zero_nine + ten_nineteen + twenty_thirtyfour + 
-       thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
-)
-
-prepare_data(
-  var_code = 'hbicta', 
-  sb_csv = 'data/hbic_tract_age_year_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = age_bins, 
-  summary_expression = age_summary_expression,
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Educational Attainment ##################
-
-edu_att_bins = c(
-  "Less than high school" = "lhs",
-  "High school or some equivalent" = "he",
-  "Some college" = "sc",
-  "Bachelor's or more" = "bm"
-)
-
-edu_att_summary_expression <- rlang::expr(
-  (bm) /
-    (lhs + he + sc + bm)
-)
-
-prepare_data(
-  var_code = 'hbictedu', 
-  sb_csv = 'data/hbic_tract_edu_attain_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = edu_att_bins, 
-  summary_expression = edu_att_summary_expression,
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Housing Tenure ##################
-
-houten_bins = c(
-  "Owner-occupied" = "owner",
-  "Renter-occupied" = "renter"
-)
-
-houten_summary_expression <- rlang::expr(
-  (owner) /
-    (owner + renter)
-)
-
-prepare_data(
-  var_code = 'hbicthouten', 
-  sb_csv = 'data/hbic_tract_housing_tenure_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = houten_bins, 
-  summary_expression = houten_summary_expression,
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Housing Vacancy ##################
-
-houvac_bins = c(
-  "Occupied" = "occ",
-  "Vacant" = "vac"
-)
-
-houvac_summary_expression <- rlang::expr(
-  (vac) /
-    (occ + vac)
-)
-
-prepare_data(
-  var_code = 'hbicthouvac', 
-  sb_csv = 'data/hbic_tract_housing_vacancy_bins.csv', 
-  cb_csv = 'data/hbicthou_cb.csv',
-  agg_func = sum, 
-  bin_col_names = houvac_bins, 
-  summary_expression = houvac_summary_expression,
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Total Housing Units ##################
-
-houvac_bins = c(
-  "Occupied" = "occ",
-  "Vacant" = "vac"
-)
-
-houvac_summary_expression <- rlang::expr(occ + vac)
-
-prepare_data(
-  var_code = 'hbicthou', 
-  sb_csv = 'data/hbic_tract_housing_vacancy_bins.csv', 
-  cb_csv = 'data/hbicthou_cb.csv',
-  cs_csv = 'data/hbicthou_cs.csv',
-  agg_func = sum, 
-  bin_col_names = houvac_bins, 
-  summary_expression = houvac_summary_expression,
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Nativity ##################
-
-nativity_bins = c(
-  "Native-born" = "native",
-  "Foreign-born" = "foreign"
-)
-
-nativity_summary_expression <- rlang::expr(
-  (foreign) /
-    (foreign + native)
-)
-
-prepare_data(
-  var_code = 'hbictnat', 
-  sb_csv = 'data/hbic_tract_nativity_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = nativity_bins, 
-  summary_expression = nativity_summary_expression,
-  geoms = tract2020_geoms
+  , ss_csv = 'csv/acshhi_ss.csv'
+  , cs_csv = 'csv/acshhi_cs.csv'
 )
