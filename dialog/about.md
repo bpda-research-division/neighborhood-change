@@ -1,4 +1,4 @@
-The Boston Neighborhood Change Explorer is maintained by the BPDA Research Division. For any questions or feedback regarding this tool, please submit a Research Inquiry on [our website](https://www.bostonplans.org/research/).
+The Boston Neighborhood Change Explorer was built by the BPDA Research Division. For any questions or feedback regarding this tool, please submit a Research Inquiry on [our website](https://www.bostonplans.org/research/).
 
 For further analysis of demographic and housing trends in Boston, see our [Historical Trends in Boston's Neighborhoods](https://www.bostonplans.org/research/research-publications?search=historical+&amp;sortby=date&amp;sortdirection=DESC) report, where most of the data on this website were originally published.
 

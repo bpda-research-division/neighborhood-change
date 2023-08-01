@@ -5,10 +5,10 @@ library(sf)
 # library(tidycensus)
 # options(tigris_use_cache = TRUE)
 
-tract2020_geoms <- read_sf('geoms/boston_tracts_2020_complex.geojson') %>% mutate(GEOID = as.character(geoid20))
-tract2010_geoms <- read_sf('geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
-# neigh2020_geoms <- read_sf('geoms/boston_neighborhoods_2020bg.geojson') %>% mutate(GEOID = BlockGr202)
-neigh2020_geoms <- read_sf('geoms/boston_neighborhoods_2020tract.geojson') %>% mutate(GEOID = nbhd)
+tract2020_geoms <- read_sf('../geoms/boston_tracts_2020_complex.geojson') %>% mutate(GEOID = as.character(geoid20))
+tract2010_geoms <- read_sf('../geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
+# neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020bg.geojson') %>% mutate(GEOID = BlockGr202)
+neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020tract.geojson') %>% mutate(GEOID = nbhd)
 
 # Functions ##############
 

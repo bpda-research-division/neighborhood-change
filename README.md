@@ -1,14 +1,22 @@
 # Neighborhood Change Explorer
-R Shiny app for interactively exploring tract- and neighborhood-level change
+Explore how neighborhoods and cities have changed over time through interactive data visualizations. 
 
-Try it out: https://bpda-research-division.shinyapps.io/neighborhood-change/ 
+[![Screenshot of Neighborhood Change Explorer](img/demo.gif)](https://bpda-research-division.shinyapps.io/neighborhood-change/)
 
-## Development
-Contributions are welcome! If you plan to work on an existing issue, please comment on it. If your idea isn't an existing issue, feel free to create one of your own.
+### Data visualization features
 
-To run the app locally: 
+* simultaneous view of multiple types of variation (over space, over time, and within a population)
+* users "move through time" at their own pace using interactive controls
+* multi-selection of small geographies for users to create custom areas of interest (supported by on-the-fly data aggregation)
 
-1. Clone or fork this repository
-2. Run `install.packages("renv")` on your version of R if it's not installed already
-3. Run `renv::restore()` to set up an R environment within your copy of the repository that has all the necessary packages
-4. Run `shiny::runApp()` or (if using RStudio) select the "Run App" button
+### About
+
+The Neighborhood Change Explorer was originally built by the Research Division of the Boston Planning and Development Agency to display demographic and housing data for the city of Boston. However, it is designed to be a more generalized framework for the interactive visualization of aggregated geographic time-series data. 
+
+To learn more about how the app works and how you can create your own version of it, see the [about page](ABOUT.md).
+
+Primary author/maintainer: [@mciethan](https://www.github.com/mciethan)
+
+Want to report a bug or suggest a feature? Create an [issue](https://github.com/bpda-research-division/neighborhood-change/issues). 
+
+Interested in contributing? See the [contribution guidelines](CONTRIBUTING.md).
