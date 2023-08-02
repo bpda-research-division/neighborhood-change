@@ -137,7 +137,7 @@ ALL_VARS_INFO$tracts <- list(
       "Occupied" = "occ",
       "Vacant" = "vac"
     ), summary_expression = rlang::expr(vac + occ),
-    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; Mayor's Office of Housing; BPDA Research Division Analysis"
   )
   
   , "Housing Occupancy" = list(varcode = "hbicthouvac", years = seq(1950, 2020, by=10), 
@@ -257,7 +257,7 @@ ALL_VARS_INFO$neighborhoods <- list(
       "Occupied" = "occ",
       "Vacant" = "vac"
     ), summary_expression = rlang::expr(vac + occ),
-    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; Mayor's Office of Housing; BPDA Research Division Analysis"
   )
   
   , "Housing Occupancy" = list(varcode = "hbicnhouvac", years = seq(1950, 2020, by=10), 

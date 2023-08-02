@@ -2,7 +2,11 @@ The Boston Neighborhood Change Explorer was built by the BPDA Research Division.
 
 For further analysis of demographic and housing trends in Boston, see our [Historical Trends in Boston's Neighborhoods](https://www.bostonplans.org/research/research-publications?search=historical+&amp;sortby=date&amp;sortdirection=DESC) report, where most of the data on this website were originally published.
 
+### Data sources
+
 Data on this website are drawn from 1950-2020 Decennial Censuses and the 2006-2010 and 2016-2020 American Community Surveys. 
+
+To extend the total housing units time series through 2021 and 2022, we combined 2020 decennial data with Mayor's Office of Housing data on net new units (based on City of Boston building permits) between April 1, 2020 (the date of the 2020 decennial census) and December 31, 2022. 
 
 ### A note on Boston's total population
 
