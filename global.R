@@ -22,7 +22,7 @@ ALL_VARS_INFO <- list()
 
 # TODO: documentation explaining what each of these parameters does, and the ordering
 ALL_VARS_INFO$tracts <- list(
-  "Total Population" = list(varcode = "hbicttp", start = 1950, end = 2020, step = 10,
+  "Total Population" = list(varcode = "hbicttp", years = seq(1950, 2020, by=10), 
    lineTitle = "Total population", linehoverformat = ",.0f", 
    tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
    barTitle = "Population by sex", barhoverformat = ",.0f",
@@ -33,7 +33,7 @@ ALL_VARS_INFO$tracts <- list(
    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted to reflect Boston's successful group quarters challenge); IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Age" = list(varcode = "hbicta", start = 1950, end = 2020, step = 10,
+  , "Age" = list(varcode = "hbicta", years = seq(1950, 2020, by=10), 
    lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
    barTitle = "Population by age", barhoverformat = ",.0f",
@@ -51,7 +51,7 @@ ALL_VARS_INFO$tracts <- list(
    ), source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Race and Ethnicity" = list(varcode = "hbictre", start = 1950, end = 2020, step = 10,
+  , "Race and Ethnicity" = list(varcode = "hbictre", years = seq(1950, 2020, by=10), 
     lineTitle = "Non-white share of population", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
@@ -71,7 +71,7 @@ ALL_VARS_INFO$tracts <- list(
     note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
   )
   
-  , "Nativity" = list(varcode = "hbictnat", start = 1950, end = 2020, step = 10,
+  , "Nativity" = list(varcode = "hbictnat", years = seq(1950, 2020, by=10), 
     lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by nativity", barhoverformat = ",.0f",
@@ -80,7 +80,7 @@ ALL_VARS_INFO$tracts <- list(
     source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Educational Attainment" = list(varcode = "hbictedu", start = 1950, end = 2020, step = 10,
+  , "Educational Attainment" = list(varcode = "hbictedu", years = seq(1950, 2020, by=10), 
     lineTitle = "Share of population with a bachelor's degree or higher", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by educational attainment", barhoverformat = ",.0f",
@@ -93,7 +93,7 @@ ALL_VARS_INFO$tracts <- list(
     source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Labor Force" = list(varcode = "hbictlf", start = 1950, end = 2020, step = 10,
+  , "Labor Force" = list(varcode = "hbictlf", years = seq(1950, 2020, by=10), 
     lineTitle = "Female labor force participation rate (16+)", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
@@ -106,7 +106,7 @@ ALL_VARS_INFO$tracts <- list(
     source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  # , "Income" = list(varcode = 'acshhi', start = 2010, end = 2018, step = 2,
+  # , "Income" = list(varcode = 'acshhi', years = seq(2010, 2018, by=2),
   #   lineTitle = "Median Household Income", linehoverformat = ",.0f",
   #   tickprefix = "$", tickformat = "~s", agg_func = sum, citywide_comparison = TRUE,
   #   barTitle = "Households by Income", barhoverformat = ",.0f",
@@ -129,7 +129,7 @@ ALL_VARS_INFO$tracts <- list(
   #   ))
   # )
   
-  , "Total Housing Units" = list(varcode = "hbicthou", start = 1950, end = 2020, step = 10,
+  , "Total Housing Units" = list(varcode = "hbicthou", years = seq(1950, 2020, by=10), 
     lineTitle = "Total housing units", linehoverformat = ",.0f",
     tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
     barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
@@ -140,7 +140,7 @@ ALL_VARS_INFO$tracts <- list(
     source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Housing Occupancy" = list(varcode = "hbicthouvac", start = 1950, end = 2020, step = 10,
+  , "Housing Occupancy" = list(varcode = "hbicthouvac", years = seq(1950, 2020, by=10), 
     lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
@@ -151,7 +151,7 @@ ALL_VARS_INFO$tracts <- list(
     source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Housing Tenure" = list(varcode = "hbicthouten", start = 1950, end = 2020, step = 10,
+  , "Housing Tenure" = list(varcode = "hbicthouten", years = seq(1950, 2020, by=10), 
     lineTitle = "Owner occupancy rate", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
@@ -164,7 +164,7 @@ ALL_VARS_INFO$tracts <- list(
 )
 
 ALL_VARS_INFO$neighborhoods <- list(
-  "Total Population" = list(varcode = "hbicntp", start = 1950, end = 2020, step = 10,
+  "Total Population" = list(varcode = "hbicntp", years = seq(1950, 2020, by=10), 
    lineTitle = "Total population", linehoverformat = ",.0f",
    tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
    barTitle = "Population by sex", barhoverformat = ",.0f",
@@ -175,7 +175,7 @@ ALL_VARS_INFO$neighborhoods <- list(
    source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted to reflect Boston's successful group quarters challenge); IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Age" = list(varcode = "hbicna", start = 1950, end = 2020, step = 10,
+  , "Age" = list(varcode = "hbicna", years = seq(1950, 2020, by=10), 
    lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
    tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
    barTitle = "Population by age", barhoverformat = ",.0f",
@@ -194,7 +194,7 @@ ALL_VARS_INFO$neighborhoods <- list(
    source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Race and Ethnicity" = list(varcode = "hbicnre", start = 1950, end = 2020, step = 10,
+  , "Race and Ethnicity" = list(varcode = "hbicnre", years = seq(1950, 2020, by=10), 
     lineTitle = "Non-white share of population", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
@@ -214,7 +214,7 @@ ALL_VARS_INFO$neighborhoods <- list(
     note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
   )
   
-  , "Nativity" = list(varcode = "hbicnnat", start = 1950, end = 2020, step = 10,
+  , "Nativity" = list(varcode = "hbicnnat", years = seq(1950, 2020, by=10), 
     lineTitle = "Foreign-born share of population", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by nativity", barhoverformat = ",.0f",
@@ -223,7 +223,7 @@ ALL_VARS_INFO$neighborhoods <- list(
     source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Educational Attainment" = list(varcode = "hbicnedu", start = 1950, end = 2020, step = 10,
+  , "Educational Attainment" = list(varcode = "hbicnedu", years = seq(1950, 2020, by=10), 
     lineTitle = "Share of population with a bachelor's degree or higher", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population by educational attainment", barhoverformat = ",.0f",
@@ -236,7 +236,7 @@ ALL_VARS_INFO$neighborhoods <- list(
     source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Labor Force" = list(varcode = "hbicnlf", start = 1950, end = 2020, step = 10,
+  , "Labor Force" = list(varcode = "hbicnlf", years = seq(1950, 2020, by=10), 
     lineTitle = "Female labor force participation rate (16+)", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
@@ -249,7 +249,7 @@ ALL_VARS_INFO$neighborhoods <- list(
     source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Total Housing Units" = list(varcode = "hbicnhou", start = 1950, end = 2020, step = 10,
+  , "Total Housing Units" = list(varcode = "hbicnhou", years = seq(1950, 2020, by=10), 
     lineTitle = "Total housing units", linehoverformat = ",.0f",
     tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
     barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
@@ -260,7 +260,7 @@ ALL_VARS_INFO$neighborhoods <- list(
     source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Housing Occupancy" = list(varcode = "hbicnhouvac", start = 1950, end = 2020, step = 10,
+  , "Housing Occupancy" = list(varcode = "hbicnhouvac", years = seq(1950, 2020, by=10), 
     lineTitle = "Housing vacancy rate", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
@@ -271,7 +271,7 @@ ALL_VARS_INFO$neighborhoods <- list(
     source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Housing Tenure" = list(varcode = "hbicnhouten", start = 1950, end = 2020, step = 10,
+  , "Housing Tenure" = list(varcode = "hbicnhouten", years = seq(1950, 2020, by=10), 
     lineTitle = "Owner occupancy rate", linehoverformat = ".0%",
     tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
     barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",

@@ -168,8 +168,8 @@ tabPanelServer <- function(geo_type) {
       observeEvent(input$variable, {
         updateSliderTextInput(session, "yearSelect",
           # ...reset the choices on the slider based on the new variable's parameters...
-          choices = seq(var_params()$start, var_params()$end, by=var_params()$step),
-          selected = var_params()$end # ...and reset the slider to start on the most recent year of data
+          choices = var_params()$years,
+          selected = tail(var_params()$years, 1) # ...and reset the slider to start on the most recent year of data
           )
       })
       

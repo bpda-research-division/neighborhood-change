@@ -8,9 +8,10 @@
 geoTabPanelUI <- function(geo_type) {
   ns <- NS(geo_type)
   variables <- ALL_VARS_INFO[[geo_type]]
-  initial_st <- as.numeric(variables[[1]]$start)
-  initial_end <- as.numeric(variables[[1]]$end)
-  initial_step <- as.numeric(variables[[1]]$step)
+  # initial_st <- as.numeric(variables[[1]]$start)
+  # initial_end <- as.numeric(variables[[1]]$end)
+  # initial_step <- as.numeric(variables[[1]]$step)
+  initial_years <- variables[[1]]$years
   
   # the below variables are used to reformat the map legend to place the NA value below the color
   # palette - default behavior in the current version of Leaflet is for them to be side by side
@@ -28,7 +29,7 @@ geoTabPanelUI <- function(geo_type) {
                  selectInput(ns("variable"), 
                              NULL, choices = names(variables) %>% 
                                lapply(function (n) { # display each variable with its start and end year
-                                 paste0(n, " (", variables[[n]]$start, "-", variables[[n]]$end, ")")
+                                 paste0(n, " (", variables[[n]]$years[1], "-", tail(variables[[n]]$years, 1), ")")
                                })
                              )
                  )
@@ -41,8 +42,8 @@ geoTabPanelUI <- function(geo_type) {
                   ),
            column(width=8, #style="margin-top:5px;",
                   sliderTextInput(inputId = ns("yearSelect"), 
-                      choices = seq(initial_st, initial_end, by=initial_step),
-                      selected = initial_end, grid=TRUE, label = NULL,
+                      choices = seq(1950, 2020, by=10), # initial_years
+                      selected = tail(initial_years, 1), grid=TRUE, label = NULL,
                       animate = animationOptions(interval = 800) # set animation speed here
                       )
                   )
