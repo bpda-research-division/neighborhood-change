@@ -129,7 +129,7 @@ ALL_VARS_INFO$tracts <- list(
   #   ))
   # )
   
-  , "Total Housing Units" = list(varcode = "hbicthou", years = seq(1950, 2020, by=10), 
+  , "Total Housing Units" = list(varcode = "hbicthou", years = append(seq(1950, 2020, by=10), c(2021,2022)), 
     lineTitle = "Total housing units", linehoverformat = ",.0f",
     tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
     barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
@@ -249,7 +249,7 @@ ALL_VARS_INFO$neighborhoods <- list(
     source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
   )
   
-  , "Total Housing Units" = list(varcode = "hbicnhou", years = seq(1950, 2020, by=10), 
+  , "Total Housing Units" = list(varcode = "hbicnhou", years = append(seq(1950, 2020, by=10), c(2021, 2022)), 
     lineTitle = "Total housing units", linehoverformat = ",.0f",
     tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
     barTitle = "Housing units by occupancy", barhoverformat = ",.0f",

@@ -8,9 +8,6 @@
 geoTabPanelUI <- function(geo_type) {
   ns <- NS(geo_type)
   variables <- ALL_VARS_INFO[[geo_type]]
-  # initial_st <- as.numeric(variables[[1]]$start)
-  # initial_end <- as.numeric(variables[[1]]$end)
-  # initial_step <- as.numeric(variables[[1]]$step)
   initial_years <- variables[[1]]$years
   
   # the below variables are used to reformat the map legend to place the NA value below the color

@@ -311,7 +311,7 @@ tabPanelServer <- function(geo_type) {
       # line chart x-axis range to ensure that no data points are visually cut off
       line_xrange_bookend <- reactive({
         # 0.1 of the difference between the min and max year seems to be a good bookend
-        0.1*(as.numeric(var_params()$end)-as.numeric(var_params()$start))
+        0.1*(as.numeric(tail(var_params()$years, 1))-as.numeric(var_params()$years[1]))
       })
       
       # Define how we render the line chart at any given time
@@ -332,8 +332,8 @@ tabPanelServer <- function(geo_type) {
                  font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-2),
                  xaxis = list(title = '', fixedrange = TRUE,
                               range = c(
-                                as.numeric(var_params()$start) - line_xrange_bookend(),
-                                as.numeric(var_params()$end) + line_xrange_bookend()
+                                as.numeric(var_params()$years[1]) - line_xrange_bookend(),
+                                as.numeric(tail(var_params()$years, 1)) + line_xrange_bookend()
                                 )
                               ),
                  yaxis = list(title = '', fixedrange = TRUE, range = lineRange(),

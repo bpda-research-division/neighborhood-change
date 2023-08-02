@@ -187,7 +187,7 @@ prepare_data(
 # HBIC Neighborhoods Total Housing Units ##################
 prepare_data(
   var_code = 'hbicnhou', 
-  sb_csv = 'csv/hbic_neigh_housing_vacancy_bins.csv', 
+  sb_csv = 'csv/hbic_neigh_housing_bins.csv', 
   agg_func = sum, 
   bin_col_names = c("Occupied" = "occ", "Vacant" = "vac"), 
   summary_expression = rlang::expr(occ + vac),
@@ -301,7 +301,7 @@ prepare_data(
 prepare_data(
   var_code = 'hbicthouvac', 
   sb_csv = 'csv/hbic_tract_housing_vacancy_bins.csv', 
-  cb_csv = 'csv/hbicthou_cb.csv',
+  cb_csv = 'csv/hbicthouvac_cb.csv',
   agg_func = sum, 
   bin_col_names = c("Occupied" = "occ", "Vacant" = "vac"),
   summary_expression = rlang::expr( (vac) / (occ + vac) ),
@@ -311,7 +311,7 @@ prepare_data(
 # HBIC Tracts Total Housing Units ##################
 prepare_data(
   var_code = 'hbicthou', 
-  sb_csv = 'csv/hbic_tract_housing_vacancy_bins.csv', 
+  sb_csv = 'csv/hbic_tract_housing_bins.csv', 
   cb_csv = 'csv/hbicthou_cb.csv',
   cs_csv = 'csv/hbicthou_cs.csv',
   agg_func = sum, 
