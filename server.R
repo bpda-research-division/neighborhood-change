@@ -7,8 +7,9 @@ tabPanelServer <- function(geo_type) {
   moduleServer(
     geo_type,
     function(input, output, session) {
-      # string representation of the namespaced geography type (e.g. "tracts")
-      geo_namespace <- substr(session$ns(''), 1, nchar(session$ns('')) - 1)
+      # string representation of the namespaced geography type (e.g. "census tracts")
+      geo_units <- gsub("_"," ", session$ns(''))
+      geo_unit <- substr(geo_units, 1, nchar(geo_units) - 1) # "census tract"
       
       # input$variable values are initialized in the UI with the year range
       # concatenated to each variable name. To extract the variable name from input$variable... 
@@ -20,12 +21,12 @@ tabPanelServer <- function(geo_type) {
       
       # Keep track of the variable parameters for whichever variable the user has selected
       var_params <- reactive({
-        ALL_VARS_INFO[[geo_namespace]][[var_name()]]
+        ALL_VARS_INFO[[geo_unit]][[var_name()]]
       })
       
       # Keep track of the data frames for whichever variable the user has selected
       var_data <- reactive({
-        ALL_VARS_DATA[[geo_namespace]][[var_name()]]
+        ALL_VARS_DATA[[geo_unit]][[var_name()]]
       })
       
       # Set up static components of the map
@@ -44,7 +45,7 @@ tabPanelServer <- function(geo_type) {
       # The label for map polygons with null values is a function of the geography type
       null_label <- lapply(
         split_max_2_lines(paste(
-          tools::toTitleCase(geo_namespace), 'with little or no population')
+          tools::toTitleCase(geo_unit), 'with little or no population')
         )
         , htmltools::HTML)
       
@@ -175,7 +176,7 @@ tabPanelServer <- function(geo_type) {
       
       # Describes the geographic scope of the currently displayed data (e.g. "2 selected tracts")
       selectionName <- reactive({ # this is used for the legends on the bar and line charts
-        geo_type <- geo_namespace
+        geo_type <- geo_unit
         num_selected <- length(selected$groups)
         
         if (num_selected == 0) { # if nothing is selected, we're showing citywide data
@@ -379,7 +380,7 @@ tabPanelServer <- function(geo_type) {
       })
       
       # This updates the slider anytime the user clicks on the line chart to select a year
-      observeEvent(clickedYear(), {
+      observeEvent(clickedYear(), { 
         updateSliderTextInput(session, "yearSelect", selected = clickedYear())
       })
       
@@ -420,6 +421,6 @@ server <- function(input, output, session) {
   
   # build the server modules for each geography type in ALL_VARS_INFO
   lapply(names(ALL_VARS_INFO), function(geo_type) {
-    tabPanelServer(geo_type)
+    tabPanelServer(gsub(" ","_",geo_type))
   })
 }

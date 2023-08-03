@@ -21,7 +21,7 @@ LINE_COLOR <- BAR_COLOR # could also change line to a separate hex code if desir
 ALL_VARS_INFO <- list()
 
 # TODO: documentation explaining what each of these parameters does, and the ordering
-ALL_VARS_INFO$tracts <- list(
+ALL_VARS_INFO$`census tracts` <- list(
   "Total Population" = list(varcode = "hbicttp", years = seq(1950, 2020, by=10), 
    lineTitle = "Total population", linehoverformat = ",.0f", 
    tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,

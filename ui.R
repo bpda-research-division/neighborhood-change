@@ -6,7 +6,7 @@
 #' with a given set of UI components (map, bar chart, line chart, etc). 
 #' This function creates those components, namespacing them by geography type. 
 geoTabPanelUI <- function(geo_type) {
-  ns <- NS(geo_type)
+  ns <- NS(gsub(" ","_",geo_type))
   variables <- ALL_VARS_INFO[[geo_type]]
   initial_years <- variables[[1]]$years
   
