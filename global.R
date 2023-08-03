@@ -475,25 +475,12 @@ addLegend_decreasing <- function (map, position = c("topright", "bottomright", "
 
 # Data loading ######################
 
-#' Reads in and returns the four dataframes for a given variable defined by
-#' varcode. The data files need to use the naming convention <varcode>_<df_type>.rds
-dfs_from_varcode <- function(varcode) {
-  
-  # subcity bins, subcity summary, citywide bins, citywide summary
-  df_types <- c('sb', 'ss', 'cb', 'cs')
-  
-  dfs <- lapply(df_types, function(x) paste0("./data/", varcode, "_", x, ".rds")) %>%
-    lapply(readRDS) %>% `names<-`(lapply(df_types, function(x) paste0(x, '_df')))
-  dfs #%>% lapply(as.data.frame) %>% lapply(function(df) df %>% mutate(YEAR = as.character(YEAR)))
-}
-
 # using ALL_VARS_INFO, read the four data frames for each variable into ALL_VARS_DATA
 # ALL_VARS_DATA has the same structure as ALL_VARS_INFO, but with a list of data
 # frames instead of a list of parameters being stored for each variable
 ALL_VARS_DATA <- ALL_VARS_INFO %>% 
   lapply(function(geo_type) geo_type %>% 
     lapply(
-      function(var) var$varcode %>% 
-        dfs_from_varcode
+      function(var) readRDS(sprintf("./data/%s.rds", var$varcode))
     )
   )

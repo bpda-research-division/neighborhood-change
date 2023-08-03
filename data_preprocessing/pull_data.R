@@ -13,21 +13,18 @@ prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expr
   if (missing(agg_func)) {
     stop("An agg_func is required")
   }
+  if (missing(summary_expression)) {
+    stop("A summary expression is required")
+  }
   
   subcity_bins <- read.csv(sb_csv)
   
   if (!missing(cb_csv)) {city_bins <- read.csv(cb_csv)} 
-  else if (missing(agg_func)) {
-    stop("If cb_csv is not provided, then agg_func is required")
-  }
   else {
     city_bins <- subcity_bins %>% group_by(YEAR) %>% summarise_at(unname(bin_col_names), agg_func, na.rm=TRUE)
   }
   
   if (!missing(ss_csv)) {subcity_summary <- read.csv(ss_csv)}
-  else if (missing(summary_expression)) {
-    stop("Must either provider a summary_expression or an ss_csv")
-  }
   else {
     subcity_summary <- subcity_bins %>% 
       mutate(SUMMARY_VALUE = !!summary_expression) %>% 
@@ -35,9 +32,6 @@ prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expr
   }
   
   if (!missing(cs_csv)) {city_summary <- read.csv(cs_csv)}
-  else if (missing(summary_expression)) {
-    stop("Must either provider a summary_expression or a cs_csv")
-  }
   else {
     city_summary <- city_bins %>% mutate(SUMMARY_VALUE = !!summary_expression) %>% select(-all_of(unname(bin_col_names)))
   }
@@ -61,12 +55,14 @@ prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expr
     merge(y=geoms, by.y = "GEOID", by.x = "GEOID") %>%
     st_as_sf()
   
-  abbrs = list("sb", "cb", "ss", "cs")
-  dfs = list(subcity_bins_app, city_bins_app, subcity_summary_app, city_summary)
+  # abbrs = list("sb", "cb", "ss", "cs")
+  dfs = list("sb_df" = subcity_bins_app, "cb_df" = city_bins_app, 
+             "ss_df" = subcity_summary_app, "cs_df" = city_summary)
+  dfs %>% saveRDS(file=sprintf('../data/%s.rds', var_code))
   
-  for (i in 1:4) {
-    dfs[[i]] %>% saveRDS(file=sprintf('../data/%s_%s.rds', var_code, abbrs[[i]]))
-  }
+  # for (i in 1:4) {
+  #   dfs[[i]] %>% saveRDS(file=sprintf('../data/%s_%s.rds', var_code, abbrs[[i]]))
+  # }
 }
 
 # in the income case, we need to manually specify the subcity bins as well as the subcity central,
