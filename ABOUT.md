@@ -2,7 +2,7 @@ This document provides an overview of how the Neighborhood Change Explorer app w
 * how to create your own version of the app
 * how to update the underlying data for an existing app
 
-The Neighborhood Change Explorer is built in R Shiny, a framework for building web applications using the R programming language. The app consists of three R files:
+The Neighborhood Change Explorer is built in R Shiny, a framework for building web applications using the R programming language. The app consists of three R source files:
 
 | name | description |
 | -------- | --------- |
@@ -10,11 +10,38 @@ The Neighborhood Change Explorer is built in R Shiny, a framework for building w
 | `server.R` | defines how the map & charts are rendered + how the various controls interact with the visualizations & with each other |
 | `global.R` | defines how the data are loaded into the app + some app-wide formatting parameters (e.g. colors and fonts) and miscellaneous functions |
 
+A, and the contents of the welcome page and the about page are rendered from markdown files stored in the `dialog/` folder. 
+
 When the app runs, everything defined in `global.R` is made available to both the UI and the server, without the need for import statements. See the R Shiny documentation on [two-file Shiny apps](https://shiny.posit.co/r/articles/build/two-file/) and [scoping](https://shiny.posit.co/r/articles/improve/scoping/) to learn more about this setup.
 
-Within the Neighborhood Change Explorer, the fundamental unit of analysis is a topic. Some examples of topics might include age, race/ethnicity, or housing units. Fundamentally, the UI and server are functions that display data about one topic at a time. global is where all the data for each topic is loaded into the app and where parameters for each topic can be defined. When users switch between topics using the drop-down menu --
+Everything flows from ALL_VARS_INFO. 
 
-Each topic consists of:
+```
+ALL_VARS_INFO <- list(
+  "geo_type_1" = list(
+    "topic1" = list(
+      ...
+    ),
+    "topic2" = 
+  ),
+  "geo_type_2" = list(
+    
+  )
+)
+```
+
+Each name of ALL_VARS_INFO becomes a tab
+
+The Neighborhood Change Explorer is organized into tabs - one for each geographic unit specified in ALL_VARS_INFO. Each tab contains data on a set of topics. 
+
+All of the data displayed by the app is stored in the `data/` folder. Each file within the data folder represents a different topic. The UI and server are basically functions that display data about one topic at a time.
+
+Topics are organized into tabs by geographic unit. Under the hood, each geographic unit is a separate Shiny module with its own UI and server. 
+
+Within the Neighborhood Change Explorer, the fundamental unit of analysis is a topic. Some examples of topics might include age, race/ethnicity, or housing units. Fundamentally, . global is where all the data for each topic is loaded into the app and where parameters for each topic can be defined. When users switch between topics using the drop-down menu --
+
+The data for each page consists of:
+* topic: 
 * summary indicator: eg young adult share, non white-alone share, total housing units
 * category: eg population 10-19, 20-34. CATEGORY field is category names to be displayed. should have more than 1 for the bar chart to be interesting
 * category label: column alias for a given category xyz, used in summary expression
@@ -46,3 +73,5 @@ Within `global.R` concepts to cover:
 - geographic units, which "contain" topics
 - topics, with their set of named parameters
 - four dataframes for each topic, stored in ALL_VARS_DATA
+
+also, 
