@@ -10,37 +10,58 @@ The Neighborhood Change Explorer is built in R Shiny, a framework for building w
 | `server.R` | defines how the map & charts are rendered + how the various controls interact with the visualizations & with each other |
 | `global.R` | defines how the data are loaded into the app + some app-wide formatting parameters (e.g. colors and fonts) and miscellaneous functions |
 
-A, and the contents of the welcome page and the about page are rendered from markdown files stored in the `dialog/` folder. 
+The actual data are loaded in from files in the `data/` folder, and the contents of the welcome page and the about page are rendered from markdown files stored in the `dialog/` folder. 
 
 When the app runs, everything defined in `global.R` is made available to both the UI and the server, without the need for import statements. See the R Shiny documentation on [two-file Shiny apps](https://shiny.posit.co/r/articles/build/two-file/) and [scoping](https://shiny.posit.co/r/articles/improve/scoping/) to learn more about this setup.
 
-Everything flows from ALL_VARS_INFO. 
+Configuration options for the Neighborhood Change Explorer are centralized within the APP_CONFIG variable defined in `global.R`. APP_CONFIG is set up as a nested list of **geographic units**, which contain **topics**.
 
 ```
-ALL_VARS_INFO <- list(
-  "geo_type_1" = list(
-    "topic1" = list(
-      ...
+APP_CONFIG <- list(
+  "geo unit 1" = list(
+    "topic A" = list(
+      # parameters for topic A
     ),
-    "topic2" = 
+    "topic B" = list(
+      # parameters for topic B
+    ),
+    ...
   ),
-  "geo_type_2" = list(
-    
-  )
+  "geo unit 2" = list(
+    # topics
+  ),
+  ...
 )
 ```
 
-Each name of ALL_VARS_INFO becomes a tab
+Examples of geographic units include "census tracts" and "neighborhoods". Each geographic unit becomes a tab on the app. Tabs are displayed from left to right in the order in which they're declared in APP_CONFIG. The declared names of geographic units are converted into title case when displayed on tabs. 
 
-The Neighborhood Change Explorer is organized into tabs - one for each geographic unit specified in ALL_VARS_INFO. Each tab contains data on a set of topics. 
+Examples of topics include "Age" and "Total Housing Units". Each topic declared for a given geographic unit becomes an entry on that tab's drop-down menu. Topic entries are displayed from top to bottom in the order in which they're declared in APP_CONFIG. The names of topics appear on the app exactly as they are declared.
 
-All of the data displayed by the app is stored in the `data/` folder. Each file within the data folder represents a different topic. The UI and server are basically functions that display data about one topic at a time.
+For example, if the above pseudocode were to be used in an app, it would look like this:
 
-Topics are organized into tabs by geographic unit. Under the hood, each geographic unit is a separate Shiny module with its own UI and server. 
+![screenshot of ](img/geo_topic_demo.png)
+
+Each combination of geographic unit and topic constitutes a unique **variable**. Each file within the `data/` folder contains all the data for a given variable. 
+
+`ui.R` and `server.R` are basically functions that display data about one variable at a time. The configuration of each variable is defined by a set of **parameters** within APP_CONFIG.
+
+| parameter | required? | description | example |
+| ------ | ---- | ------ | ----- |
+| data_code | yes | name of the corresponding .RDS file in the `data/` folder | "hbicttp" |
+
+Under the hood, each geographic unit is a separate Shiny module with its own UI and server. 
+
+Params to rename:
+- lineTitle -> summaryIndicatorTitle
+- linehoverformat -> summaryIndicatorFormat
+- 
+
+can do some reordering of params too
 
 Within the Neighborhood Change Explorer, the fundamental unit of analysis is a topic. Some examples of topics might include age, race/ethnicity, or housing units. Fundamentally, . global is where all the data for each topic is loaded into the app and where parameters for each topic can be defined. When users switch between topics using the drop-down menu --
 
-The data for each page consists of:
+The data for each variable consists of:
 * topic: 
 * summary indicator: eg young adult share, non white-alone share, total housing units
 * category: eg population 10-19, 20-34. CATEGORY field is category names to be displayed. should have more than 1 for the bar chart to be interesting
@@ -69,7 +90,7 @@ For each topic, all four dataframes are bundled together into a list and stored 
 Script that takes in csv data formatted like sb_df plus an aggregate function and a summary expression and writes it to that format: `pull_data.R`
 
 Within `global.R` concepts to cover:
-- ALL_VARS_INFO created in `global.R` - modify it to modify what and how data is shown
+- APP_CONFIG created in `global.R` - modify it to modify what and how data is shown
 - geographic units, which "contain" topics
 - topics, with their set of named parameters
 - four dataframes for each topic, stored in ALL_VARS_DATA
