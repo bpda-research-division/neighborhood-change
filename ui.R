@@ -7,8 +7,10 @@
 #' This function creates those components, namespacing them by geography type. 
 geoTabPanelUI <- function(geo_type) {
   ns <- NS(gsub(" ","_",geo_type))
-  variables <- ALL_VARS_INFO[[geo_type]]
-  initial_years <- variables[[1]]$years
+  variables <- APP_CONFIG[[geo_type]]
+  variables_years <- APP_DATA[[geo_type]] %>% 
+    lapply(function(var) unique(var$cs_df$YEAR))
+  initial_years <- variables_years[[1]]
   
   # the below variables are used to reformat the map legend to place the NA value below the color
   # palette - default behavior in the current version of Leaflet is for them to be side by side
@@ -23,10 +25,10 @@ geoTabPanelUI <- function(geo_type) {
                  HTML("<b>Choose a topic:</b>")
                  ),
           column(width=8, style="z-index:1010;", # ensure drop-down menu displays in front of other stuff
-                 selectInput(ns("variable"), 
+                 selectInput(ns("topicSelect"), 
                              NULL, choices = names(variables) %>% 
                                lapply(function (n) { # display each variable with its start and end year
-                                 paste0(n, " (", variables[[n]]$years[1], "-", tail(variables[[n]]$years, 1), ")")
+                                 paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
                                })
                              )
                  )
@@ -91,6 +93,6 @@ ui <- fluidPage(title = "Neighborhood Change Explorer",
         )
       )
   ),
-  # create a tabsetPanel with one tab for each geography type present in ALL_VARS_INFO
-  do.call(tabsetPanel, lapply(names(ALL_VARS_INFO), geoTabPanelUI))
+  # create a tabsetPanel with one tab for each geography type present in APP_CONFIG
+  do.call(tabsetPanel, lapply(names(APP_CONFIG), geoTabPanelUI))
 )

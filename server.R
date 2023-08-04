@@ -11,22 +11,22 @@ tabPanelServer <- function(geo_type) {
       geo_units <- gsub("_"," ", session$ns(''))
       geo_unit <- substr(geo_units, 1, nchar(geo_units) - 1) # "census tract"
       
-      # input$variable values are initialized in the UI with the year range
-      # concatenated to each variable name. To extract the variable name from input$variable... 
-      var_name <- reactive({ # ...we use a regex to find the last occurrence of a ( followed by a digit...
-        idxs <- gregexpr("\\((\\d)", input$variable)
+      # input$topicSelect values are initialized in the UI with the year range
+      # concatenated to each variable name. To extract the topic name from input$topicSelect... 
+      topic_name <- reactive({ # ...we use a regex to find the last occurrence of a ( followed by a digit...
+        idxs <- gregexpr("\\((\\d)", input$topicSelect)
         idx <- idxs[[1]][length(idxs)]
-        substr(input$variable, 1, idx - 2) # ...and strip that part away.
+        substr(input$topicSelect, 1, idx - 2) # ...and strip that part away.
       })
       
       # Keep track of the variable parameters for whichever variable the user has selected
       var_params <- reactive({
-        ALL_VARS_INFO[[geo_unit]][[var_name()]]
+        APP_CONFIG[[geo_unit]][[topic_name()]]
       })
       
-      # Keep track of the data frames for whichever variable the user has selected
+      # Keep track of the data frames for whichever topic the user has selected
       var_data <- reactive({
-        ALL_VARS_DATA[[geo_unit]][[var_name()]]
+        APP_DATA[[geo_unit]][[topic_name()]]
       })
       
       # Set up static components of the map
@@ -53,7 +53,7 @@ tabPanelServer <- function(geo_type) {
       outputOptions(output, "map", suspendWhenHidden = FALSE) 
       
       # Redraw all the map polygons when a new variable is selected (or when site is initially loaded)
-      observeEvent(input$variable, { 
+      observeEvent(input$topicSelect, { 
         ss <- var_data()$ss_df # for each variable, ss_df is the simple features dataframe that gets mapped
         yrdfs <- split(ss, ss$YEAR) # split the data on YEAR to create separate map layers for each year
         
@@ -101,7 +101,7 @@ tabPanelServer <- function(geo_type) {
             ) # set font size for the tooltips a bit smaller than in the rest of app
           ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) %>% # hide these polygons initially
           
-          # add the map legend, formatting labels as specified in ALL_VARS_INFO for the given variable 
+          # add the map legend, formatting labels as specified in APP_CONFIG for the given variable 
           addLegend_decreasing(values = ss$SUMMARY_VALUE, decreasing = TRUE,  
             position = "bottomright", pal = pal, na.label = null_label, 
             title = split_max_2_lines(var_params()$lineTitle),
@@ -120,11 +120,11 @@ tabPanelServer <- function(geo_type) {
       
       # Keep track of the unique set of years for the variable the user selects
       var_years <- reactive({
-        var_data()$cs_df$YEAR
+        unique(var_data()$cs_df$YEAR)
       })
       
       # Update the map When the user moves the time slider or picks a new variable
-      observeEvent(list(input$yearSelect, input$variable), {
+      observeEvent(list(input$yearSelect, input$topicSelect), {
         leafletProxy("map") %>% 
           hideGroup(group = var_years()) %>% # hide all of the yearly layers
           showGroup(input$yearSelect) # then show the layer for the selected year
@@ -132,7 +132,7 @@ tabPanelServer <- function(geo_type) {
       
       # This vector holds the IDs of all currently selected polygons. The line and
       # bar charts are configured to dynamically update in response to this vector
-      selected <- reactiveValues(groups = vector())
+      selectedPolygons <- reactiveValues(groups = vector())
       
       # Define what happens when the user clicks on map polygons
       observeEvent(input$map_shape_click, {
@@ -148,36 +148,36 @@ tabPanelServer <- function(geo_type) {
           # if the data for the clicked-upon polygon is all non-null values...
           if (!any(is.na(subset(var_data()$ss_df, GEOID == this_selection_id)$SUMMARY_VALUE))) {
             leafletProxy("map") %>% showGroup(group = this_selection_id) 
-            # ...display that polygon as selected and record the polygon's ID in selected$groups
-            selected$groups <- c(selected$groups, this_selection_id)
+            # ...display that polygon as selected and record the polygon's ID in selectedPolygons$groups
+            selectedPolygons$groups <- c(selectedPolygons$groups, this_selection_id)
           }
           
         } else { # To deselect a polygon that's currently selected...
           leafletProxy("map") %>% hideGroup(group = input$map_shape_click$group)
-          # display the polygon as unselected and remove that polygon from selected$groups
-          selected$groups <- setdiff(selected$groups, input$map_shape_click$group)
+          # display the polygon as unselected and remove that polygon from selectedPolygons$groups
+          selectedPolygons$groups <- setdiff(selectedPolygons$groups, input$map_shape_click$group)
         }
       })
       
       # In response to the user clearing all selections or choosing a new variable...
-      observeEvent(list(session$input$clearSelections, input$variable), {
-        selected$groups <- vector() # ...unselect all polygons and hide them on the map.
+      observeEvent(list(session$input$clearSelections, input$topicSelect), {
+        selectedPolygons$groups <- vector() # ...unselect all polygons and hide them on the map.
         leafletProxy("map") %>% hideGroup(group = var_data()$ss_df$GEOID)
       })
       
       # To update the slider input each time the user selects a different variable...
-      observeEvent(input$variable, {
+      observeEvent(input$topicSelect, {
         updateSliderTextInput(session, "yearSelect",
           # ...reset the choices on the slider based on the new variable's parameters...
-          choices = var_params()$years,
-          selected = tail(var_params()$years, 1) # ...and reset the slider to start on the most recent year of data
+          choices = var_years(),
+          selected = tail(var_years(), 1) # ...and reset the slider to start on the most recent year of data
           )
       })
       
       # Describes the geographic scope of the currently displayed data (e.g. "2 selected tracts")
       selectionName <- reactive({ # this is used for the legends on the bar and line charts
         geo_type <- geo_unit
-        num_selected <- length(selected$groups)
+        num_selected <- length(selectedPolygons$groups)
         
         if (num_selected == 0) { # if nothing is selected, we're showing citywide data
           return("Citywide")
@@ -190,14 +190,14 @@ tabPanelServer <- function(geo_type) {
       # This is the data that is displayed on the bar chart. It's a function of 
       # the current variable and map selection as well as the year on the slider.
       filteredBar <- reactive({ # if the user doesn't have any polygons selected...
-        if (length(selected$groups) == 0) { # ...show citywide data for the given year
+        if (length(selectedPolygons$groups) == 0) { # ...show citywide data for the given year
           data <- subset(var_data()$cb_df, YEAR == input$yearSelect) 
-        } else if (length(selected$groups) == 1) { # if only one polygon is selected...
+        } else if (length(selectedPolygons$groups) == 1) { # if only one polygon is selected...
           # ...use the subcity binned data filtered to that polygon
-          data <- subset(var_data()$sb_df, GEOID %in% selected$groups & YEAR == input$yearSelect)
+          data <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups & YEAR == input$yearSelect)
         } else { # If multiple polygons are selected...
           # ...we aggregate the data for the set of selected polygons for each year...
-          data <- subset(var_data()$sb_df, GEOID %in% selected$groups & YEAR == input$yearSelect) %>%
+          data <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups & YEAR == input$yearSelect) %>%
             group_by(CATEGORY) %>% # ...by category, using the agg_func that's defined for the given variable
             summarise(VALUE = var_params()[["agg_func"]](VALUE))
         }
@@ -212,11 +212,11 @@ tabPanelServer <- function(geo_type) {
       # The y-axis range for the bar chart is a function of the map selection, but
       # remains constant for a given selection over a range of years
       barRange <- reactive({
-        if (length(selected$groups) == 0) {
+        if (length(selectedPolygons$groups) == 0) {
           data <- var_data()$cb_df # if nothing is selected, use citywide data
         }
         else { # otherwise, consider all the data values by category and year
-          data <- subset(var_data()$sb_df, GEOID %in% selected$groups) %>%
+          data <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups) %>%
             group_by(CATEGORY, YEAR) %>% 
             summarise(VALUE = var_params()[["agg_func"]](VALUE), .groups="drop")
         }
@@ -259,21 +259,21 @@ tabPanelServer <- function(geo_type) {
                  )
       })
       
-      # Displays any note that's been provided for the variable in ALL_VARS_INFO
+      # Displays any note that's been provided for the variable in APP_CONFIG
       output$note <- reactive({ var_params()$note })
       
       # This is the data that is displayed on the line chart. It's a function of 
       # the current variable and the current map selection.
       selectedLine <- reactive({ # if the user doesn't have any polygons selected...
-        if (length(selected$groups) == 0) {var_data()$cs_df} # ...show citywide data.
-        else if (length(selected$groups) == 1) { # if only 1 polygon is selected...
+        if (length(selectedPolygons$groups) == 0) {var_data()$cs_df} # ...show citywide data.
+        else if (length(selectedPolygons$groups) == 1) { # if only 1 polygon is selected...
           # ...use the subcity summary data frame, filtered to that polygon
-          subset(var_data()$ss_df, GEOID %in% selected$groups)
+          subset(var_data()$ss_df, GEOID %in% selectedPolygons$groups)
         }
         else { # If multiple polygons are selected...
 
           # we start by aggregating the subcity binned data for those polygons...
-          t <- subset(var_data()$sb_df, GEOID %in% selected$groups) %>%
+          t <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups) %>%
             group_by(CATEGORY, YEAR) %>% # ...by category and year
             summarise(VALUE = var_params()[["agg_func"]](VALUE), .groups = "drop")
 
@@ -300,7 +300,7 @@ tabPanelServer <- function(geo_type) {
         top_val <- max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE)
         
         # but if we want to show a citywide comparison... 
-        if (length(selected$groups) > 0 & var_params()$citywide_comparison) {
+        if (length(selectedPolygons$groups) > 0 & var_params()$citywide_comparison) {
           cw_val <- max(var_data()$cs_df$SUMMARY_VALUE, na.rm=TRUE)
           # ...and the maximum summary value citywide is bigger than the default upper value...
           if (cw_val > top_val) {top_val <- cw_val} # ... we use the citywide max as the top.
@@ -312,7 +312,7 @@ tabPanelServer <- function(geo_type) {
       # line chart x-axis range to ensure that no data points are visually cut off
       line_xrange_bookend <- reactive({
         # 0.1 of the difference between the min and max year seems to be a good bookend
-        0.1*(as.numeric(tail(var_params()$years, 1))-as.numeric(var_params()$years[1]))
+        0.1*(as.numeric(tail(var_years(), 1))-as.numeric(var_years()[1]))
       })
       
       # Define how we render the line chart at any given time
@@ -333,8 +333,8 @@ tabPanelServer <- function(geo_type) {
                  font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-2),
                  xaxis = list(title = '', fixedrange = TRUE,
                               range = c(
-                                as.numeric(var_params()$years[1]) - line_xrange_bookend(),
-                                as.numeric(tail(var_params()$years, 1)) + line_xrange_bookend()
+                                as.numeric(var_years()[1]) - line_xrange_bookend(),
+                                as.numeric(tail(var_years(), 1)) + line_xrange_bookend()
                                 )
                               ),
                  yaxis = list(title = '', fixedrange = TRUE, range = lineRange(),
@@ -354,7 +354,7 @@ tabPanelServer <- function(geo_type) {
           )
         
         # if at least one polygon is selected and the given variable is configured to show citywide comparisons...
-        if (length(selected$groups) > 0 & var_params()$citywide_comparison) { 
+        if (length(selectedPolygons$groups) > 0 & var_params()$citywide_comparison) { 
           p <- p %>% # ...add a dashed line showing the citywide comparison for the summary value over time
             add_lines(x = var_data()$cs_df$YEAR, y = var_data()$cs_df$SUMMARY_VALUE,
                hoverinfo="y", name="Citywide", color=I(LINE_COLOR),
@@ -419,8 +419,8 @@ server <- function(input, output, session) {
     )
   })
   
-  # build the server modules for each geography type in ALL_VARS_INFO
-  lapply(names(ALL_VARS_INFO), function(geo_type) {
+  # build the server modules for each geography type in APP_CONFIG
+  lapply(names(APP_CONFIG), function(geo_type) {
     tabPanelServer(gsub(" ","_",geo_type))
   })
 }
