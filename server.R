@@ -24,6 +24,10 @@ tabPanelServer <- function(geo_type) {
         APP_CONFIG[[geo_unit]][[topic_name()]]
       })
       
+      indicator_params <- reactive({
+        var_params()$summary_indicators[[input$indicatorSelect]]
+      })
+      
       # Keep track of the data frames for whichever topic the user has selected
       var_data <- reactive({
         APP_DATA[[geo_unit]][[topic_name()]]
@@ -52,15 +56,15 @@ tabPanelServer <- function(geo_type) {
       # Make it so that maps on inactive tabs stay rendered
       outputOptions(output, "map", suspendWhenHidden = FALSE) 
       
-      # Redraw all the map polygons when a new variable is selected (or when site is initially loaded)
-      observeEvent(input$topicSelect, { 
+      # Redraw all the map polygons when a new variable or indicator is selected
+      observeEvent(list(input$topicSelect, input$indicatorSelect), { 
         ss <- var_data()$ss_df # for each variable, ss_df is the simple features dataframe that gets mapped
         yrdfs <- split(ss, ss$YEAR) # split the data on YEAR to create separate map layers for each year
         
         # Shade the polygons on a single continuous scale rather than using new ranges for each year
         pal <- colorNumeric(MAP_PALETTE, domain = ss$SUMMARY_VALUE)
         
-        leafletProxy("map") %>% 
+        leafletProxy("map") %>%
           clearShapes() %>% clearControls() %>% # clear existing stuff before redrawing...
           addControl( # ...and add a button with which users can clear their map selections...
             actionButton(session$ns("clearSelections"), "Clear all selections",
@@ -104,13 +108,13 @@ tabPanelServer <- function(geo_type) {
           # add the map legend, formatting labels as specified in APP_CONFIG for the given variable 
           addLegend_decreasing(values = ss$SUMMARY_VALUE, decreasing = TRUE,  
             position = "bottomright", pal = pal, na.label = null_label, 
-            title = split_max_2_lines(var_params()$lineTitle),
+            title = split_max_2_lines(input$indicatorSelect),
             labFormat = labelFormat(
-               prefix = var_params()$tickprefix, 
+               prefix = indicator_params()$tickprefix, 
                # if the specified tick format is for percentages, add a % suffix
-               suffix = ifelse(grepl("%", var_params()$tickformat, fixed = TRUE), "%", ""),
+               suffix = ifelse(grepl("%", indicator_params()$tickformat, fixed = TRUE), "%", ""),
                transform = ifelse( # additionally (for percentages)...
-                 grepl("%", var_params()$tickformat, fixed = TRUE), 
+                 grepl("%", indicator_params()$tickformat, fixed = TRUE), 
                  function(x) round(x*100), # ...multiply the data values by 100 when displaying...
                  function (x) x  # ...otherwise, display the data values as they are
                  )
@@ -165,10 +169,14 @@ tabPanelServer <- function(geo_type) {
         leafletProxy("map") %>% hideGroup(group = var_data()$ss_df$GEOID)
       })
       
-      # To update the slider input each time the user selects a different variable...
+      # To update the slider input each time the user selects a different topic...
       observeEvent(input$topicSelect, {
+        indicators <- names(var_params()$summary_indicators)
+        freezeReactiveValue(input, "indicatorSelect")
+        updateSelectInput(session, "indicatorSelect", choices=indicators, selected=indicators[[1]])
+        
         updateSliderTextInput(session, "yearSelect",
-          # ...reset the choices on the slider based on the new variable's parameters...
+          # ...reset the choices on the slider based on the new topic's parameters...
           choices = var_years(),
           selected = tail(var_years(), 1) # ...and reset the slider to start on the most recent year of data
           )
@@ -287,7 +295,7 @@ tabPanelServer <- function(geo_type) {
                                  names_from='CATEGORY',
                                  values_from = 'VALUE') %>% 
             # ...we can use the variable's summary_expression (which uses category identifiers)...
-            rowwise() %>% mutate(SUMMARY_VALUE = !!var_params()$summary_expression) %>%
+            rowwise() %>% mutate(SUMMARY_VALUE = !!indicator_params()$summary_expression) %>%
             # ...to compute the yearly summary values for the selected polygons.
             select(c("YEAR", "SUMMARY_VALUE"))
         }
@@ -299,8 +307,8 @@ tabPanelServer <- function(geo_type) {
         # the default upper value of the line chart y axis is the maximum summary value for the selection
         top_val <- max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE)
         
-        # but if we want to show a citywide comparison... 
-        if (length(selectedPolygons$groups) > 0 & var_params()$citywide_comparison) {
+        # but if we want to show a citywide comparison...
+        if (length(selectedPolygons$groups) > 0 & indicator_params()$citywide_comparison) {
           cw_val <- max(var_data()$cs_df$SUMMARY_VALUE, na.rm=TRUE)
           # ...and the maximum summary value citywide is bigger than the default upper value...
           if (cw_val > top_val) {top_val <- cw_val} # ... we use the citywide max as the top.
@@ -329,7 +337,7 @@ tabPanelServer <- function(geo_type) {
                     hoverinfo = "y", # display y-values when hovering over line chart
                     name=selectionName() # set the series name for the line (appears in legend)
                     ) %>%
-          layout(title = var_params()$lineTitle,
+          layout(title = input$indicatorSelect,
                  font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-2),
                  xaxis = list(title = '', fixedrange = TRUE,
                               range = c(
@@ -339,10 +347,10 @@ tabPanelServer <- function(geo_type) {
                               ),
                  yaxis = list(title = '', fixedrange = TRUE, range = lineRange(),
                               # set the number format for the data that appear on hover...
-                              hoverformat = var_params()$linehoverformat,
+                              hoverformat = indicator_params()$hoverformat,
                               # ... and the number formatting for the y axis labels
-                              tickprefix = var_params()$tickprefix, 
-                              tickformat = var_params()$tickformat
+                              tickprefix = indicator_params()$tickprefix, 
+                              tickformat = indicator_params()$tickformat
                               ),
                  showlegend = T, # always show the legend (even with just 1 series)
                  legend = list(orientation = 'h', # place legend items side by side
@@ -354,7 +362,7 @@ tabPanelServer <- function(geo_type) {
           )
         
         # if at least one polygon is selected and the given variable is configured to show citywide comparisons...
-        if (length(selectedPolygons$groups) > 0 & var_params()$citywide_comparison) { 
+        if (length(selectedPolygons$groups) > 0 & indicator_params()$citywide_comparison) { 
           p <- p %>% # ...add a dashed line showing the citywide comparison for the summary value over time
             add_lines(x = var_data()$cs_df$YEAR, y = var_data()$cs_df$SUMMARY_VALUE,
                hoverinfo="y", name="Citywide", color=I(LINE_COLOR),

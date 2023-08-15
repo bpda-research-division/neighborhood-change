@@ -24,8 +24,8 @@ geoTabPanelUI <- function(geo_type) {
           column(width=4, style="margin-top:5px;",
                  HTML("<b>Choose a topic:</b>")
                  ),
-          column(width=8, style="z-index:1010;", # ensure drop-down menu displays in front of other stuff
-                 selectInput(ns("topicSelect"), 
+          column(width=8, style="z-index:1011;", # ensure drop-down menu displays in front of other stuff
+                 selectInput(ns("topicSelect"),
                              NULL, choices = names(variables) %>% 
                                lapply(function (n) { # display each variable with its start and end year
                                  paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
@@ -33,7 +33,17 @@ geoTabPanelUI <- function(geo_type) {
                              )
                  )
         ),
-         fluidRow(
+        fluidRow(
+          column(width=4, style="margin-top:5px;",
+                 HTML("<b>Choose an indicator:</b>")
+          ),
+          column(width=8, style="z-index:1010;",
+                 selectInput(ns("indicatorSelect"), 
+                             NULL, choices = names(variables[[1]]$summary_indicators)
+                 ) 
+          )
+        ),
+        fluidRow(
            column(width=4, style="margin-top:5px;", 
                   HTML(
                     "<b>Drag the slider or click &#9658; to move through time:</b>"
@@ -50,7 +60,7 @@ geoTabPanelUI <- function(geo_type) {
        div(style="padding-bottom:5px;", HTML(
          sprintf("<b>Select one or more %s on the map:</b>", geo_type)
        )),
-       leafletOutput(ns("map"), height="600px") %>%
+       leafletOutput(ns("map"), height="550px") %>%
          htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
     ),
     mainPanel(width=6, # the right-hand side of the screen displays the charts, any notes, and source citations

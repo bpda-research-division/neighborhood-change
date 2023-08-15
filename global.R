@@ -28,6 +28,16 @@ APP_CONFIG <- list(
        "Male" = "male"
        , "Female" = "female"
      ), summary_expression = rlang::expr(male + female), 
+     summary_indicators = list(
+       "Total Population" = list(citywide_comparison = FALSE, 
+         hoverformat = ",.0f", tickprefix = NULL, tickformat = "",
+         summary_expression = rlang::expr(female / (male + female))
+       ),
+       "Female share of population" = list(citywide_comparison = TRUE, 
+         hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%",
+         summary_expression = rlang::expr(male + female)
+       )
+     ),
      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted to reflect Boston's successful group quarters challenge); IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     )
     
@@ -42,7 +52,18 @@ APP_CONFIG <- list(
        "35-54 years" = "thirtyfive_fiftyfour",
        "55-64 years" = "fiftyfive_sixtyfour",
        "65 years and over" = "sixtyfive_more"
-     ), summary_expression = rlang::expr(
+     ), 
+     summary_indicators = list(
+       "Young adult (20-34) share of population" = list(citywide_comparison = TRUE,
+         hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%", 
+         summary_expression = rlang::expr(
+           (twenty_thirtyfour) /
+             (zero_nine + ten_nineteen + twenty_thirtyfour + 
+                thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+         )
+       )
+     ),
+     summary_expression = rlang::expr(
        (twenty_thirtyfour) /
          (zero_nine + ten_nineteen + twenty_thirtyfour + 
             thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
@@ -170,6 +191,12 @@ APP_CONFIG <- list(
        "Male" = "male"
        , "Female" = "female"
      ), summary_expression = rlang::expr(male + female), 
+     summary_indicators = list(
+       "Total Population" = list(citywide_comparison = FALSE, 
+         hoverformat = ",.0f", tickprefix = NULL, tickformat = "",
+         summary_expression = rlang::expr(male + female)
+       )
+     ),
      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted to reflect Boston's successful group quarters challenge); IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     )
     
