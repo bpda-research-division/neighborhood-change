@@ -16,7 +16,7 @@ On this website, "Total Population" data for 2020 are adjusted in order to inclu
 
 To adjust Boston's 2020 decennial population to account for the successful group quarters challenge, the BPDA Research Division allocated the city's net group quarters population to tracts and neighborhoods using the locations of dormitories and correctional facilities where those populations were mis-estimated in the 2020 decennial census. These allocations were apportioned by sex based on citywide male-to-female ratios for students in dormitories and people in correctional facilities. 
 
-However, our data on Boston's additional group quarters population do not include detailed demographic information, so this website's data on race/ethnicity reflect unadjusted 2020 decennial census counts. Additioanlly, the population categories for other demographic variables on this website may add up to different estimated totals of Boston's 2020 population because their data come from the American Community Survey's 2016-2020 5-Year estimates rather than from the 2020 decennial census.
+However, our data on Boston's additional group quarters population do not include detailed demographic information, so this website's data on race/ethnicity reflect unadjusted 2020 decennial census counts. Additionally, the population categories for other demographic variables on this website may add up to different estimated totals of Boston's 2020 population because their data come from the American Community Survey's 2016-2020 5-Year estimates rather than from the 2020 decennial census.
 
 ### Crosswalk Methodology 
 
