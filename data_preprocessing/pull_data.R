@@ -113,7 +113,7 @@ prepare_data(
     "White" = "white",
     "Black/African American" = "black",
     "Hispanic/Latino" = "hisp",
-    "Native American" = "native",
+    "American Indian/Alaska Native" = "native",
     "Asian/Pacific Islander" = "asian",
     "Two or More" = "two_plus",
     "Other" = "other"
@@ -236,7 +236,7 @@ prepare_data(
     "White" = "white",
     "Black/African American" = "black",
     "Hispanic/Latino" = "hisp",
-    "Native American" = "native",
+    "American Indian/Alaska Native" = "native",
     "Asian/Pacific Islander" = "asian",
     "Two or More" = "two_plus",
     "Other" = "other"

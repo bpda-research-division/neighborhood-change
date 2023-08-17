@@ -58,7 +58,7 @@ APP_CONFIG <- list(
         "Black/African American" = "black",
         "Hispanic/Latino" = "hisp",
         "Asian/Pacific Islander" = "asian",
-        "Native American" = "native",
+        "American Indian/Alaska Native" = "native",
         "Two or More" = "two_plus",
         "Other" = "other"
       ), summary_expression = rlang::expr(
@@ -201,7 +201,7 @@ APP_CONFIG <- list(
         "Black/African American" = "black",
         "Hispanic/Latino" = "hisp",
         "Asian/Pacific Islander" = "asian",
-        "Native American" = "native",
+        "American Indian/Alaska Native" = "native",
         "Two or More" = "two_plus",
         "Other" = "other"
       ), summary_expression = rlang::expr(
