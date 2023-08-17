@@ -17,10 +17,13 @@ MAP_PALETTE <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.
 BAR_COLOR <- '#60809f' # previously, we set the map palette as Purples with bar/line color 7f76b7
 LINE_COLOR <- BAR_COLOR # could also change line to a separate hex code if desired
 
+tract2020_geoms <- read_sf('geoms/boston_tracts_2020_complex.geojson') %>% mutate(GEOID = as.character(geoid20))
+neigh2020_geoms <- read_sf('geoms/boston_neighborhoods_2020tract.geojson') %>% mutate(GEOID = nbhd)
+
 # Define parameters for each geography type and variable ############
 APP_CONFIG <- list(
   "census tracts" = list(
-    "Total Population" = list(data_code = "hbicttp", 
+    "Total Population" = list(data_code = "hbicttp", geoms = tract2020_geoms,
      lineTitle = "Total population", linehoverformat = ",.0f", 
      tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
      barTitle = "Population by sex", barhoverformat = ",.0f",
@@ -31,17 +34,17 @@ APP_CONFIG <- list(
      summary_indicators = list(
        "Total Population" = list(citywide_comparison = FALSE, 
          hoverformat = ",.0f", tickprefix = NULL, tickformat = "",
-         summary_expression = rlang::expr(female / (male + female))
+         summary_expression = rlang::expr(male + female)
        ),
        "Female share of population" = list(citywide_comparison = TRUE, 
          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%",
-         summary_expression = rlang::expr(male + female)
+         summary_expression = rlang::expr(female / (male + female))
        )
      ),
      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted to reflect Boston's successful group quarters challenge); IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     )
     
-    , "Age" = list(data_code = "hbicta", 
+    , "Age" = list(data_code = "hbicta", geoms = tract2020_geoms,
      lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
      tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
      barTitle = "Population by age", barhoverformat = ",.0f",
@@ -183,7 +186,7 @@ APP_CONFIG <- list(
   ),
   
   "neighborhoods" = list(
-    "Total Population" = list(data_code = "hbicntp", 
+    "Total Population" = list(data_code = "hbicntp", geoms = neigh2020_geoms,
      lineTitle = "Total population", linehoverformat = ",.0f",
      tickprefix = NULL, tickformat = "", agg_func = sum, citywide_comparison = FALSE,
      barTitle = "Population by sex", barhoverformat = ",.0f",
@@ -195,12 +198,16 @@ APP_CONFIG <- list(
        "Total Population" = list(citywide_comparison = FALSE, 
          hoverformat = ",.0f", tickprefix = NULL, tickformat = "",
          summary_expression = rlang::expr(male + female)
+       ),
+       "Female share of population" = list(citywide_comparison = TRUE, 
+         hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%",
+         summary_expression = rlang::expr(female / (male + female))
        )
      ),
      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted to reflect Boston's successful group quarters challenge); IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     )
     
-    , "Age" = list(data_code = "hbicna",  
+    , "Age" = list(data_code = "hbicna", geoms = neigh2020_geoms,
      lineTitle = "Young adult (20-34) share of population", linehoverformat = ".0%",
      tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
      barTitle = "Population by age", barhoverformat = ",.0f",

@@ -38,9 +38,9 @@ geoTabPanelUI <- function(geo_type) {
                  HTML("<b>Choose an indicator:</b>")
           ),
           column(width=8, style="z-index:1010;",
-                 selectInput(ns("indicatorSelect"), 
+                 selectInput(ns("indicatorSelect"),
                              NULL, choices = names(variables[[1]]$summary_indicators)
-                 ) 
+                 )
           )
         ),
         fluidRow(

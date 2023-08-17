@@ -33,6 +33,41 @@ tabPanelServer <- function(geo_type) {
         APP_DATA[[geo_unit]][[topic_name()]]
       })
       
+      ss_df <- reactive({
+        cats <- var_params()$barCats
+        bins <- var_data()$sb_df 
+        bins$CATEGORY <- plyr::mapvalues(bins$CATEGORY, 
+                                         from = names(cats), 
+                                         to = unlist(unname(cats))
+                                         )
+        bins <- bins %>% 
+          pivot_wider(id_cols = c("YEAR", "GEOID", "NAME"),
+                       names_from = 'CATEGORY', 
+                       values_from = 'VALUE') %>% 
+          mutate(SUMMARY_VALUE = !!indicator_params()$summary_expression) %>% 
+          select(-all_of(unlist(unname(cats)))) %>% mutate(GEOID = as.character(GEOID)) 
+        #print(bins)
+        bins %>%
+          merge(y=var_params()$geoms, by.y = "GEOID", by.x = "GEOID") %>%
+          st_as_sf()
+      })
+      
+      cs_df <- reactive({
+        cats <- var_params()$barCats
+        bins <- var_data()$cb_df 
+        bins$CATEGORY <- plyr::mapvalues(bins$CATEGORY, 
+                                         from = names(cats), 
+                                         to = unlist(unname(cats))
+        )
+        bins <- bins %>% 
+          pivot_wider(id_cols = "YEAR",
+                      names_from = 'CATEGORY', 
+                      values_from = 'VALUE') %>% 
+          mutate(SUMMARY_VALUE = !!indicator_params()$summary_expression) %>% 
+          select(-all_of(unlist(unname(cats)))) 
+        bins
+      })
+      
       # Set up static components of the map
       output$map <- renderLeaflet({
         leaflet() %>% 
@@ -58,7 +93,7 @@ tabPanelServer <- function(geo_type) {
       
       # Redraw all the map polygons when a new variable or indicator is selected
       observeEvent(list(input$topicSelect, input$indicatorSelect), { 
-        ss <- var_data()$ss_df # for each variable, ss_df is the simple features dataframe that gets mapped
+        ss <- ss_df() # for each variable, ss_df is the simple features dataframe that gets mapped
         yrdfs <- split(ss, ss$YEAR) # split the data on YEAR to create separate map layers for each year
         
         # Shade the polygons on a single continuous scale rather than using new ranges for each year
@@ -124,7 +159,7 @@ tabPanelServer <- function(geo_type) {
       
       # Keep track of the unique set of years for the variable the user selects
       var_years <- reactive({
-        unique(var_data()$cs_df$YEAR)
+        unique(cs_df()$YEAR)
       })
       
       # Update the map When the user moves the time slider or picks a new variable
@@ -150,7 +185,7 @@ tabPanelServer <- function(geo_type) {
           this_selection_id <- gsub("\\s*\\w*$", "", input$map_shape_click$id)
           
           # if the data for the clicked-upon polygon is all non-null values...
-          if (!any(is.na(subset(var_data()$ss_df, GEOID == this_selection_id)$SUMMARY_VALUE))) {
+          if (!any(is.na(subset(ss_df(), GEOID == this_selection_id)$SUMMARY_VALUE))) {
             leafletProxy("map") %>% showGroup(group = this_selection_id) 
             # ...display that polygon as selected and record the polygon's ID in selectedPolygons$groups
             selectedPolygons$groups <- c(selectedPolygons$groups, this_selection_id)
@@ -164,15 +199,15 @@ tabPanelServer <- function(geo_type) {
       })
       
       # In response to the user clearing all selections or choosing a new variable...
-      observeEvent(list(session$input$clearSelections, input$topicSelect), {
+      observeEvent(list(session$input$clearSelections, input$topicSelect, input$indicatorSelect), {
         selectedPolygons$groups <- vector() # ...unselect all polygons and hide them on the map.
-        leafletProxy("map") %>% hideGroup(group = var_data()$ss_df$GEOID)
+        leafletProxy("map") %>% hideGroup(group = ss_df()$GEOID)
       })
       
       # To update the slider input each time the user selects a different topic...
       observeEvent(input$topicSelect, {
         indicators <- names(var_params()$summary_indicators)
-        freezeReactiveValue(input, "indicatorSelect")
+        #freezeReactiveValue(input, "indicatorSelect")
         updateSelectInput(session, "indicatorSelect", choices=indicators, selected=indicators[[1]])
         
         updateSliderTextInput(session, "yearSelect",
@@ -273,10 +308,10 @@ tabPanelServer <- function(geo_type) {
       # This is the data that is displayed on the line chart. It's a function of 
       # the current variable and the current map selection.
       selectedLine <- reactive({ # if the user doesn't have any polygons selected...
-        if (length(selectedPolygons$groups) == 0) {var_data()$cs_df} # ...show citywide data.
+        if (length(selectedPolygons$groups) == 0) {cs_df()} # ...show citywide data.
         else if (length(selectedPolygons$groups) == 1) { # if only 1 polygon is selected...
           # ...use the subcity summary data frame, filtered to that polygon
-          subset(var_data()$ss_df, GEOID %in% selectedPolygons$groups)
+          subset(ss_df(), GEOID %in% selectedPolygons$groups)
         }
         else { # If multiple polygons are selected...
 
@@ -309,7 +344,7 @@ tabPanelServer <- function(geo_type) {
         
         # but if we want to show a citywide comparison...
         if (length(selectedPolygons$groups) > 0 & indicator_params()$citywide_comparison) {
-          cw_val <- max(var_data()$cs_df$SUMMARY_VALUE, na.rm=TRUE)
+          cw_val <- max(cs_df()$SUMMARY_VALUE, na.rm=TRUE)
           # ...and the maximum summary value citywide is bigger than the default upper value...
           if (cw_val > top_val) {top_val <- cw_val} # ... we use the citywide max as the top.
         }
@@ -364,7 +399,7 @@ tabPanelServer <- function(geo_type) {
         # if at least one polygon is selected and the given variable is configured to show citywide comparisons...
         if (length(selectedPolygons$groups) > 0 & indicator_params()$citywide_comparison) { 
           p <- p %>% # ...add a dashed line showing the citywide comparison for the summary value over time
-            add_lines(x = var_data()$cs_df$YEAR, y = var_data()$cs_df$SUMMARY_VALUE,
+            add_lines(x = cs_df()$YEAR, y = cs_df()$SUMMARY_VALUE,
                hoverinfo="y", name="Citywide", color=I(LINE_COLOR),
                line = list(dash='dash', shape = 'spline', smoothing = 1)
                )
