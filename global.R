@@ -79,9 +79,9 @@ APP_CONFIG <- list(
     )
     
     , "Educational Attainment" = list(data_code = "hbictedu",  
-      lineTitle = "Share of population with a bachelor's degree or higher", linehoverformat = ".0%",
+      lineTitle = "Share of population (25+) with a bachelor's degree or higher", linehoverformat = ".0%",
       tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
-      barTitle = "Population by educational attainment", barhoverformat = ",.0f",
+      barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
       barCats = list(
         "Less than high school" = "lhs",
         "High school or some equivalent" = "he",
@@ -222,9 +222,9 @@ APP_CONFIG <- list(
     )
     
     , "Educational Attainment" = list(data_code = "hbicnedu",  
-      lineTitle = "Share of population with a bachelor's degree or higher", linehoverformat = ".0%",
+      lineTitle = "Share of population (25+) with a bachelor's degree or higher", linehoverformat = ".0%",
       tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
-      barTitle = "Population by educational attainment", barhoverformat = ",.0f",
+      barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
       barCats = list(
         "Less than high school" = "lhs",
         "High school or some equivalent" = "he",
