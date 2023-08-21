@@ -46,7 +46,8 @@ tabPanelServer <- function(geo_type) {
                        values_from = 'VALUE') %>% 
           mutate(SUMMARY_VALUE = !!indicator_params()$summary_expression) %>% 
           select(-all_of(unlist(unname(cats)))) %>% mutate(GEOID = as.character(GEOID)) 
-        #print(bins)
+        # print(input$indicatorSelect)
+        # print(bins)
         bins %>%
           merge(y=var_params()$geoms, by.y = "GEOID", by.x = "GEOID") %>%
           st_as_sf()
@@ -92,7 +93,7 @@ tabPanelServer <- function(geo_type) {
       outputOptions(output, "map", suspendWhenHidden = FALSE) 
       
       # Redraw all the map polygons when a new variable or indicator is selected
-      observeEvent(list(input$topicSelect, input$indicatorSelect), { 
+      observeEvent(input$indicatorSelect, { 
         ss <- ss_df() # for each variable, ss_df is the simple features dataframe that gets mapped
         yrdfs <- split(ss, ss$YEAR) # split the data on YEAR to create separate map layers for each year
         
@@ -154,7 +155,7 @@ tabPanelServer <- function(geo_type) {
                  function (x) x  # ...otherwise, display the data values as they are
                  )
                )
-            )
+            ) %>% showGroup(group = selectedPolygons$groups)
       })
       
       # Keep track of the unique set of years for the variable the user selects
@@ -163,7 +164,7 @@ tabPanelServer <- function(geo_type) {
       })
       
       # Update the map When the user moves the time slider or picks a new variable
-      observeEvent(list(input$yearSelect, input$topicSelect), {
+      observeEvent(input$yearSelect, {
         leafletProxy("map") %>% 
           hideGroup(group = var_years()) %>% # hide all of the yearly layers
           showGroup(input$yearSelect) # then show the layer for the selected year
@@ -199,17 +200,15 @@ tabPanelServer <- function(geo_type) {
       })
       
       # In response to the user clearing all selections or choosing a new variable...
-      observeEvent(list(session$input$clearSelections, input$topicSelect, input$indicatorSelect), {
+      observeEvent(session$input$clearSelections, {
+        leafletProxy("map") %>% hideGroup(group = selectedPolygons$groups)
         selectedPolygons$groups <- vector() # ...unselect all polygons and hide them on the map.
-        leafletProxy("map") %>% hideGroup(group = ss_df()$GEOID)
       })
       
       # To update the slider input each time the user selects a different topic...
       observeEvent(input$topicSelect, {
         indicators <- names(var_params()$summary_indicators)
-        #freezeReactiveValue(input, "indicatorSelect")
         updateSelectInput(session, "indicatorSelect", choices=indicators, selected=indicators[[1]])
-        
         updateSliderTextInput(session, "yearSelect",
           # ...reset the choices on the slider based on the new topic's parameters...
           choices = var_years(),

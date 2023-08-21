@@ -72,7 +72,7 @@ APP_CONFIG <- list(
             thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
      ), source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     )
-    
+
     , "Race and Ethnicity" = list(data_code = "hbictre",  
       lineTitle = "Non-white share of population", linehoverformat = ".0%",
       tickprefix = NULL, tickformat = ".0%", agg_func = sum, citywide_comparison = TRUE,
@@ -218,7 +218,18 @@ APP_CONFIG <- list(
        "35-54 years" = "thirtyfive_fiftyfour",
        "55-64 years" = "fiftyfive_sixtyfour",
        "65 years and over" = "sixtyfive_more"
-     ), summary_expression = rlang::expr(
+     ), 
+     summary_indicators = list(
+       "Young adult (20-34) share of population" = list(citywide_comparison = TRUE,
+         hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%", 
+         summary_expression = rlang::expr(
+           (twenty_thirtyfour) /
+             (zero_nine + ten_nineteen + twenty_thirtyfour + 
+                thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+         )
+       )
+     ),
+     summary_expression = rlang::expr(
        (twenty_thirtyfour) /
          (zero_nine + ten_nineteen + twenty_thirtyfour + 
             thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
