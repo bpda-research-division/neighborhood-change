@@ -115,7 +115,7 @@ tabPanelServer <- function(geo_type) {
                  function (x) x  # ...otherwise, display the data values as they are
                  )
                )
-            )
+            ) %>% showGroup(group = selectedPolygons$groups)
       })
       
       # Keep track of the unique set of years for the variable the user selects
@@ -124,7 +124,7 @@ tabPanelServer <- function(geo_type) {
       })
       
       # Update the map When the user moves the time slider or picks a new variable
-      observeEvent(list(input$yearSelect, input$topicSelect), {
+      observeEvent(input$yearSelect, {
         leafletProxy("map") %>% 
           hideGroup(group = var_years()) %>% # hide all of the yearly layers
           showGroup(input$yearSelect) # then show the layer for the selected year
@@ -160,9 +160,12 @@ tabPanelServer <- function(geo_type) {
       })
       
       # In response to the user clearing all selections or choosing a new variable...
-      observeEvent(list(session$input$clearSelections, input$topicSelect), {
+      observeEvent(session$input$clearSelections, {
+        # selectedPolygons$groups <- vector() # ...unselect all polygons and hide them on the map.
+        # leafletProxy("map") %>% hideGroup(group = var_data()$ss_df$GEOID)
+        leafletProxy("map") %>% hideGroup(group = selectedPolygons$groups)
         selectedPolygons$groups <- vector() # ...unselect all polygons and hide them on the map.
-        leafletProxy("map") %>% hideGroup(group = var_data()$ss_df$GEOID)
+        
       })
       
       # To update the slider input each time the user selects a different variable...
