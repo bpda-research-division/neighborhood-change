@@ -11,9 +11,12 @@ tabPanelServer <- function(geo_type) {
       geo_units <- gsub("_"," ", session$ns(''))
       geo_unit <- substr(geo_units, 1, nchar(geo_units) - 1) # "census tract"
       
+      selected_topic <- reactiveVal()
+      
       # input$topicSelect values are initialized in the UI with the year range
       # concatenated to each variable name. To extract the topic name from input$topicSelect... 
       topic_name <- reactive({ # ...we use a regex to find the last occurrence of a ( followed by a digit...
+        req(selected_topic())
         idxs <- gregexpr("\\((\\d)", input$topicSelect)
         idx <- idxs[[1]][length(idxs)]
         substr(input$topicSelect, 1, idx - 2) # ...and strip that part away.
@@ -25,15 +28,18 @@ tabPanelServer <- function(geo_type) {
       })
       
       indicator_params <- reactive({
+        req(input$indicatorSelect %in% names(var_params()$summary_indicators))
         var_params()$summary_indicators[[input$indicatorSelect]]
       })
       
       # Keep track of the data frames for whichever topic the user has selected
       var_data <- reactive({
+        req(indicator_params())
         APP_DATA[[geo_unit]][[topic_name()]]
       })
       
       ss_df <- reactive({
+        req(indicator_params())
         cats <- var_params()$barCats
         bins <- var_data()$sb_df 
         bins$CATEGORY <- plyr::mapvalues(bins$CATEGORY, 
@@ -54,6 +60,7 @@ tabPanelServer <- function(geo_type) {
       })
       
       cs_df <- reactive({
+        req(indicator_params())
         cats <- var_params()$barCats
         bins <- var_data()$cb_df 
         bins$CATEGORY <- plyr::mapvalues(bins$CATEGORY, 
@@ -160,7 +167,7 @@ tabPanelServer <- function(geo_type) {
       
       # Keep track of the unique set of years for the variable the user selects
       var_years <- reactive({
-        unique(cs_df()$YEAR)
+        unique(var_data()$cb_df$YEAR)
       })
       
       # Update the map When the user moves the time slider or picks a new variable
@@ -207,6 +214,9 @@ tabPanelServer <- function(geo_type) {
       
       # To update the slider input each time the user selects a different topic...
       observeEvent(input$topicSelect, {
+        if (is.null(selected_topic())) { # only executes on initial load
+          selected_topic(input$topicSelect)
+        }
         indicators <- names(var_params()$summary_indicators)
         updateSelectInput(session, "indicatorSelect", choices=indicators, selected=indicators[[1]])
         updateSliderTextInput(session, "yearSelect",
@@ -214,6 +224,7 @@ tabPanelServer <- function(geo_type) {
           choices = var_years(),
           selected = tail(var_years(), 1) # ...and reset the slider to start on the most recent year of data
           )
+        selected_topic(input$topicSelect)
       })
       
       # Describes the geographic scope of the currently displayed data (e.g. "2 selected tracts")

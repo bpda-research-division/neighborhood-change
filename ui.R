@@ -39,7 +39,7 @@ geoTabPanelUI <- function(geo_type) {
           ),
           column(width=8, style="z-index:1010;",
                  selectInput(ns("indicatorSelect"),
-                             NULL, choices = names(variables[[1]]$summary_indicators)
+                             NULL, choices = NULL
                  )
           )
         ),
