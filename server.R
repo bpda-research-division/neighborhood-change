@@ -1,5 +1,20 @@
 # Define how the app works
 
+#' Helper function which pivots a dataframe of binned values into a dataframe of summary values 
+pivot_summarise <- function(df, cats, summary_expr, id_columns) {
+  df$CATEGORY <- plyr::mapvalues(df$CATEGORY, 
+                                   from = names(cats), 
+                                   to = unlist(unname(cats))
+  )
+  df <- df %>% 
+    pivot_wider(id_cols = id_columns,
+                names_from = 'CATEGORY', 
+                values_from = 'VALUE') %>% 
+    mutate(SUMMARY_VALUE = !!summary_expr) %>% 
+    select(-all_of(unlist(unname(cats))))
+  df
+}
+
 # Server module function ##############
 #' For each geography type tabPanel, the components and interactions are basically all the
 #' same. This method defines those functionalities, namespacing components by geography type.
@@ -16,64 +31,59 @@ tabPanelServer <- function(geo_type) {
       # input$topicSelect values are initialized in the UI with the year range
       # concatenated to each variable name. To extract the topic name from input$topicSelect... 
       topic_name <- reactive({ # ...we use a regex to find the last occurrence of a ( followed by a digit...
-        req(selected_topic())
         idxs <- gregexpr("\\((\\d)", input$topicSelect)
         idx <- idxs[[1]][length(idxs)]
         substr(input$topicSelect, 1, idx - 2) # ...and strip that part away.
       })
       
-      # Keep track of the variable parameters for whichever variable the user has selected
+      # Keep track of the parameters for whichever topic is selected
       var_params <- reactive({
         APP_CONFIG[[geo_unit]][[topic_name()]]
       })
       
-      indicator_params <- reactive({
+      # Keep track of the parameters for whichever indicator is selected...
+      indicator_params <- reactive({ 
+        # ...making sure that the indicator is updated before we start accessing parameters
         req(input$indicatorSelect %in% names(var_params()$summary_indicators))
         var_params()$summary_indicators[[input$indicatorSelect]]
       })
       
-      # Keep track of the data frames for whichever topic the user has selected
+      # Keep track of the data frames for whichever topic the user has selected...
       var_data <- reactive({
+        # ...making sure that the indicator is updated before we start accessing data
         req(indicator_params())
         APP_DATA[[geo_unit]][[topic_name()]]
       })
       
-      ss_df <- reactive({
-        req(indicator_params())
-        cats <- var_params()$barCats
-        bins <- var_data()$sb_df 
-        bins$CATEGORY <- plyr::mapvalues(bins$CATEGORY, 
-                                         from = names(cats), 
-                                         to = unlist(unname(cats))
-                                         )
-        bins <- bins %>% 
-          pivot_wider(id_cols = c("YEAR", "GEOID", "NAME"),
-                       names_from = 'CATEGORY', 
-                       values_from = 'VALUE') %>% 
-          mutate(SUMMARY_VALUE = !!indicator_params()$summary_expression) %>% 
-          select(-all_of(unlist(unname(cats)))) %>% mutate(GEOID = as.character(GEOID)) 
-        # print(input$indicatorSelect)
-        # print(bins)
-        bins %>%
-          merge(y=var_params()$geoms, by.y = "GEOID", by.x = "GEOID") %>%
-          st_as_sf()
+      # citywide binned dataframe: one value for each year and category
+      cb_df <- reactive({
+        var_data()$sb_df %>% 
+          group_by(YEAR, CATEGORY) %>% 
+          summarise_at(c("VALUE"), var_params()$agg_func, na.rm = TRUE) %>%
+          ungroup()
       })
       
+      # citywide summary dataframe: one summary value for each year
       cs_df <- reactive({
-        req(indicator_params())
-        cats <- var_params()$barCats
-        bins <- var_data()$cb_df 
-        bins$CATEGORY <- plyr::mapvalues(bins$CATEGORY, 
-                                         from = names(cats), 
-                                         to = unlist(unname(cats))
+        pivot_summarise(
+          df = cb_df(), 
+          cats = var_params()$barCats, 
+          summary_expr = indicator_params()$summary_expression, 
+          id_columns = "YEAR"
         )
-        bins <- bins %>% 
-          pivot_wider(id_cols = "YEAR",
-                      names_from = 'CATEGORY', 
-                      values_from = 'VALUE') %>% 
-          mutate(SUMMARY_VALUE = !!indicator_params()$summary_expression) %>% 
-          select(-all_of(unlist(unname(cats)))) 
-        bins
+      })
+      
+      # subcity summary dataframe: one summary value for each year and geography
+      ss_df <- reactive({
+        pivot_summarise(
+          df = var_data()$sb_df, 
+          cats = var_params()$barCats, 
+          summary_expr = indicator_params()$summary_expression, 
+          id_columns = c("YEAR", "GEOID", "NAME")
+          ) %>% # add geometries to the subcity summary data so we can map them
+          mutate(GEOID = as.character(GEOID)) %>%
+          merge(y=var_params()$geoms, by.y = "GEOID", by.x = "GEOID") %>%
+          st_as_sf()
       })
       
       # Set up static components of the map
@@ -167,7 +177,7 @@ tabPanelServer <- function(geo_type) {
       
       # Keep track of the unique set of years for the variable the user selects
       var_years <- reactive({
-        unique(var_data()$cb_df$YEAR)
+        unique(cb_df()$YEAR)
       })
       
       # Update the map When the user moves the time slider or picks a new variable
@@ -244,7 +254,7 @@ tabPanelServer <- function(geo_type) {
       # the current variable and map selection as well as the year on the slider.
       filteredBar <- reactive({ # if the user doesn't have any polygons selected...
         if (length(selectedPolygons$groups) == 0) { # ...show citywide data for the given year
-          data <- subset(var_data()$cb_df, YEAR == input$yearSelect) 
+          data <- subset(cb_df(), YEAR == input$yearSelect) 
         } else if (length(selectedPolygons$groups) == 1) { # if only one polygon is selected...
           # ...use the subcity binned data filtered to that polygon
           data <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups & YEAR == input$yearSelect)
@@ -256,7 +266,7 @@ tabPanelServer <- function(geo_type) {
         }
         
         if (nrow(data) == 0) { # if there's missing data for a given year...
-          data <- subset(var_data()$cb_df, YEAR == input$yearSelect)
+          data <- subset(cb_df(), YEAR == input$yearSelect)
           data$VALUE <- 0 # ... display the bar chart with all 0s for the given categories
         }
         return(data)
@@ -266,7 +276,7 @@ tabPanelServer <- function(geo_type) {
       # remains constant for a given selection over a range of years
       barRange <- reactive({
         if (length(selectedPolygons$groups) == 0) {
-          data <- var_data()$cb_df # if nothing is selected, use citywide data
+          data <- cb_df() # if nothing is selected, use citywide data
         }
         else { # otherwise, consider all the data values by category and year
           data <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups) %>%
