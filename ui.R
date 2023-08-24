@@ -7,9 +7,9 @@
 #' This function creates those components, namespacing them by geography type. 
 geoTabPanelUI <- function(geo_type) {
   ns <- NS(gsub(" ","_",geo_type))
-  variables <- APP_CONFIG[[geo_type]]
+  variables <- APP_CONFIG[[geo_type]]$topics
   variables_years <- APP_DATA[[geo_type]] %>% 
-    lapply(function(var) unique(var$cs_df$YEAR))
+    lapply(function(var) unique(var$sb_df$YEAR))
   initial_years <- variables_years[[1]]
   
   # the below variables are used to reformat the map legend to place the NA value below the color

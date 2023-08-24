@@ -25,6 +25,7 @@ tabPanelServer <- function(geo_type) {
       # string representation of the namespaced geography type (e.g. "census tracts")
       geo_units <- gsub("_"," ", session$ns(''))
       geo_unit <- substr(geo_units, 1, nchar(geo_units) - 1) # "census tract"
+      geo_shapes <- APP_CONFIG[[geo_unit]]$geoms
       
       selected_topic <- reactiveVal()
       
@@ -38,7 +39,7 @@ tabPanelServer <- function(geo_type) {
       
       # Keep track of the parameters for whichever topic is selected
       var_params <- reactive({
-        APP_CONFIG[[geo_unit]][[topic_name()]]
+        APP_CONFIG[[geo_unit]]$topics[[topic_name()]]
       })
       
       # Keep track of the parameters for whichever indicator is selected...
@@ -48,7 +49,7 @@ tabPanelServer <- function(geo_type) {
         var_params()$summary_indicators[[input$indicatorSelect]]
       })
       
-      # Keep track of the data frames for whichever topic the user has selected...
+      # Keep track of the data frames for whichever indicator is selected...
       var_data <- reactive({
         # ...making sure that the indicator is updated before we start accessing data
         req(indicator_params())
@@ -57,10 +58,13 @@ tabPanelServer <- function(geo_type) {
       
       # citywide binned dataframe: one value for each year and category
       cb_df <- reactive({
-        var_data()$sb_df %>% 
-          group_by(YEAR, CATEGORY) %>% 
-          summarise_at(c("VALUE"), var_params()$agg_func, na.rm = TRUE) %>%
-          ungroup()
+        if ("cb_df" %in% names(var_data())) {var_data()$cb_df}
+        else {
+          var_data()$sb_df %>% 
+            group_by(YEAR, CATEGORY) %>% 
+            summarise_at(c("VALUE"), var_params()$agg_func, na.rm = TRUE) %>%
+            ungroup()
+        }
       })
       
       # citywide summary dataframe: one summary value for each year
@@ -82,7 +86,7 @@ tabPanelServer <- function(geo_type) {
           id_columns = c("YEAR", "GEOID", "NAME")
           ) %>% # add geometries to the subcity summary data so we can map them
           mutate(GEOID = as.character(GEOID)) %>%
-          merge(y=var_params()$geoms, by.y = "GEOID", by.x = "GEOID") %>%
+          merge(y=geo_shapes, by.y = "GEOID", by.x = "GEOID") %>%
           st_as_sf()
       })
       
