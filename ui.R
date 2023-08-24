@@ -35,7 +35,7 @@ geoTabPanelUI <- function(geo_type) {
         ),
         fluidRow(
           column(width=4, style="margin-top:5px;",
-                 HTML("<b>Choose an indicator:</b>")
+                 HTML("<b>Choose a variable:</b>")
           ),
           column(width=8, style="z-index:1010;",
                  selectInput(ns("indicatorSelect"),
@@ -51,7 +51,7 @@ geoTabPanelUI <- function(geo_type) {
                   ),
            column(width=8, #style="margin-top:5px;",
                   sliderTextInput(inputId = ns("yearSelect"), 
-                      choices = seq(1950, 2020, by=10), # initial_years
+                      choices = initial_years,
                       selected = tail(initial_years, 1), grid=TRUE, label = NULL,
                       animate = animationOptions(interval = 800) # set animation speed here
                       )

@@ -181,7 +181,7 @@ tabPanelServer <- function(geo_type) {
       
       # Keep track of the unique set of years for the variable the user selects
       var_years <- reactive({
-        unique(cb_df()$YEAR)
+        unique(APP_DATA[[geo_unit]][[topic_name()]]$sb_df$YEAR)
       })
       
       # Update the map When the user moves the time slider or picks a new variable
@@ -238,7 +238,8 @@ tabPanelServer <- function(geo_type) {
           choices = var_years(),
           selected = tail(var_years(), 1) # ...and reset the slider to start on the most recent year of data
           )
-        selected_topic(input$topicSelect)
+        selected_topic(input$topicSelect) # Now that indicator is updated, we can trigger the data to update
+        
       })
       
       # Describes the geographic scope of the currently displayed data (e.g. "2 selected tracts")

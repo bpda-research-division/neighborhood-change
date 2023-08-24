@@ -10,7 +10,7 @@ neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020tract.geojson') %>
 APP_CONFIG <- list(
   "census tracts" = list(geoms = tract2020_geoms, topics = list(
     
-    "Total Population" = list(
+    "Population" = list(
       data_code = 'hbicttp', agg_func = sum, 
       sb_csv = 'csv/hbic_tract_totpop_sex_bins.csv', cb_csv = 'csv/hbictpop_cb.csv',
       barTitle = "Population by sex", barhoverformat = ",.0f",
@@ -293,7 +293,7 @@ APP_CONFIG <- list(
   
   "neighborhoods" = list(geoms = neigh2020_geoms, topics = list(
     
-    "Total Population" = list(
+    "Population" = list(
       data_code = 'hbicntp', agg_func = sum, 
       sb_csv = 'csv/hbic_neigh_totpop_sex_bins.csv',
       barTitle = "Population by sex", barhoverformat = ",.0f",
@@ -601,8 +601,8 @@ prep_data <- function(topic) {
 # Prep data #######
 
 # # # You can either prep data for individual topics...
-# prep_data(APP_CONFIG[['census tracts']]$topics[['Age']])
-# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Age']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
 
 # # ...or prep data for all topics
 # for (geo_type in APP_CONFIG) {
@@ -611,7 +611,7 @@ prep_data <- function(topic) {
 #   }
 # }
 
-# save config
+# always save config after making changes
 APP_CONFIG %>% saveRDS(file='../config/APP_CONFIG.rds')
 
 # ACS Median Household Income (not currently used) ######################
