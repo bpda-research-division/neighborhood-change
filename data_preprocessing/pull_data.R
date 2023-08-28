@@ -46,7 +46,7 @@ APP_CONFIG <- list(
         "65 years and over" = "sixtyfive_more"
        ),
      summary_indicators = list(
-       "Young adult (20-34) share of population" = list(
+       "Share of population aged 20-34" = list(
          summary_expression = rlang::expr(
            (twenty_thirtyfour) /
              (zero_nine + ten_nineteen + twenty_thirtyfour + 
@@ -54,6 +54,11 @@ APP_CONFIG <- list(
          ),
          citywide_comparison = TRUE,
          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+       ),
+       "Total population aged 20-34" = list(
+         summary_expression = rlang::expr(twenty_thirtyfour),
+         citywide_comparison = FALSE,
+         hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
        ),
        "Share of population aged 0-9" = list(
          summary_expression = rlang::expr(
@@ -64,6 +69,11 @@ APP_CONFIG <- list(
          citywide_comparison = TRUE,
          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
        ),
+       "Total population aged 0-9" = list(
+         summary_expression = rlang::expr(zero_nine),
+         citywide_comparison = FALSE,
+         hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+       ),
        "Share of population aged 55+" = list(
          summary_expression = rlang::expr(
            (fiftyfive_sixtyfour + sixtyfive_more) /
@@ -72,6 +82,11 @@ APP_CONFIG <- list(
          ),
          citywide_comparison = TRUE,
          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+       ),
+       "Total population aged 55+" = list(
+         summary_expression = rlang::expr(fiftyfive_sixtyfour + sixtyfive_more),
+         citywide_comparison = FALSE,
+         hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
        )
      ),
      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, 
@@ -328,7 +343,7 @@ APP_CONFIG <- list(
         "65 years and over" = "sixtyfive_more"
       ),
       summary_indicators = list(
-        "Young adult (20-34) share of population" = list(
+        "Share of population aged 20-34" = list(
           summary_expression = rlang::expr(
             (twenty_thirtyfour) /
               (zero_nine + ten_nineteen + twenty_thirtyfour + 
@@ -336,6 +351,11 @@ APP_CONFIG <- list(
           ),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Total population aged 20-34" = list(
+          summary_expression = rlang::expr(twenty_thirtyfour),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
         ),
         "Share of population aged 0-9" = list(
           summary_expression = rlang::expr(
@@ -346,6 +366,11 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
         ),
+        "Total population aged 0-9" = list(
+          summary_expression = rlang::expr(zero_nine),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        ),
         "Share of population aged 55+" = list(
           summary_expression = rlang::expr(
             (fiftyfive_sixtyfour + sixtyfive_more) /
@@ -354,6 +379,11 @@ APP_CONFIG <- list(
           ),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Total population aged 55+" = list(
+          summary_expression = rlang::expr(fiftyfive_sixtyfour + sixtyfive_more),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, 
@@ -601,8 +631,8 @@ prep_data <- function(topic) {
 # Prep data #######
 
 # # # You can either prep data for individual topics...
-prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Age']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Age']])
 
 # # ...or prep data for all topics
 # for (geo_type in APP_CONFIG) {
