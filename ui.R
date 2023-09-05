@@ -7,9 +7,9 @@
 #' This function creates those components, namespacing them by geography type. 
 geoTabPanelUI <- function(geo_type) {
   ns <- NS(gsub(" ","_",geo_type))
-  variables <- APP_CONFIG[[geo_type]]
+  variables <- APP_CONFIG[[geo_type]]$topics
   variables_years <- APP_DATA[[geo_type]] %>% 
-    lapply(function(var) unique(var$cs_df$YEAR))
+    lapply(function(var) unique(var$sb_df$YEAR))
   initial_years <- variables_years[[1]]
   
   # the below variables are used to reformat the map legend to place the NA value below the color
@@ -24,8 +24,8 @@ geoTabPanelUI <- function(geo_type) {
           column(width=4, style="margin-top:5px;",
                  HTML("<b>Choose a topic:</b>")
                  ),
-          column(width=8, style="z-index:1010;", # ensure drop-down menu displays in front of other stuff
-                 selectInput(ns("topicSelect"), 
+          column(width=8, style="z-index:1011;", # ensure drop-down menu displays in front of other stuff
+                 selectInput(ns("topicSelect"),
                              NULL, choices = names(variables) %>% 
                                lapply(function (n) { # display each variable with its start and end year
                                  paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
@@ -33,7 +33,17 @@ geoTabPanelUI <- function(geo_type) {
                              )
                  )
         ),
-         fluidRow(
+        fluidRow(
+          column(width=4, style="margin-top:5px;",
+                 HTML("<b>Choose a variable:</b>")
+          ),
+          column(width=8, style="z-index:1010;",
+                 selectInput(ns("indicatorSelect"),
+                             NULL, choices = NULL
+                 )
+          )
+        ),
+        fluidRow(
            column(width=4, style="margin-top:5px;", 
                   HTML(
                     "<b>Drag the slider or click &#9658; to move through time:</b>"
@@ -41,7 +51,7 @@ geoTabPanelUI <- function(geo_type) {
                   ),
            column(width=8, #style="margin-top:5px;",
                   sliderTextInput(inputId = ns("yearSelect"), 
-                      choices = seq(1950, 2020, by=10), # initial_years
+                      choices = initial_years,
                       selected = tail(initial_years, 1), grid=TRUE, label = NULL,
                       animate = animationOptions(interval = 800) # set animation speed here
                       )
@@ -50,7 +60,7 @@ geoTabPanelUI <- function(geo_type) {
        div(style="padding-bottom:5px;", HTML(
          sprintf("<b>Select one or more %s on the map:</b>", geo_type)
        )),
-       leafletOutput(ns("map"), height="600px") %>%
+       leafletOutput(ns("map"), height="550px") %>%
          htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
     ),
     mainPanel(width=6, # the right-hand side of the screen displays the charts, any notes, and source citations

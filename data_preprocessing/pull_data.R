@@ -6,326 +6,643 @@ library(sf)
 tract2020_geoms <- read_sf('../geoms/boston_tracts_2020_complex.geojson') %>% mutate(GEOID = as.character(geoid20))
 neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020tract.geojson') %>% mutate(GEOID = nbhd)
 
-# Functions ##############
+# Define parameters for each geography type and variable ##########
+APP_CONFIG <- list(
+  "census tracts" = list(geoms = tract2020_geoms, topics = list(
+    
+    "Population" = list(
+      data_code = 'hbicttp', agg_func = sum, 
+      sb_csv = 'csv/hbic_tract_totpop_sex_bins.csv', cb_csv = 'csv/hbictpop_cb.csv',
+      barTitle = "Population by sex", barhoverformat = ",.0f",
+      barCats = list("Male" = "male", "Female" = "female"),
+      summary_indicators = list(
+        "Total Population" = list(
+          summary_expression = rlang::expr(male + female),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          # cs_csv = 'csv/hbictpop_cs.csv'
+        ),
+        "Female share of population" = list(
+          summary_expression = rlang::expr(female / (male + female)), 
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted
+        to reflect Boston's successful group quarters challenge); IPUMS-NHGIS,
+        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    
+    "Age" = list(
+      data_code = "hbicta", agg_func = sum,
+      sb_csv = 'csv/hbic_tract_age_year_bins.csv', 
+      barTitle = "Population by age", barhoverformat = ",.0f",
+      barCats = list(
+        "0-9 years" = "zero_nine",
+        "10-19 years" = "ten_nineteen",
+        "20-34 years" = "twenty_thirtyfour",
+        "35-54 years" = "thirtyfive_fiftyfour",
+        "55-64 years" = "fiftyfive_sixtyfour",
+        "65 years and over" = "sixtyfive_more"
+       ),
+     summary_indicators = list(
+       "Share of population aged 20-34" = list(
+         summary_expression = rlang::expr(
+           (twenty_thirtyfour) /
+             (zero_nine + ten_nineteen + twenty_thirtyfour + 
+                thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+         ),
+         citywide_comparison = TRUE,
+         hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+       ),
+       "Total population aged 20-34" = list(
+         summary_expression = rlang::expr(twenty_thirtyfour),
+         citywide_comparison = FALSE,
+         hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+       ),
+       "Share of population aged 0-9" = list(
+         summary_expression = rlang::expr(
+           (zero_nine) /
+             (zero_nine + ten_nineteen + twenty_thirtyfour + 
+                thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+         ),
+         citywide_comparison = TRUE,
+         hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+       ),
+       "Total population aged 0-9" = list(
+         summary_expression = rlang::expr(zero_nine),
+         citywide_comparison = FALSE,
+         hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+       ),
+       "Share of population aged 55+" = list(
+         summary_expression = rlang::expr(
+           (fiftyfive_sixtyfour + sixtyfive_more) /
+             (zero_nine + ten_nineteen + twenty_thirtyfour + 
+                thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+         ),
+         citywide_comparison = TRUE,
+         hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+       ),
+       "Total population aged 55+" = list(
+         summary_expression = rlang::expr(fiftyfive_sixtyfour + sixtyfive_more),
+         citywide_comparison = FALSE,
+         hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+       )
+     ),
+     source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, 
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
 
-# assumes that sb_csv has columns GEOID, NAME, YEAR, <bin_col_names>
-prepare_data <- function(var_code, sb_csv, bin_col_names, agg_func, summary_expression, geoms, cb_csv, ss_csv, cs_csv) {
-  if (missing(agg_func)) {
-    stop("An agg_func is required")
-  }
-  if (missing(summary_expression)) {
-    stop("A summary expression is required")
-  }
+    "Race and Ethnicity" = list(
+      data_code = "hbictre", agg_func = sum,
+      sb_csv = 'csv/hbic_tract_race_ethn_bins.csv',
+      barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
+      barCats = list(
+        "White" = "white",
+        "Black/African American" = "black",
+        "Hispanic/Latino" = "hisp",
+        "Asian/Pacific Islander" = "asian",
+        "Native American" = "native",
+        "Two or More" = "two_plus",
+        "Other" = "other"
+      ), 
+      summary_indicators = list(
+        "Non-white share of population" = list(
+          summary_expression = rlang::expr(
+            (black + hisp + asian + native + two_plus + other) /
+              (white + black + hisp + asian + native + two_plus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          ),
+        "Share of population, Black alone" = list(
+          summary_expression = rlang::expr(
+            (black) /
+              (white + black + hisp + asian + native + two_plus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          ),
+        "Share of population, Hispanic alone" = list(
+          summary_expression = rlang::expr(
+            (hisp) /
+              (white + black + hisp + asian + native + two_plus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          ),
+        "Share of population, Asian alone" = list(
+          summary_expression = rlang::expr(
+            (asian) /
+              (white + black + hisp + asian + native + two_plus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          )
+      ),
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS,
+        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
+      note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
+    ),
+
+    "Nativity" = list(
+      data_code = "hbictnat", agg_func = sum,
+      sb_csv = 'csv/hbic_tract_nativity_bins.csv', 
+      barTitle = "Population by nativity", barhoverformat = ",.0f",
+      barCats = list("Native-born" = "native", "Foreign-born" = "foreign"),
+      summary_indicators = list(
+        "Foreign-born share of population" = list(
+          summary_expression = rlang::expr(foreign / (foreign + native)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Total foreign-born population" = list(
+          summary_expression = rlang::expr(foreign),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American 
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    
+    "Educational Attainment" = list(
+      data_code = "hbictedu", agg_func = sum,
+      sb_csv = 'csv/hbic_tract_edu_attain_bins.csv',
+      barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
+      barCats = list(
+        "Less than high school" = "lhs",
+        "High school or some equivalent" = "he",
+        "Some college" = "sc",
+        "Bachelor's or more" = "bm"
+      ),
+      summary_indicators = list(
+        "Share of population (25+) with bachelor's or more" = list(
+          summary_expression = rlang::expr(bm / (lhs + he + sc + bm)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of population (25+) with less than high school" = list(
+          summary_expression = rlang::expr(lhs / (lhs + he + sc + bm)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American 
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    
+    "Labor Force" = list(
+      data_code = "hbictlf",agg_func = sum,
+      sb_csv = 'csv/hbic_tract_labor_force_bins.csv', 
+      barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
+      barCats = list(
+        "Male in labor force" = "ilf_m"
+        , "Male not in labor force" = "nilf_m"
+        , "Female in labor force" = "ilf_f"
+        , "Female not in labor force" = "nilf_f"
+      ), 
+      summary_indicators = list(
+        "Female labor force participation rate (16+)" = list(
+          summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Male labor force participation rate (16+)" = list(
+          summary_expression = rlang::expr(ilf_m / (ilf_m + nilf_m)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American 
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    # 
+    # # "Income" = list(data_code = 'acshhi', 
+    # #   lineTitle = "Median Household Income", linehoverformat = ",.0f",
+    # #   tickprefix = "$", tickformat = "~s", agg_func = sum, citywide_comparison = TRUE,
+    # #   barTitle = "Households by Income", barhoverformat = ",.0f",
+    # #   barCats = list(
+    # #     "Less than $10,000" = "S1901_C01_002"
+    # #     , "$10,000 to $14,999" = "S1901_C01_003"
+    # #     , "$15,000 to $24,999" = "S1901_C01_004"
+    # #     , "$25,000 to $34,999" = "S1901_C01_005"
+    # #     , "$35,000 to $49,999" = "S1901_C01_006"
+    # #     , "$50,000 to $74,999" = "S1901_C01_007"
+    # #     , "$75,000 to $99,999" = "S1901_C01_008"
+    # #     , "$100,000 to $149,999" = "S1901_C01_009"
+    # #     , "$150,000 to $199,999" = "S1901_C01_010"
+    # #     , "More than $200,000" = "S1901_C01_011"
+    # #   ), summary_expression = rlang::expr(pareto_median_income(
+    # #     hh_by_income = c(S1901_C01_002, S1901_C01_003, S1901_C01_004,
+    # #                      S1901_C01_005, S1901_C01_006, S1901_C01_007,
+    # #                      S1901_C01_008, S1901_C01_009, S1901_C01_010, S1901_C01_011)
+    # #     , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
+    # #   ))
+    # # )
+
+    "Housing Units" = list(
+      data_code = "hbicthou", agg_func = sum,
+      sb_csv = 'csv/hbic_tract_housing_bins.csv', 
+      cb_csv = 'csv/hbicthou_cb.csv',
+      barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+      barCats = list(
+        "Occupied" = "occ",
+        "Vacant" = "vac"
+      ), 
+      summary_indicators = list(
+        "Total housing units" = list(
+          summary_expression = rlang::expr(vac + occ),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of 
+      Minnesota, www.nhgis.org; Mayor's Office of Housing; BPDA Research Division Analysis"
+    ),
+
+    "Housing Occupancy" = list(
+      data_code = "hbicthouvac", agg_func = sum,
+      sb_csv = 'csv/hbic_tract_housing_vacancy_bins.csv', 
+      cb_csv = 'csv/hbicthouvac_cb.csv',
+      barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+      barCats = list(
+        "Occupied" = "occ",
+        "Vacant" = "vac"
+      ),
+      summary_indicators = list(
+        "Housing vacancy rate" = list(
+          summary_expression = rlang::expr(vac / (vac + occ)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Total vacant units" = list(
+          summary_expression = rlang::expr(vac),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+
+    "Housing Tenure" = list(
+      data_code = "hbicthouten", agg_func = sum,
+      sb_csv = 'csv/hbic_tract_housing_tenure_bins.csv',
+      barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
+      barCats = list(
+        "Owner-occupied" = "owner",
+        "Renter-occupied" = "renter"
+      ), 
+      summary_indicators = list(
+        "Owner occupancy rate" = list(
+          summary_expression = rlang::expr(owner / (owner + renter)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American 
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    )
+    )
+  ),
   
-  subcity_bins <- read.csv(sb_csv)
-  
-  if (!missing(cb_csv)) {city_bins <- read.csv(cb_csv)} 
-  else {
-    city_bins <- subcity_bins %>% group_by(YEAR) %>% summarise_at(unname(bin_col_names), agg_func, na.rm=TRUE)
-  }
-  
-  if (!missing(ss_csv)) {subcity_summary <- read.csv(ss_csv)}
-  else {
-    subcity_summary <- subcity_bins %>% 
-      mutate(SUMMARY_VALUE = !!summary_expression) %>% 
-      select(-all_of(unname(bin_col_names))) 
-  }
-  
-  if (!missing(cs_csv)) {city_summary <- read.csv(cs_csv)}
-  else {
-    city_summary <- city_bins %>% mutate(SUMMARY_VALUE = !!summary_expression) %>% select(-all_of(unname(bin_col_names)))
-  }
-  
-  pivot_long_and_rename_categories <- function(df) {
-    out <- df %>% 
-      pivot_longer(cols = unname(bin_col_names), 
-                   names_to='CATEGORY', 
-                   values_to = 'VALUE')
-    out$CATEGORY <- plyr::mapvalues(out$CATEGORY, 
-                                    from = unname(bin_col_names), 
-                                    to = names(bin_col_names))
-    out
-  }
-  
-  subcity_bins_app <- subcity_bins %>% pivot_long_and_rename_categories() %>%
-    mutate(GEOID = as.character(GEOID))
-  city_bins_app <- city_bins %>% pivot_long_and_rename_categories()
-  subcity_summary_app <- subcity_summary %>%
-    mutate(GEOID = as.character(GEOID)) %>%
-    merge(y=geoms, by.y = "GEOID", by.x = "GEOID") %>%
-    st_as_sf()
-  
-  # abbrs = list("sb", "cb", "ss", "cs")
-  dfs = list("sb_df" = subcity_bins_app, "cb_df" = city_bins_app, 
-             "ss_df" = subcity_summary_app, "cs_df" = city_summary)
-  dfs %>% saveRDS(file=sprintf('../data/%s.rds', var_code))
-  
-  # for (i in 1:4) {
-  #   dfs[[i]] %>% saveRDS(file=sprintf('../data/%s_%s.rds', var_code, abbrs[[i]]))
-  # }
+  "neighborhoods" = list(geoms = neigh2020_geoms, topics = list(
+    
+    "Population" = list(
+      data_code = 'hbicntp', agg_func = sum, 
+      sb_csv = 'csv/hbic_neigh_totpop_sex_bins.csv',
+      barTitle = "Population by sex", barhoverformat = ",.0f",
+      barCats = list("Male" = "male", "Female" = "female"),
+      summary_indicators = list(
+        "Total Population" = list(
+          summary_expression = rlang::expr(male + female),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        ),
+        "Female share of population" = list(
+          summary_expression = rlang::expr(female / (male + female)), 
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted
+        to reflect Boston's successful group quarters challenge); IPUMS-NHGIS,
+        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    
+    "Age" = list(
+      data_code = "hbicna", agg_func = sum,
+      sb_csv = 'csv/hbic_neigh_age_year_bins.csv', 
+      barTitle = "Population by age", barhoverformat = ",.0f",
+      barCats = list(
+        "0-9 years" = "zero_nine",
+        "10-19 years" = "ten_nineteen",
+        "20-34 years" = "twenty_thirtyfour",
+        "35-54 years" = "thirtyfive_fiftyfour",
+        "55-64 years" = "fiftyfive_sixtyfour",
+        "65 years and over" = "sixtyfive_more"
+      ),
+      summary_indicators = list(
+        "Share of population aged 20-34" = list(
+          summary_expression = rlang::expr(
+            (twenty_thirtyfour) /
+              (zero_nine + ten_nineteen + twenty_thirtyfour + 
+                 thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Total population aged 20-34" = list(
+          summary_expression = rlang::expr(twenty_thirtyfour),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        ),
+        "Share of population aged 0-9" = list(
+          summary_expression = rlang::expr(
+            (zero_nine) /
+              (zero_nine + ten_nineteen + twenty_thirtyfour + 
+                 thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Total population aged 0-9" = list(
+          summary_expression = rlang::expr(zero_nine),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        ),
+        "Share of population aged 55+" = list(
+          summary_expression = rlang::expr(
+            (fiftyfive_sixtyfour + sixtyfive_more) /
+              (zero_nine + ten_nineteen + twenty_thirtyfour + 
+                 thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Total population aged 55+" = list(
+          summary_expression = rlang::expr(fiftyfive_sixtyfour + sixtyfive_more),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, 
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    
+    "Race and Ethnicity" = list(
+      data_code = "hbicnre", agg_func = sum,
+      sb_csv = 'csv/hbic_neigh_race_ethn_bins.csv',
+      barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
+      barCats = list(
+        "White" = "white",
+        "Black/African American" = "black",
+        "Hispanic/Latino" = "hisp",
+        "Asian/Pacific Islander" = "asian",
+        "Native American" = "native",
+        "Two or More" = "two_plus",
+        "Other" = "other"
+      ), 
+      summary_indicators = list(
+        "Non-white share of population" = list(
+          summary_expression = rlang::expr(
+            (black + hisp + asian + native + two_plus + other) /
+              (white + black + hisp + asian + native + two_plus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of population, Black alone" = list(
+          summary_expression = rlang::expr(
+            (black) /
+              (white + black + hisp + asian + native + two_plus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of population, Hispanic alone" = list(
+          summary_expression = rlang::expr(
+            (hisp) /
+              (white + black + hisp + asian + native + two_plus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of population, Asian alone" = list(
+          summary_expression = rlang::expr(
+            (asian) /
+              (white + black + hisp + asian + native + two_plus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of population, two or more races" = list(
+          summary_expression = rlang::expr(
+            (two_plus) /
+              (white + black + hisp + asian + native + two_plus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS,
+        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
+      note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other. Two or more races became an option in 2000."
+    ),
+    
+    "Nativity" = list(
+      data_code = "hbicnnat", agg_func = sum,
+      sb_csv = 'csv/hbic_neigh_nativity_bins.csv', 
+      barTitle = "Population by nativity", barhoverformat = ",.0f",
+      barCats = list("Native-born" = "native", "Foreign-born" = "foreign"),
+      summary_indicators = list(
+        "Foreign-born share of population" = list(
+          summary_expression = rlang::expr(foreign / (foreign + native)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Total foreign-born population" = list(
+          summary_expression = rlang::expr(foreign),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American 
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    
+    "Educational Attainment" = list(
+      data_code = "hbicnedu", agg_func = sum,
+      sb_csv = 'csv/hbic_neigh_edu_attain_bins.csv',
+      barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
+      barCats = list(
+        "Less than high school" = "lhs",
+        "High school or some equivalent" = "he",
+        "Some college" = "sc",
+        "Bachelor's or more" = "bm"
+      ),
+      summary_indicators = list(
+        "Share of population (25+) with bachelor's or more" = list(
+          summary_expression = rlang::expr(bm / (lhs + he + sc + bm)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of population (25+) with less than high school" = list(
+          summary_expression = rlang::expr(lhs / (lhs + he + sc + bm)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American 
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    
+    "Labor Force" = list(
+      data_code = "hbicnlf",agg_func = sum,
+      sb_csv = 'csv/hbic_neigh_labor_force_bins.csv', 
+      barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
+      barCats = list(
+        "Male in labor force" = "ilf_m"
+        , "Male not in labor force" = "nilf_m"
+        , "Female in labor force" = "ilf_f"
+        , "Female not in labor force" = "nilf_f"
+      ), 
+      summary_indicators = list(
+        "Female labor force participation rate (16+)" = list(
+          summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Male labor force participation rate (16+)" = list(
+          summary_expression = rlang::expr(ilf_m / (ilf_m + nilf_m)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American 
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    
+    "Housing Units" = list(
+      data_code = "hbicnhou", agg_func = sum,
+      sb_csv = 'csv/hbic_neigh_housing_bins.csv',
+      barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+      barCats = list(
+        "Occupied" = "occ",
+        "Vacant" = "vac"
+      ), 
+      summary_indicators = list(
+        "Total housing units" = list(
+          summary_expression = rlang::expr(vac + occ),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of 
+      Minnesota, www.nhgis.org; Mayor's Office of Housing; BPDA Research Division Analysis"
+    ),
+    
+    "Housing Occupancy" = list(
+      data_code = "hbicnhouvac", agg_func = sum,
+      sb_csv = 'csv/hbic_neigh_housing_vacancy_bins.csv',
+      barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+      barCats = list(
+        "Occupied" = "occ",
+        "Vacant" = "vac"
+      ),
+      summary_indicators = list(
+        "Housing vacancy rate" = list(
+          summary_expression = rlang::expr(vac / (vac + occ)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Total vacant units" = list(
+          summary_expression = rlang::expr(vac),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    
+    "Housing Tenure" = list(
+      data_code = "hbicnhouten", agg_func = sum,
+      sb_csv = 'csv/hbic_neigh_housing_tenure_bins.csv',
+      barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
+      barCats = list(
+        "Owner-occupied" = "owner",
+        "Renter-occupied" = "renter"
+      ), 
+      summary_indicators = list(
+        "Owner occupancy rate" = list(
+          summary_expression = rlang::expr(owner / (owner + renter)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American 
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      )
+    )
+  )
+)
+
+# Functions ##########
+
+pivot_long_and_rename_categories <- function(df, bin_col_names) {
+  out <- df %>% 
+    pivot_longer(cols = unlist(unname(bin_col_names)), 
+                 names_to='CATEGORY', 
+                 values_to = 'VALUE')
+  out$CATEGORY <- plyr::mapvalues(out$CATEGORY, 
+                                  from = unname(bin_col_names), 
+                                  to = names(bin_col_names))
+  out
 }
 
-# in the income case, we need to manually specify the subcity bins as well as the subcity central,
-# if the subcity bins were populations rather than shares, we could at least get the city bins
+prep_data <- function(topic) {
+  subcity_bins <- read.csv(topic$sb_csv) %>%
+    pivot_long_and_rename_categories(bin_col_names = topic$barCats) %>%
+    mutate(GEOID = as.character(GEOID))
+  
+  dfs = list("sb_df" = subcity_bins)
+  if ("cb_csv" %in% names(topic)) {
+    dfs$cb_df <- read.csv(topic$cb_csv) %>% pivot_long_and_rename_categories(bin_col_names = topic$barCats)
+  }
+  indicators = list()
+  for (ind_name in names(topic$summary_indicators)) {
+    ind_dfs = list()
+    for (x in c("ss", "cs")) {
+      if (paste0(x, "_csv") %in% names(topic$summary_indicators[[ind_name]])) {
+        ind_dfs[[paste0(x, "_df")]] = read.csv(topic$summary_indicators[[ind_name]][[paste0(x, "_csv")]])
+      }
+    }
+    if (length(ind_dfs) > 0) {
+      indicators[[ind_name]] = ind_dfs
+    }
+  }
+  if (length(indicators) > 0) {
+    dfs$indicators = indicators
+  }
+  #appdata = dfs
+  dfs %>% saveRDS(file=sprintf('../data/%s.rds', topic$data_code))
+}
 
-# the structure of the binned subcity data is GEOID, NAME, <bin_col_names>, YEAR
-# the structure of the binned citywide data is <bin_col_names>, YEAR
-# and we need a mapping of labels to bin column names in the format of inc_buckets
+# Prep data #######
 
-# the structure of the central subcity data can be GEOID, NAME, SUMMARY_VALUE, YEAR
-# the structure of the central citywide data can be SUMMARY_VALUE, YEAR
-# and we will eventually need a label for each SUMMARY_VALUE
+# # # You can either prep data for individual topics...
+prep_data(APP_CONFIG[['census tracts']]$topics[['Age']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Age']])
 
-# In the distant future, this code could be the basis for some kind of interactive wizard where you specify
-# a csv and it has you enter the labels as well as the summary expression
+# # ...or prep data for all topics
+# for (geo_type in APP_CONFIG) {
+#   for (topic in geo_type$topics) {
+#     prep_data(topic)
+#   }
+# }
 
-# HBIC Neighborhoods Total Population ##################
-prepare_data(
-  var_code = 'hbicntp', 
-  sb_csv = 'csv/hbic_neigh_totpop_sex_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c("Male" = "male", "Female" = "female"), 
-  summary_expression = rlang::expr(male + female),
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Labor Force ##################
-prepare_data(
-  var_code = 'hbicnlf', 
-  sb_csv = 'csv/hbic_neigh_labor_force_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c(
-    "Male in labor force" = "ilf_m"
-    , "Female in labor force" = "ilf_f"
-    , "Male not in labor force" = "nilf_m"
-    , "Female not in labor force" = "nilf_f"
-  ), 
-  summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Race and Ethnicity ##################
-prepare_data(
-  var_code = 'hbicnre', 
-  sb_csv = 'csv/hbic_neigh_race_ethn_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c(
-    "White" = "white",
-    "Black/African American" = "black",
-    "Hispanic/Latino" = "hisp",
-    "American Indian/Alaska Native" = "native",
-    "Asian/Pacific Islander" = "asian",
-    "Two or More" = "two_plus",
-    "Other" = "other"
-  ), 
-  summary_expression = rlang::expr(
-    (black + hisp + asian + native + two_plus + other) /
-      (white + black + hisp + asian + native + two_plus + other)
-  ),
-  geoms = neigh2020_geoms
-)
-# HBIC Neighborhoods Age ##################
-prepare_data(
-  var_code = 'hbicna', 
-  sb_csv = 'csv/hbic_neigh_age_year_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c(
-    "0-9 years" = "zero_nine",
-    "10-19 years" = "ten_nineteen",
-    "20-34 years" = "twenty_thirtyfour",
-    "35-54 years" = "thirtyfive_fiftyfour",
-    "55-64 years" = "fiftyfive_sixtyfour",
-    "65 years and over" = "sixtyfive_more"
-  ), 
-  summary_expression = rlang::expr(
-    (twenty_thirtyfour) /
-      (zero_nine + ten_nineteen + twenty_thirtyfour + 
-         thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
-  ),
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Educational Attainment ##################
-prepare_data(
-  var_code = 'hbicnedu', 
-  sb_csv = 'csv/hbic_neigh_edu_attain_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c(
-    "Less than high school" = "lhs",
-    "High school or some equivalent" = "he",
-    "Some college" = "sc",
-    "Bachelor's or more" = "bm"
-  ), 
-  summary_expression = rlang::expr( (bm) / (lhs + he + sc + bm) ),
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Housing Tenure ##################
-prepare_data(
-  var_code = 'hbicnhouten', 
-  sb_csv = 'csv/hbic_neigh_housing_tenure_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c("Owner-occupied" = "owner", "Renter-occupied" = "renter"), 
-  summary_expression = rlang::expr( (owner) / (owner + renter) ),
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Housing Vacancy ##################
-prepare_data(
-  var_code = 'hbicnhouvac', 
-  sb_csv = 'csv/hbic_neigh_housing_vacancy_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c("Occupied" = "occ", "Vacant" = "vac"),
-  summary_expression = rlang::expr( (vac) / (occ + vac) ),
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Total Housing Units ##################
-prepare_data(
-  var_code = 'hbicnhou', 
-  sb_csv = 'csv/hbic_neigh_housing_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c("Occupied" = "occ", "Vacant" = "vac"), 
-  summary_expression = rlang::expr(occ + vac),
-  geoms = neigh2020_geoms
-)
-
-# HBIC Neighborhoods Nativity ##################
-prepare_data(
-  var_code = 'hbicnnat', 
-  sb_csv = 'csv/hbic_neigh_nativity_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c("Native-born" = "native", "Foreign-born" = "foreign"), 
-  summary_expression = rlang::expr( (foreign) / (foreign + native) ),
-  geoms = neigh2020_geoms
-)
-
-# HBIC Tracts Total Population ##################
-prepare_data(
-  var_code = 'hbicttp', 
-  sb_csv = 'csv/hbic_tract_totpop_sex_bins.csv', 
-  cb_csv = 'csv/hbictpop_cb.csv',
-  cs_csv = 'csv/hbictpop_cs.csv',
-  agg_func = sum, 
-  bin_col_names = c("Male" = "male", "Female" = "female"), 
-  summary_expression = rlang::expr(male + female),
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Labor Force ##################
-prepare_data(
-  var_code = 'hbictlf', 
-  sb_csv = 'csv/hbic_tract_labor_force_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c(
-    "Male in labor force" = "ilf_m"
-    , "Female in labor force" = "ilf_f"
-    , "Male not in labor force" = "nilf_m"
-    , "Female not in labor force" = "nilf_f"
-  ), 
-  summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Race and Ethnicity ##################
-prepare_data(
-  var_code = 'hbictre', 
-  sb_csv = 'csv/hbic_tract_race_ethn_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c(
-    "White" = "white",
-    "Black/African American" = "black",
-    "Hispanic/Latino" = "hisp",
-    "American Indian/Alaska Native" = "native",
-    "Asian/Pacific Islander" = "asian",
-    "Two or More" = "two_plus",
-    "Other" = "other"
-  ), 
-  summary_expression = rlang::expr(
-    (black + hisp + asian + native + two_plus + other) /
-      (white + black + hisp + asian + native + two_plus + other)
-  ),
-  geoms = tract2020_geoms
-)
-# HBIC Tracts Age ##################
-prepare_data(
-  var_code = 'hbicta', 
-  sb_csv = 'csv/hbic_tract_age_year_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c(
-    "0-9 years" = "zero_nine",
-    "10-19 years" = "ten_nineteen",
-    "20-34 years" = "twenty_thirtyfour",
-    "35-54 years" = "thirtyfive_fiftyfour",
-    "55-64 years" = "fiftyfive_sixtyfour",
-    "65 years and over" = "sixtyfive_more"
-  ), 
-  summary_expression = rlang::expr(
-    (twenty_thirtyfour) /
-      (zero_nine + ten_nineteen + twenty_thirtyfour + 
-         thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
-  ),
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Educational Attainment ##################
-prepare_data(
-  var_code = 'hbictedu', 
-  sb_csv = 'csv/hbic_tract_edu_attain_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c(
-    "Less than high school" = "lhs",
-    "High school or some equivalent" = "he",
-    "Some college" = "sc",
-    "Bachelor's or more" = "bm"
-  ), 
-  summary_expression = rlang::expr( (bm) / (lhs + he + sc + bm) ),
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Housing Tenure ##################
-prepare_data(
-  var_code = 'hbicthouten', 
-  sb_csv = 'csv/hbic_tract_housing_tenure_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c("Owner-occupied" = "owner", "Renter-occupied" = "renter"), 
-  summary_expression = rlang::expr( (owner) / (owner + renter) ),
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Housing Vacancy ##################
-prepare_data(
-  var_code = 'hbicthouvac', 
-  sb_csv = 'csv/hbic_tract_housing_vacancy_bins.csv', 
-  cb_csv = 'csv/hbicthouvac_cb.csv',
-  agg_func = sum, 
-  bin_col_names = c("Occupied" = "occ", "Vacant" = "vac"),
-  summary_expression = rlang::expr( (vac) / (occ + vac) ),
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Total Housing Units ##################
-prepare_data(
-  var_code = 'hbicthou', 
-  sb_csv = 'csv/hbic_tract_housing_bins.csv', 
-  cb_csv = 'csv/hbicthou_cb.csv',
-  cs_csv = 'csv/hbicthou_cs.csv',
-  agg_func = sum, 
-  bin_col_names = c("Occupied" = "occ", "Vacant" = "vac"), 
-  summary_expression = rlang::expr(occ + vac),
-  geoms = tract2020_geoms
-)
-
-# HBIC Tracts Nativity ##################
-prepare_data(
-  var_code = 'hbictnat', 
-  sb_csv = 'csv/hbic_tract_nativity_bins.csv', 
-  agg_func = sum, 
-  bin_col_names = c("Native-born" = "native", "Foreign-born" = "foreign"), 
-  summary_expression = rlang::expr( (foreign) / (foreign + native) ),
-  geoms = tract2020_geoms
-)
-
+# always save config after making changes
+APP_CONFIG %>% saveRDS(file='../config/APP_CONFIG.rds')
 
 # ACS Median Household Income (not currently used) ######################
 # library(tidycensus)
