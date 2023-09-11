@@ -1,5 +1,6 @@
 .Rhistory
 extra/*
 renv/*
+!renv/activate.R
 rsconnect/*
 .Rproj.user
