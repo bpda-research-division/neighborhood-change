@@ -89,7 +89,7 @@ APP_CONFIG <- list(
          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
        )
      ),
-     source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, 
+     source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, 
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     ),
 
@@ -386,7 +386,7 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American Community Survey, 
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     ),
     
