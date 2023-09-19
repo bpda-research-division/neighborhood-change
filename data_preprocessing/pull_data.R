@@ -102,7 +102,7 @@ APP_CONFIG <- list(
         "Black/African American" = "black",
         "Hispanic/Latino" = "hisp",
         "Asian/Pacific Islander" = "asian",
-        "Native American" = "native",
+        "American Indian" = "native",
         "Two or More" = "two_plus",
         "Other" = "other"
       ), 
@@ -399,7 +399,7 @@ APP_CONFIG <- list(
         "Black/African American" = "black",
         "Hispanic/Latino" = "hisp",
         "Asian/Pacific Islander" = "asian",
-        "Native American" = "native",
+        "American Indian" = "native",
         "Two or More" = "two_plus",
         "Other" = "other"
       ), 
@@ -631,8 +631,8 @@ prep_data <- function(topic) {
 # Prep data #######
 
 # # # You can either prep data for individual topics...
-prep_data(APP_CONFIG[['census tracts']]$topics[['Age']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Age']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Race and Ethnicity']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Race and Ethnicity']])
 
 # # ...or prep data for all topics
 # for (geo_type in APP_CONFIG) {
