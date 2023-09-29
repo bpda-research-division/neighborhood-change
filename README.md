@@ -1,7 +1,7 @@
 # Neighborhood Change Explorer
 Explore how neighborhoods and cities have changed over time through interactive data visualizations. 
 
-[![Screenshot of Neighborhood Change Explorer](img/demo.gif)](https://bpda-research.shinyapps.io/neighborhood-change/)
+[![Screenshot of Neighborhood Change Explorer](img/nce_demo_20230929.gif)](https://bpda-research.shinyapps.io/neighborhood-change/)
 
 ## Data visualization features
 
