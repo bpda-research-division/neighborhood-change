@@ -22,7 +22,7 @@ When the app runs, every R object defined in `global.R` is made available to bot
 
 The data preprocessing folder of this repository includes a script called `pull_data.R` which does not run as part of the app itself, but rather is meant to be modified and run by app maintainers in order to set up the data files that are used by a particular instance of the Neighborhood Change Explorer. 
 
-Specifically, the names, data sources, and configuration parameters for all of the topics displayed by a Neighborhood Change Explorer instance are defined within the `APP_CONFIG` object in `pull_data.R`. `APP_CONFIG` is set up as a nested list of **geographic units**, which contain or more **topics**, which in turn contain one or more **indicators**.
+Specifically, the names, data sources, and configuration parameters for all of the topics displayed by a Neighborhood Change Explorer instance are defined within the `APP_CONFIG` object in `pull_data.R`. `APP_CONFIG` is set up as a nested list of _**geographic units**_, which contain or more _**topics**_, which in turn contain one or more _**indicators**_.
 
 ```
 APP_CONFIG <- list(
@@ -67,21 +67,26 @@ For example, if the above pseudocode were to be used in a new instance of the Ne
 
 ![screenshot of ](img/geo_topic_demo.png) # TODO: update this image with indicators
 
+Each combination of geographic unit, topic, and indicator constitutes a unique _**variable**_. Variables are the fundamental unit of analysis within the Neighborhood Change Explorer. `ui.R` and `server.R` are basically large functions that are designed to display data about one variable at a time in response to user selections.
+
 ## Setting up data for the Neighborhood Change Explorer
 
-Each combination of geographic unit, topic, and indicator constitutes a unique **variable**. Variables are the fundamental unit of analysis within the Neighborhood Change Explorer. `ui.R` and `server.R` are basically large functions that are designed to display data about one variable at a time in response to user selections.
+Both tabular data and geographic information are needed for each topic in the Neighborhood Change Explorer. In general, the steps required to add a new topic to the Neighborhood Change Explorer are:
 
-the data needed for a topic are the tabular data and the geographic information to associate particular rows with particular features on the map
+1. Preparing a csv file with tabular data and storing it in the `csv/` folder
+2. Identifying or creating a set of geographic features in the `geoms/` folder that are associated with the tabular data
+3. Modifying `pull_data.R` to add a section to the APP_CONFIG variable specifying parameters for the topic
+4. Running `pull_data.R` to create a new RDS file for the topic within the `data/` folder and update `APP_CONFIG.rds`
 
-### Ingesting geographies
+To update the underlying data for an existing topic, use steps 1 and 4. To update the parameters for an existing topic, use steps 3 and 4.
 
-geographic units require spatial data formats - section on how to modify pull_data with a custom set of polygon or multipolygon geometries; the requirement for a GEOID; what file formats read_sf supports
-
-### Ingesting tabular data
-
-Part of the utility of pull_data is that you can create a csv file with your data in a specific format, store it in the csv folder, and then associate that file name with a particular topic in APP_CONFIG. Then, you can run pull_data and it will read in the csv file and process the data in such a way that the NCE can display your data.
+### Preparing tabular data
 
 csv format: required columns, unique keys, how missing values in a row and missing elements in a time series are handled
+
+### Preparing geographic features
+
+geographic units require spatial data formats - section on how to modify pull_data with a custom set of polygon or multipolygon geometries; the requirement for a GEOID; what file formats read_sf supports
 
 ### how the app processes your data
 
@@ -89,7 +94,7 @@ The Neighborhood Change Explorer app uses R data frames to store and work with t
 
 The app also uses [simple features objects](https://r-spatial.github.io/sf/articles/sf1.html), which are basically just data frames with an additional geometry column that stores the spatial properties of each feature. Simple features objects allow spatial data to be displayed on a map.
 
-pull_data creates four data frames for each topic based on a given csv:
+pull_data creates four data frames for each topic based on a given csv: (this is out of date - pull_data most of the time just includes the sb df in the rds - other dfs only included if they are overrides)
 
 | name | alias | required fields | fields which uniquely identify each row | type of R object | where it's used |
 | -------- | --------- | --------- | ---------- | ---------- | -------- |
@@ -99,6 +104,8 @@ pull_data creates four data frames for each topic based on a given csv:
 | cs_df | citywide summary | YEAR, SUMMARY_VALUE | YEAR | data frame | line chart |
 
 ss_df is a simple features object because that is the data frame that is used for the map. sb_df and cb_df are used on the bar chart, and cs_df and ss_df are used on the line chart.
+
+sb and cb are topic specific, ss and cs change by indicator
 
 For each topic, all four data frames are bundled together into a list and stored in an RDS file named after the variable code. Each file within the `data/` folder contains all the data for a given geographic unit and topic. 
 
