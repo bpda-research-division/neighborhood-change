@@ -94,7 +94,7 @@ APP_CONFIG <- list(
     ),
     
     "Children by Age" = list(
-      data_code = "chila", agg_func = sum,
+      data_code = "chilta", agg_func = sum,
       sb_csv = 'csv/children_tract_age_bins.csv',
       barTitle = "Children by age", barhoverformat = ",.0f",
       barCats = list(
@@ -173,6 +173,58 @@ APP_CONFIG <- list(
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS,
         University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
       note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
+    ),
+    
+    "Children by Race and Ethnicity" = list(
+      data_code = "chiltre", agg_func = sum,
+      sb_csv = 'csv/children_tract_race_bins.csv',
+      barTitle = "Children by race/ethnicity", barhoverformat = ",.0f",
+      barCats = list(
+        "White" = "white",
+        "Black/African American" = "black",
+        "Hispanic/Latino" = "hisp",
+        "Asian/Pacific Islander" = "aapi",
+        "American Indian" = "ainh",
+        "Two or More" = "twoplus",
+        "Other" = "other"
+      ), 
+      summary_indicators = list(
+        "Non-white share of children" = list(
+          summary_expression = rlang::expr(
+            (black + hisp + aapi + ainh + twoplus + other) /
+              (white + black + hisp + aapi + ainh + twoplus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of children, Black alone" = list(
+          summary_expression = rlang::expr(
+            (black) /
+              (white + black + hisp + aapi + ainh + twoplus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of children, Hispanic alone" = list(
+          summary_expression = rlang::expr(
+            (hisp) /
+              (white + black + hisp + aapi + ainh + twoplus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of children, Asian alone" = list(
+          summary_expression = rlang::expr(
+            (aapi) /
+              (white + black + hisp + aapi + ainh + twoplus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        )
+      ),
+      additional_null_geoms = c("Census Tract 9811"),
+      source = "U.S. Census Bureau, 1980-2020 Decennial Censuses, IPUMS-NHGIS,
+        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     ),
     
     "Nativity" = list(
@@ -420,6 +472,35 @@ APP_CONFIG <- list(
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     ),
     
+    "Children by Age" = list(
+      data_code = "chilna", agg_func = sum,
+      sb_csv = 'csv/children_neigh_age_bins.csv',
+      barTitle = "Children by age", barhoverformat = ",.0f",
+      barCats = list(
+        "0-4 years" = "under5",
+        "5-17 years" = "fiveto17"
+      ),
+      summary_indicators = list(
+        "Total children (0-17)" = list(
+          summary_expression = rlang::expr(under5 + fiveto17),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        ),
+        "Total children aged 5-17" = list(
+          summary_expression = rlang::expr(fiveto17),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        ),
+        "Total children aged 0-4" = list(
+          summary_expression = rlang::expr(under5),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1980-2020 Decennial Censuses,
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    
     "Race and Ethnicity" = list(
       data_code = "hbicnre", agg_func = sum,
       sb_csv = 'csv/hbic_neigh_race_ethn_bins.csv',
@@ -478,6 +559,58 @@ APP_CONFIG <- list(
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS,
         University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
       note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other. Two or more races became an option in 2000."
+    ),
+    
+    "Children by Race and Ethnicity" = list(
+      data_code = "chilnre", agg_func = sum,
+      sb_csv = 'csv/children_neigh_race_bins.csv',
+      barTitle = "Children by race/ethnicity", barhoverformat = ",.0f",
+      barCats = list(
+        "White" = "white",
+        "Black/African American" = "black",
+        "Hispanic/Latino" = "hisp",
+        "Asian/Pacific Islander" = "aapi",
+        "American Indian" = "ainh",
+        "Two or More" = "twoplus",
+        "Other" = "other"
+      ), 
+      summary_indicators = list(
+        "Non-white share of children" = list(
+          summary_expression = rlang::expr(
+            (black + hisp + aapi + ainh + twoplus + other) /
+              (white + black + hisp + aapi + ainh + twoplus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of children, Black alone" = list(
+          summary_expression = rlang::expr(
+            (black) /
+              (white + black + hisp + aapi + ainh + twoplus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of children, Hispanic alone" = list(
+          summary_expression = rlang::expr(
+            (hisp) /
+              (white + black + hisp + aapi + ainh + twoplus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Share of children, Asian alone" = list(
+          summary_expression = rlang::expr(
+            (aapi) /
+              (white + black + hisp + aapi + ainh + twoplus + other)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        )
+      ),
+      additional_null_geoms = c("Census Tract 9811"),
+      source = "U.S. Census Bureau, 1980-2020 Decennial Censuses, IPUMS-NHGIS,
+        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     ),
     
     "Nativity" = list(
@@ -662,7 +795,9 @@ prep_data <- function(topic) {
 
 # # # You can either prep data for individual topics...
 prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
-# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Race and Ethnicity']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Race and Ethnicity']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Race and Ethnicity']])
 
 # # ...or prep data for all topics
 # for (geo_type in APP_CONFIG) {

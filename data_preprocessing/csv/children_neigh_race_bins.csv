@@ -1,0 +1,124 @@
+YEAR,GEOID,white,black,hisp,aapi,ainh,other,twoplus,NAME
+1980,Allston,1256,282,364,414,5,43,0,Allston
+1980,Back Bay,458,67,57,40,0,11,0,Back Bay
+1980,Beacon Hill,608,25,12,20,0,12,0,Beacon Hill
+1980,Brighton,3591,284,362,615,12,79,0,Brighton
+1980,Charlestown,3051,2,24,34,1,28,0,Charlestown
+1980,Chinatown,39,13,7,522,0,2,0,Chinatown
+1980,Dorchester,12273,17221,4134,143,116,835,0,Dorchester
+1980,Downtown,119,14,9,346,0,3,0,Downtown
+1980,East Boston,6699,46,332,19,10,65,0,East Boston
+1980,Fenway,404,212,170,111,2,65,0,Fenway
+1980,Harbor Islands,5,3,1,0,0,0,0,Harbor Islands
+1980,Hyde Park,5400,1704,234,46,11,72,0,Hyde Park
+1980,Jamaica Plain,3439,2361,3486,115,32,125,0,Jamaica Plain
+1980,Longwood,13,272,80,0,1,2,0,Longwood
+1980,Mattapan,1089,5778,245,6,33,100,0,Mattapan
+1980,Mission Hill,589,973,1025,82,15,49,0,Mission Hill
+1980,North End,924,8,38,0,0,10,0,North End
+1980,Roslindale,5833,279,336,67,1,68,0,Roslindale
+1980,Roxbury,303,11330,2247,42,38,374,0,Roxbury
+1980,South Boston,6587,4,55,27,7,78,0,South Boston
+1980,South Boston Waterfront,33,0,0,0,0,6,0,South Boston Waterfront
+1980,South End,750,1152,1023,881,2,63,0,South End
+1980,West End,215,12,11,3,0,9,0,West End
+1980,West Roxbury,5493,43,110,69,3,48,0,West Roxbury
+1980,_Crews on Ships,26,1,0,0,0,0,0,_Crews on Ships
+1990,Allston,780,453,603,558,5,38,0,Allston
+1990,Back Bay,490,45,22,33,2,5,0,Back Bay
+1990,Beacon Hill,461,18,12,39,0,5,0,Beacon Hill
+1990,Brighton,2471,545,675,744,9,53,0,Brighton
+1990,Charlestown,2130,36,105,111,18,1,0,Charlestown
+1990,Chinatown,15,24,10,438,1,1,0,Chinatown
+1990,Dorchester,7270,16520,5171,1331,155,990,0,Dorchester
+1990,Downtown,104,23,15,316,0,2,0,Downtown
+1990,East Boston,4209,297,1525,479,46,76,0,East Boston
+1990,Fenway,269,245,238,230,9,28,0,Fenway
+1990,Harbor Islands,7,1,0,0,0,0,0,Harbor Islands
+1990,Hyde Park,3841,2348,582,110,17,39,0,Hyde Park
+1990,Jamaica Plain,2173,2105,3830,305,22,102,0,Jamaica Plain
+1990,Longwood,2,154,57,2,1,8,0,Longwood
+1990,Mattapan,498,5739,384,79,26,45,0,Mattapan
+1990,Mission Hill,323,1018,1218,255,14,50,0,Mission Hill
+1990,North End,398,7,37,13,0,1,0,North End
+1990,Roslindale,4136,536,1027,172,10,15,0,Roslindale
+1990,Roxbury,300,9292,3050,67,48,520,0,Roxbury
+1990,South Boston,4939,81,93,160,27,9,0,South Boston
+1990,South Boston Waterfront,33,0,0,4,0,0,0,South Boston Waterfront
+1990,South End,418,1091,1002,817,11,42,0,South End
+1990,West End,119,14,12,31,0,0,0,West End
+1990,West Roxbury,4282,128,168,120,9,9,0,West Roxbury
+1990,_Crews on Ships,0,0,0,0,0,0,0,_Crews on Ships
+2000,Allston,605,299,665,476,0,27,107,Allston
+2000,Back Bay,559,50,32,36,0,0,0,Back Bay
+2000,Beacon Hill,471,38,23,24,0,0,6,Beacon Hill
+2000,Brighton,2127,338,682,775,0,34,106,Brighton
+2000,Charlestown,1476,234,803,164,0,0,0,Charlestown
+2000,Chinatown,17,3,4,279,0,0,0,Chinatown
+2000,Dorchester,4602,18290,6382,2544,0,1184,1738,Dorchester
+2000,Downtown,134,38,52,322,0,0,0,Downtown
+2000,East Boston,3341,398,4415,357,0,0,183,East Boston
+2000,Fenway,188,171,167,95,0,0,38,Fenway
+2000,Harbor Islands,2,4,3,0,0,0,0,Harbor Islands
+2000,Hyde Park,2202,4088,1541,30,0,0,318,Hyde Park
+2000,Jamaica Plain,1736,1708,3518,216,0,0,153,Jamaica Plain
+2000,Longwood,18,143,185,20,0,0,17,Longwood
+2000,Mattapan,229,5734,673,55,0,0,332,Mattapan
+2000,Mission Hill,182,605,661,328,0,0,62,Mission Hill
+2000,North End,343,16,22,5,0,0,0,North End
+2000,Roslindale,2823,1589,1914,133,0,0,252,Roslindale
+2000,Roxbury,102,7604,3582,1,0,390,427,Roxbury
+2000,South Boston,3666,293,880,269,0,0,0,South Boston
+2000,South Boston Waterfront,38,0,0,0,0,0,0,South Boston Waterfront
+2000,South End,379,908,947,567,0,0,18,South End
+2000,West End,194,38,37,55,0,0,21,West End
+2000,West Roxbury,4047,625,427,285,0,0,97,West Roxbury
+2010,Allston,414,206,580,345,0,55,86,Allston
+2010,Back Bay,744,31,61,60,0,0,0,Back Bay
+2010,Beacon Hill,555,22,34,21,0,0,0,Beacon Hill
+2010,Brighton,1735,277,765,637,0,36,34,Brighton
+2010,Charlestown,1402,251,601,258,0,0,0,Charlestown
+2010,Chinatown,47,21,13,240,0,0,6,Chinatown
+2010,Dorchester,3258,13511,6650,2336,0,1150,1128,Dorchester
+2010,Downtown,269,36,40,316,0,0,21,Downtown
+2010,East Boston,2033,249,6022,224,0,30,0,East Boston
+2010,Fenway,221,119,182,95,0,0,32,Fenway
+2010,Harbor Islands,0,0,4,0,0,0,0,Harbor Islands
+2010,Hyde Park,1171,3815,2098,28,0,0,140,Hyde Park
+2010,Jamaica Plain,1858,1151,2653,180,0,0,129,Jamaica Plain
+2010,Longwood,22,32,69,3,0,0,8,Longwood
+2010,Mattapan,124,4096,959,68,0,0,118,Mattapan
+2010,Mission Hill,177,548,885,211,0,0,27,Mission Hill
+2010,North End,355,4,7,15,0,0,0,North End
+2010,Roslindale,2006,1457,2084,87,0,0,24,Roslindale
+2010,Roxbury,194,6137,4438,36,0,267,206,Roxbury
+2010,South Boston,2191,539,1123,276,0,0,0,South Boston
+2010,South Boston Waterfront,75,0,4,10,0,0,0,South Boston Waterfront
+2010,South End,931,708,924,586,0,0,0,South End
+2010,West End,179,34,35,55,0,0,0,West End
+2010,West Roxbury,3746,971,816,487,0,0,117,West Roxbury
+2020,Allston,560,142,533,311,9,50,159,Allston
+2020,Back Bay,716,49,117,120,3,12,131,Back Bay
+2020,Beacon Hill,541,21,62,15,0,3,91,Beacon Hill
+2020,Brighton,1942,338,988,621,4,141,356,Brighton
+2020,Charlestown,1937,328,688,246,4,23,233,Charlestown
+2020,Chinatown,103,38,61,509,0,0,23,Chinatown
+2020,Dorchester,3084,10036,7895,2485,65,805,2456,Dorchester
+2020,Downtown,390,10,79,201,0,6,107,Downtown
+2020,East Boston,1721,267,5444,218,17,187,386,East Boston
+2020,Fenway,400,102,214,205,10,25,104,Fenway
+2020,Harbor Islands,0,0,0,0,0,0,0,Harbor Islands
+2020,Hyde Park,981,3043,2150,126,7,86,410,Hyde Park
+2020,Jamaica Plain,2281,807,1869,249,8,63,692,Jamaica Plain
+2020,Longwood,3,13,17,4,0,2,5,Longwood
+2020,Mattapan,157,3326,1352,96,10,57,329,Mattapan
+2020,Mission Hill,291,491,758,281,4,25,72,Mission Hill
+2020,North End,418,9,83,10,1,8,40,North End
+2020,Roslindale,2027,1240,1824,135,2,62,463,Roslindale
+2020,Roxbury,519,4748,4712,253,29,298,822,Roxbury
+2020,South Boston,2209,445,1088,227,13,49,272,South Boston
+2020,South Boston Waterfront,144,22,46,24,0,4,53,South Boston Waterfront
+2020,South End,1454,552,823,400,6,22,332,South End
+2020,West End,313,35,82,93,0,8,76,West End
+2020,West Roxbury,3242,913,1021,450,3,63,412,West Roxbury
+2020,_Boston Harbor,0,0,0,0,0,0,0,_Boston Harbor
