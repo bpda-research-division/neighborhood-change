@@ -118,7 +118,10 @@ tabPanelServer <- function(geo_type) {
         ss <- ss_df() # for each variable, ss_df is the simple features dataframe that gets mapped
         
         # for any area with a null value in any of the years...
-        areas_with_nulls <- unique(ss[is.na(ss$SUMMARY_VALUE),]$NAME)
+        areas_with_nulls <- c(
+          unique(ss[is.na(ss$SUMMARY_VALUE),]$NAME),
+          var_params()$additional_null_geoms # ...or areas which have been specified as additional null geoms...
+        )
         if (length(areas_with_nulls) > 0) {
           ss$SUMMARY_VALUE[which(ss$NAME %in% areas_with_nulls)] <- NA
         } # ...temporarily replace the value with a NA for the purposes of mapping (to gray the polygon out)

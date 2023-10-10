@@ -95,7 +95,7 @@ APP_CONFIG <- list(
     
     "Children by Age" = list(
       data_code = "chila", agg_func = sum,
-      sb_csv = 'csv/children_tract_age_bins.csv', 
+      sb_csv = 'csv/children_tract_age_bins.csv',
       barTitle = "Children by age", barhoverformat = ",.0f",
       barCats = list(
         "0-4 years" = "under5",
@@ -118,7 +118,8 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1980-2020 Decennial Censuses, 
+      additional_null_geoms = c("Census Tract 9811"),
+      source = "U.S. Census Bureau, 1980-2020 Decennial Censuses,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     ),
 
