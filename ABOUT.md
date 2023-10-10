@@ -84,6 +84,11 @@ To update the underlying data for an existing topic, use steps 1 and 4. To updat
 
 csv format: required columns, unique keys, how missing values in a row and missing elements in a time series are handled
 
+Required columns:
+| name | description |
+| -------- | --------- | 
+| GEOID | Unique identifier for the  |
+
 ### Preparing geographic features
 
 geographic units require spatial data formats - section on how to modify pull_data with a custom set of polygon or multipolygon geometries; the requirement for a GEOID; what file formats read_sf supports
@@ -99,8 +104,8 @@ pull_data creates four data frames for each topic based on a given csv: (this is
 | name | alias | required fields | fields which uniquely identify each row | type of R object | where it's used |
 | -------- | --------- | --------- | ---------- | ---------- | -------- |
 | sb_df | subcity bins | GEOID, NAME, CATEGORY, YEAR, VALUE | GEOID, CATEGORY, YEAR | data frame | bar chart |
-| ss_df | subcity summary | GEOID, NAME, YEAR, VALUE | GEOID, YEAR | simple features object | line chart, map |
-| cb_df | citywide bins | CATEGORY, YEAR, SUMMARY_VALUE | CATEGORY, YEAR | data frame | bar chart |
+| ss_df | subcity summary | GEOID, NAME, YEAR, SUMMARY_VALUE | GEOID, YEAR | simple features object | line chart, map |
+| cb_df | citywide bins | CATEGORY, YEAR, VALUE | CATEGORY, YEAR | data frame | bar chart |
 | cs_df | citywide summary | YEAR, SUMMARY_VALUE | YEAR | data frame | line chart |
 
 ss_df is a simple features object because that is the data frame that is used for the map. sb_df and cb_df are used on the bar chart, and cs_df and ss_df are used on the line chart.

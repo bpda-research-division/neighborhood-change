@@ -116,6 +116,13 @@ tabPanelServer <- function(geo_type) {
       # Redraw all the map polygons when a new variable or indicator is selected
       observeEvent(input$indicatorSelect, { 
         ss <- ss_df() # for each variable, ss_df is the simple features dataframe that gets mapped
+        
+        # for any area with a null value in any of the years...
+        areas_with_nulls <- unique(ss[is.na(ss$SUMMARY_VALUE),]$NAME)
+        if (length(areas_with_nulls) > 0) {
+          ss$SUMMARY_VALUE[which(ss$NAME %in% areas_with_nulls)] <- NA
+        } # ...temporarily replace the value with a NA for the purposes of mapping (to gray the polygon out)
+        
         yrdfs <- split(ss, ss$YEAR) # split the data on YEAR to create separate map layers for each year
         
         # Shade the polygons on a single continuous scale rather than using new ranges for each year

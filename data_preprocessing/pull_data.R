@@ -9,7 +9,7 @@ neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020tract.geojson') %>
 # Define parameters for each geography type and variable ##########
 APP_CONFIG <- list(
   "census tracts" = list(geoms = tract2020_geoms, topics = list(
-    
+
     "Population" = list(
       data_code = 'hbicttp', agg_func = sum, 
       sb_csv = 'csv/hbic_tract_totpop_sex_bins.csv', cb_csv = 'csv/hbictpop_cb.csv',
@@ -92,6 +92,35 @@ APP_CONFIG <- list(
      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, 
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     ),
+    
+    "Children by Age" = list(
+      data_code = "chila", agg_func = sum,
+      sb_csv = 'csv/children_tract_age_bins.csv', 
+      barTitle = "Children by age", barhoverformat = ",.0f",
+      barCats = list(
+        "0-4 years" = "under5",
+        "5-17 years" = "fiveto17"
+      ),
+      summary_indicators = list(
+        "Total children (0-17)" = list(
+          summary_expression = rlang::expr(under5 + fiveto17),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        ),
+        "Total children aged 5-17" = list(
+          summary_expression = rlang::expr(fiveto17),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        ),
+        "Total children aged 0-4" = list(
+          summary_expression = rlang::expr(under5),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1980-2020 Decennial Censuses, 
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
 
     "Race and Ethnicity" = list(
       data_code = "hbictre", agg_func = sum,
@@ -144,7 +173,7 @@ APP_CONFIG <- list(
         University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
       note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
     ),
-
+    
     "Nativity" = list(
       data_code = "hbictnat", agg_func = sum,
       sb_csv = 'csv/hbic_tract_nativity_bins.csv', 
@@ -631,8 +660,8 @@ prep_data <- function(topic) {
 # Prep data #######
 
 # # # You can either prep data for individual topics...
-prep_data(APP_CONFIG[['census tracts']]$topics[['Race and Ethnicity']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Race and Ethnicity']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
+# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Race and Ethnicity']])
 
 # # ...or prep data for all topics
 # for (geo_type in APP_CONFIG) {
@@ -641,7 +670,7 @@ prep_data(APP_CONFIG[['neighborhoods']]$topics[['Race and Ethnicity']])
 #   }
 # }
 
-# always save config after making changes
+# always save config after making changes to it
 APP_CONFIG %>% saveRDS(file='../config/APP_CONFIG.rds')
 
 # ACS Median Household Income (not currently used) ######################
