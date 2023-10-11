@@ -153,7 +153,7 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
           ),
-        "Share of population, Hispanic alone" = list(
+        "Share of population, Hispanic of any race" = list(
           summary_expression = rlang::expr(
             (hisp) /
               (white + black + hisp + asian + native + two_plus + other)
@@ -205,7 +205,7 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
         ),
-        "Share of children, Hispanic alone" = list(
+        "Share of children, Hispanic of any race" = list(
           summary_expression = rlang::expr(
             (hisp) /
               (white + black + hisp + aapi + ainh + twoplus + other)
@@ -531,7 +531,7 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
         ),
-        "Share of population, Hispanic alone" = list(
+        "Share of population, Hispanic of any race" = list(
           summary_expression = rlang::expr(
             (hisp) /
               (white + black + hisp + asian + native + two_plus + other)
@@ -591,7 +591,7 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
         ),
-        "Share of children, Hispanic alone" = list(
+        "Share of children, Hispanic of any race" = list(
           summary_expression = rlang::expr(
             (hisp) /
               (white + black + hisp + aapi + ainh + twoplus + other)
@@ -794,9 +794,9 @@ prep_data <- function(topic) {
 # Prep data #######
 
 # # # You can either prep data for individual topics...
-prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
+# prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
 prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Race and Ethnicity']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
+# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
 prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Race and Ethnicity']])
 
 # # ...or prep data for all topics
