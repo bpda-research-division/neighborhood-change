@@ -224,7 +224,8 @@ APP_CONFIG <- list(
       ),
       additional_null_geoms = c("Census Tract 9811"),
       source = "U.S. Census Bureau, 1980-2020 Decennial Censuses, IPUMS-NHGIS,
-        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
+      note = "Note: Two or More races did not become an option on the decennial census until 2000."
     ),
     
     "Nativity" = list(
@@ -610,7 +611,8 @@ APP_CONFIG <- list(
       ),
       additional_null_geoms = c("Census Tract 9811"),
       source = "U.S. Census Bureau, 1980-2020 Decennial Censuses, IPUMS-NHGIS,
-        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
+      note = "Note: Two or More races did not become an option on the decennial census until 2000."
     ),
     
     "Nativity" = list(
