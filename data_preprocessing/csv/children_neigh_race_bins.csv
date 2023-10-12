@@ -24,30 +24,30 @@ YEAR,GEOID,white,black,hisp,aapi,ainh,other,twoplus,NAME
 1980,West End,215,12,11,3,0,9,0,West End
 1980,West Roxbury,5493,43,110,69,3,48,0,West Roxbury
 1980,_Crews on Ships,26,1,0,0,0,0,0,_Crews on Ships
-1990,Allston,780,453,603,558,5,38,0,Allston
-1990,Back Bay,490,45,22,33,2,5,0,Back Bay
+1990,Allston,782,454,603,558,5,49,0,Allston
+1990,Back Bay,491,45,22,33,2,7,0,Back Bay
 1990,Beacon Hill,461,18,12,39,0,5,0,Beacon Hill
-1990,Brighton,2471,545,675,744,9,53,0,Brighton
-1990,Charlestown,2130,36,105,111,18,1,0,Charlestown
+1990,Brighton,2475,545,675,744,9,67,0,Brighton
+1990,Charlestown,2131,36,105,111,18,1,0,Charlestown
 1990,Chinatown,15,24,10,438,1,1,0,Chinatown
-1990,Dorchester,7270,16520,5171,1331,155,990,0,Dorchester
-1990,Downtown,104,23,15,316,0,2,0,Downtown
-1990,East Boston,4209,297,1525,479,46,76,0,East Boston
-1990,Fenway,269,245,238,230,9,28,0,Fenway
+1990,Dorchester,7281,16553,5171,1331,155,1202,0,Dorchester
+1990,Downtown,104,23,15,316,0,3,0,Downtown
+1990,East Boston,4228,297,1525,479,46,88,0,East Boston
+1990,Fenway,274,246,238,231,9,32,0,Fenway
 1990,Harbor Islands,7,1,0,0,0,0,0,Harbor Islands
-1990,Hyde Park,3841,2348,582,110,17,39,0,Hyde Park
-1990,Jamaica Plain,2173,2105,3830,305,22,102,0,Jamaica Plain
-1990,Longwood,2,154,57,2,1,8,0,Longwood
-1990,Mattapan,498,5739,384,79,26,45,0,Mattapan
-1990,Mission Hill,323,1018,1218,255,14,50,0,Mission Hill
-1990,North End,398,7,37,13,0,1,0,North End
-1990,Roslindale,4136,536,1027,172,10,15,0,Roslindale
-1990,Roxbury,300,9292,3050,67,48,520,0,Roxbury
-1990,South Boston,4939,81,93,160,27,9,0,South Boston
+1990,Hyde Park,3846,2350,582,110,17,56,0,Hyde Park
+1990,Jamaica Plain,2221,2134,3830,305,22,131,0,Jamaica Plain
+1990,Longwood,2,156,57,2,1,12,0,Longwood
+1990,Mattapan,499,5742,384,79,26,49,0,Mattapan
+1990,Mission Hill,327,1056,1218,255,14,71,0,Mission Hill
+1990,North End,399,7,37,13,0,1,0,North End
+1990,Roslindale,4162,541,1027,172,10,24,0,Roslindale
+1990,Roxbury,303,9322,3050,67,48,584,0,Roxbury
+1990,South Boston,4939,82,93,160,27,10,0,South Boston
 1990,South Boston Waterfront,33,0,0,4,0,0,0,South Boston Waterfront
-1990,South End,418,1091,1002,817,11,42,0,South End
+1990,South End,437,1094,1002,817,11,60,0,South End
 1990,West End,119,14,12,31,0,0,0,West End
-1990,West Roxbury,4282,128,168,120,9,9,0,West Roxbury
+1990,West Roxbury,4284,128,168,120,9,11,0,West Roxbury
 1990,_Crews on Ships,0,0,0,0,0,0,0,_Crews on Ships
 2000,Allston,605,299,665,476,0,27,107,Allston
 2000,Back Bay,559,50,32,36,0,0,0,Back Bay

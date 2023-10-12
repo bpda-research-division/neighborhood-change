@@ -794,9 +794,9 @@ prep_data <- function(topic) {
 # Prep data #######
 
 # # # You can either prep data for individual topics...
-# prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
 prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Race and Ethnicity']])
-# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
 prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Race and Ethnicity']])
 
 # # ...or prep data for all topics
