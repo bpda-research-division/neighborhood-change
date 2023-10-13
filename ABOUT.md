@@ -14,13 +14,13 @@ The Neighborhood Change Explorer is built in R Shiny, a framework for building w
 | `server.R` | defines how the map & charts are rendered + how the various controls interact with the visualizations & with each other |
 | `global.R` | defines how the data are loaded into the app + some app-wide formatting parameters (e.g. colors and fonts) and miscellaneous functions |
 
-The actual data are loaded in from files in the `data/` folder, and the contents of the welcome page and the about page are rendered from markdown files stored in the `dialog/` folder. 
+The actual data are loaded in from RDS files in the `data/` folder, and the contents of the welcome page and the about page are rendered from markdown files stored in the `dialog/` folder. 
 
 When the app runs, every R object defined in `global.R` is made available to both the UI and the server, without the need for import statements. See the R Shiny documentation on [two-file Shiny apps](https://shiny.posit.co/r/articles/build/two-file/) and [scoping](https://shiny.posit.co/r/articles/improve/scoping/) to learn more about this architecture.
 
-## Configuring instances of the Neighborhood Change Explorer
+## Basic configuration of the Neighborhood Change Explorer
 
-The data preprocessing folder of this repository includes a script called `pull_data.R` which does not run as part of the app itself, but rather is meant to be modified and run by app maintainers in order to set up the data files that are used by a particular instance of the Neighborhood Change Explorer. 
+The `data_preprocessing/` folder of this repository includes a script called `pull_data.R` which does not run as part of the app itself, but rather is meant to be modified and run by app maintainers in order to set up the data files that are used by a given instance of the Neighborhood Change Explorer. 
 
 Specifically, the names, data sources, and configuration parameters for all of the topics displayed by a Neighborhood Change Explorer instance are defined within the `APP_CONFIG` object in `pull_data.R`. `APP_CONFIG` is set up as a nested list of _**geographic units**_, which contain or more _**topics**_, which in turn contain one or more _**indicators**_.
 
@@ -48,7 +48,7 @@ APP_CONFIG <- list(
     )
   ),
   "geo unit 2" = list(
-    geoms = geo_unit_1_geoms, 
+    geoms = geo_unit_2_geoms, 
     topics = list(
     ... # topics for geo unit 2
     )
@@ -57,15 +57,17 @@ APP_CONFIG <- list(
 )
 ```
 
-Examples of geographic units include "census tracts" and "neighborhoods". Each geographic unit becomes a tab on the app. Tabs are displayed from left to right in the order in which they're declared in `APP_CONFIG`. The declared names of geographic units should be entered in all lower case, but they will be converted into title case when displayed on tabs. The geoms parameter should be a simple features object representing the polygons for the geographic unit that make up your study area. see the section below or move it here
+Examples of geographic units include "census tracts" and "neighborhoods". Each geographic unit becomes a tab on the app. Tabs are displayed from left to right in the order in which they're declared in `APP_CONFIG`. The declared names of geographic units should be entered in all lower case, but they will be converted into title case when displayed on tabs.
 
-Examples of topics include "Age" and "Total Housing Units". Each topic declared for a given geographic unit becomes an entry on that tab's drop-down menu. Topic entries are displayed from top to bottom in the order in which they're declared in `APP_CONFIG`. The names of topics appear on the app exactly as they are declared.
+The value for each `geoms` parameter should be a variable defined earlier in `pull_data.R` containing the polygon/multipolygon geographic features that make up your study area. The ["Preparing geographic features"](#preparing-geographic-features) section of this document describes how to read geographic features into an R variable.
+
+Examples of topics include "Age" and "Housing Occupancy". Each topic declared for a given geographic unit becomes an entry on that tab's drop-down menu. Topic entries are displayed from top to bottom in the order in which they're declared in `APP_CONFIG`. The names of topics appear on the app exactly as they are declared.
 
 Examples of indicators within an "Age" topic might include "Young adult (20-34) share of population" or "Total population aged 65+". Indicator options are displayed from top to bottom in the order in which they're declared in `APP_CONFIG`. The names of indicators appear on the app exactly as they are declared.
 
 For example, if the above pseudocode were to be used in a new instance of the Neighborhood Change Explorer, it would look like this:
 
-![screenshot of ](img/geo_topic_demo.png) # TODO: update this image with indicators
+![screenshot of pseudocode version of the tool](img/geo_topic_demo.png)
 
 Each combination of geographic unit, topic, and indicator constitutes a unique _**variable**_. Variables are the fundamental unit of analysis within the Neighborhood Change Explorer. `ui.R` and `server.R` are basically large functions that are designed to display data about one variable at a time in response to user selections.
 
@@ -73,27 +75,114 @@ Each combination of geographic unit, topic, and indicator constitutes a unique _
 
 Both tabular data and geographic information are needed for each topic in the Neighborhood Change Explorer. In general, the steps required to add a new topic to the Neighborhood Change Explorer are:
 
-1. Preparing a csv file with tabular data and storing it in the `csv/` folder
-2. Identifying or creating a set of geographic features in the `geoms/` folder that are associated with the tabular data
-3. Modifying `pull_data.R` to add a section to the APP_CONFIG variable specifying parameters for the topic
-4. Running `pull_data.R` to create a new RDS file for the topic within the `data/` folder and update `APP_CONFIG.rds`
+1. If a new set of geographic features is needed, save them into the `geoms/` folder
+2. Prepare a csv file with tabular data and store it in the `csv/` folder
+3. Modify the `APP_CONFIG` variable within `pull_data.R` to specify parameters for the topic
+4. Run `pull_data.R` in order to create or update an RDS file for the topic within the `data/` folder as well as to update `APP_CONFIG.rds`
 
-To update the underlying data for an existing topic, use steps 1 and 4. To update the parameters for an existing topic, use steps 3 and 4.
-
-### Preparing tabular data
-
-csv format: required columns, unique keys, how missing values in a row and missing elements in a time series are handled
-
-Required columns:
-| name | description |
-| -------- | --------- | 
-| GEOID | Unique identifier for the  |
+To update the underlying data for an existing topic, use steps 2 and 4. To update the parameters for an existing topic, use steps 3 and 4.
 
 ### Preparing geographic features
 
-geographic units require spatial data formats - section on how to modify pull_data with a custom set of polygon or multipolygon geometries; the requirement for a GEOID; what file formats read_sf supports
+Geographic features are ingested using the [read_sf() function](https://r-spatial.github.io/sf/reference/st_read.html), which accepts most geospatial file formats (e.g. geojson, shapefile, etc). The recommended approach is to save a file containing a set of non-overlapping geographic features (polygon or multipolygon) into the `geoms/` folder of this repo, and then modify or add a line near the top of `pull_data.R` to read that file into an R variable that can then be referred to in `APP_CONFIG`. For example, a hypothetical version of the Neighborhood Change Explorer displaying data for counties and zip code tabulation areas might have lines of code that look like this:
 
-### how the app processes your data
+```
+county_geoms <- read_sf('../geoms/my_counties.geojson')
+zcta_geoms <- read_sf('../geoms/my_zctas.geojson')
+```
+
+Note that each specified set of geographic features must have an attribute called GEOID which uniquely identifies each feature.
+
+Another thing to note is that currently, the Neighborhood Change Explorer does not automatically detect an optimal map centering and zoom level for a given set of geographic features (see issue #37). Until it does, the lon/lat of the center of the map and the map [zoom level](https://leafletjs.com/examples/zoom-levels/) can be set by modifying the numbers specified in the setView() statement within `server.R`:
+
+```
+setView(-71.075, 42.318, zoom = 12)
+```
+
+### Preparing tabular data
+
+Tabular data are ingested using R's read.csv() function, which expects a csv file. One of the parameters to be specified for each topic in the `APP_CONFIG` variable within `pull_data.R` is the filepath of the csv file containing the tabular data for that topic. 
+
+The csv file should have one row for each geographic area with data in a given year. There are three required column names: GEOID (which should uniquely identify each geographic area and correspond with the GEOID attribute of the geographic features), NAME (the display label for each geographic area), and YEAR.
+
+All other columns in the csv file for a given topic should represent **_categories_** within each topic. For example, the topic of housing occupancy might have just two categories, occupied housing units and vacant housing units, which are represented in the example rows below using the column aliases "occ" and "vac":
+
+| GEOID | NAME | vac | occ | YEAR |
+| -------- | --------- | -------- | ------ | -------- |
+| 25025060800 | Census Tract 608 | 226 | 1418 | 1980 |
+| 25025070202 | Census Tract 702.02 | 125 | 1113 | 1980 |
+| 25025070202 | Census Tract 702.02 | 141 | 1186 | 1990 |
+| ... | ... | ... | ... | ... |
+
+Topics with more than two categories (e.g. age brackets or racial groups) will have more than two columns besides GEOID, NAME, and YEAR in their csv files. Also note that for any topic, the order of columns from left to right does not matter. 
+
+#### How the app handles missing tabular data
+
+Any rows in the tabular data with blank data values for one or more years will result in the corresponding geographic areas being shaded in gray on the map across all years in a given topic, and those areas won't be able to be map-selected for custom aggregation. Handling blank values in this way is useful for displaying census geographies with little to no population, and ensures that the bar and line charts won't look buggy due to selected areas having null data values. Any non-blank data from other years for these geographies will still be included in the place-wide totals that are displayed on the line and bar charts when no areas are selected on the map.
+
+If years of missing data for particular areas are excluded entirely from the tabular data (instead of leaving in rows with blank values), those areas will be shaded normally for years with data, they will still be selectable, and the shapes will simply disappear when moving the time slider over the years without data, as demonstrated below:
+
+![screenshot of pseudocode version of the tool](img/gapyear_demo.gif)
+
+If an individual area with no rows for one or more years is selected, data for the non-missing years will still be plotted on the bar and line charts, but any excluded years will be blank on the bar chart and not have markers on the line chart.
+
+
+
+## Configuring topics and defining indicators
+
+The configuration of each variable is defined by a set of _**parameters**_ within `APP_CONFIG`, including parameters for entire topics as well as parameters for specific indicators within topics. 
+
+### Topic parameters
+
+The following parameters should be declared as a list() 
+```
+"topic A" = list(
+  param1 = param1_value, 
+  param2 = param2_value, 
+  ...
+)
+```
+
+| parameter | required? | description | example value |
+| ------ | ---- | ------ | ----- |
+| data_code | required | a short string of characters unique to the topic, which will also be the name for the corresponding .RDS file in the `data/` folder | `"hbicttp"` |
+| agg_func | required | ------ | `sum` |
+| sb_csv | required | ------ | `"csv/hbic_tract_totpop_sex_bins.csv"` |
+| ss_csv | optional | ------ | `"csv/hbictpop_ss.csv"` |
+| cb_csv | optional | ------ | `"csv/hbictpop_cb.csv"` |
+| cs_csv | optional | ------ | `"csv/hbictpop_cs.csv"` |
+| barTitle | required | ------ | `"Population by sex"` |
+| barhoverformat | required | ------ | `",.0f"` |
+| barCats | required | ------ | `list("Occupied" = "occ", "Vacant" = "vac")` |
+| summary_indicators | required | ------ |  |
+| source | required | citation information to display for the topic | `"U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"` |
+| note | optional | any additional note about the topic to be displayed between the bar chart and line chart | `"Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."` |
+
+etc fill out topic params
+
+The data for each topic consists of:
+* category: eg population 10-19, 20-34. CATEGORY field is category names to be displayed. should have more than 1 for the bar chart to be interesting
+* category label: column alias for a given category xyz, used in summary expression
+* geographic unit: eg tracts, neighborhoods, block groups
+* geographic area: uniquely identified with GEOID field, and named/labeled with the NAME field. should be non overlapping
+* aggregate function
+* summary expression
+* variable code 
+* summary indicators
+
+### Indicator parameters
+
+For some topics, it may only make sense to have one indicator, but for other topics, particularly ones with a larger number of categories, a larger number of indicators may be possible and desirable to implement.
+
+| parameter | required? | description | example |
+| ------ | ---- | ------ | ----- |
+| summary_expression | yes | An R expression object showing what operations to perform on category aliases in order to compute an indicator | `rlang::expr(foreign / (foreign + native))` |
+
+etc fill out indicator params
+
+## how pull_data.R prepares data for
+
+if you saved a new set of geographies, add x to app config. if a new topic for an existing set, add y within that topic.
 
 The Neighborhood Change Explorer app uses R data frames to store and work with the data for each topic. A data frame is a data structure can be thought of as a spreadsheet table with rows of features and columns of fields / attributes.
 
@@ -118,38 +207,14 @@ use pull data to both create new data files and modify existing ones. walk throu
 
 also talk about the use case of overrides and walk through an example of that.
 
-## Configuring topics and defining indicators
+## Publishing and deployment
 
- The configuration of each variable is defined by a set of **parameters** within APP_CONFIG. this is where you specify the csv name(s) but also control things like how the data should be formatted for display, and define indicators.
+shiny apps account
 
-### Topic parameters
+outside of rstudio, https://docs.posit.co/shinyapps.io/getting-started.html#deploying-applications
 
-| parameter | required? | description | example |
-| ------ | ---- | ------ | ----- |
-| data_code | yes | name of the corresponding .RDS file in the `data/` folder | "hbicttp" |
+using rstudio, (re)publish button
 
-etc fill out topic params
+clearing global environment before publishing
 
-The data for each topic consists of:
-* topic: 
-* summary indicator: eg young adult share, non white-alone share, total housing units
-* category: eg population 10-19, 20-34. CATEGORY field is category names to be displayed. should have more than 1 for the bar chart to be interesting
-* category label: column alias for a given category xyz, used in summary expression
-* geographic unit: eg tracts, neighborhoods, block groups
-* geographic area: uniquely identified with GEOID field, and named/labeled with the NAME field. should be non overlapping
-* aggregate function
-* summary expression
-* variable code 
-* summary indicators
-
-### Indicator parameters
-
-For some topics, it may only make sense to have one indicator, but for other topics, particularly ones with a larger number of categories, a larger number of indicators may be possible and desirable to implement.
-
-| parameter | required? | description | example |
-| ------ | ---- | ------ | ----- |
-| summary_expression | yes | An R expression object showing what operations to perform on category aliases in order to compute an indicator | `rlang::expr(foreign / (foreign + native))` |
-
-etc fill out indicator params
-
-and i think that's it for this document
+intermittent timeouts that sometimes still work
