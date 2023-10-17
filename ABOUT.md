@@ -132,43 +132,53 @@ If an individual area with no rows for one or more years is selected, data for t
 
 The configuration of each variable is defined by a set of _**parameters**_ within `APP_CONFIG`, including parameters for entire topics as well as parameters for specific indicators within topics. 
 
-### Topic parameters
+As illustrated in the [basic configuration](#basic-configuration-of-the-neighborhood-change-explorer) section of this document, each geograhpic unit declared in APP_CONFIG should have a list() of topics. Each topic is itself composed of a list() of topic parameters, as illustrated below. One of those topic parameters is summary_indicators, which is where each indicator is defined by its list() of indicator parameters.
 
-The following parameters should be declared as a list() 
 ```
 "topic A" = list(
-  param1 = param1_value, 
-  param2 = param2_value, 
+  topic_param1 = topic_param1_value, 
+  topic_param2 = topic_param2_value, 
   ...
+  summary_indicators = list(
+    "indicator1_displayname" = list(
+      indicator1_param1 = indicator1_param1_value, 
+      indicator1_param2 = indicator1_param2_value, 
+      ...
+    ),
+    "indicator2_displayname" = list(
+      indicator2_param1 = indicator2_param1_value, 
+      indicator2_param2 = indicator2_param2_value, 
+      ...
+    )
+    ... # other indicators, as desired
+  )
 )
 ```
+
+For some topics, it may only make sense to have one indicator, but for other topics, particularly ones with a larger number of categories, a larger number of indicators may be possible and desirable to implement.
+
+### Topic parameters
 
 | parameter | required? | description | example value |
 | ------ | ---- | ------ | ----- |
 | data_code | required | a short string of characters unique to the topic, which will also be the name for the corresponding .RDS file in the `data/` folder | `"hbicttp"` |
 | agg_func | required | ------ | `sum` |
 | sb_csv | required | ------ | `"csv/hbic_tract_totpop_sex_bins.csv"` |
-| ss_csv | optional | ------ | `"csv/hbictpop_ss.csv"` |
 | cb_csv | optional | ------ | `"csv/hbictpop_cb.csv"` |
-| cs_csv | optional | ------ | `"csv/hbictpop_cs.csv"` |
-| barTitle | required | ------ | `"Population by sex"` |
-| barhoverformat | required | ------ | `",.0f"` |
+| barTitle | required | bar chart title for the topic | `"Population by sex"` |
+| barhoverformat | required | [D3 format code](https://github.com/d3/d3-format/tree/v1.4.5#d3-format) for the numbers that appear when users hover over bars on the bar chart | `",.0f"` (to show 0 decimal places with commas separating thousands) |
 | barCats | required | ------ | `list("Occupied" = "occ", "Vacant" = "vac")` |
 | summary_indicators | required | ------ |  |
 | source | required | citation information to display for the topic | `"U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"` |
 | note | optional | any additional note about the topic to be displayed between the bar chart and line chart | `"Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."` |
 
-etc fill out topic params
+what should the four csvs / dfs be called? Summary vs (binned? categories?) is one dimension. (citywide? placewide? total area?) vs (subcity? sub place? individual areas?)
 
-The data for each topic consists of:
-* category: eg population 10-19, 20-34. CATEGORY field is category names to be displayed. should have more than 1 for the bar chart to be interesting
-* category label: column alias for a given category xyz, used in summary expression
-* geographic unit: eg tracts, neighborhoods, block groups
-* geographic area: uniquely identified with GEOID field, and named/labeled with the NAME field. should be non overlapping
-* aggregate function
-* summary expression
-* variable code 
-* summary indicators
+ib / tb / is / ts
+indivareas_categories_csv
+totalarea_categories_csv_override
+indivareas_summary_csv_override
+totalarea_summary_csv_override
 
 ### Indicator parameters
 
@@ -176,17 +186,16 @@ For some topics, it may only make sense to have one indicator, but for other top
 
 | parameter | required? | description | example |
 | ------ | ---- | ------ | ----- |
-| summary_expression | yes | An R expression object showing what operations to perform on category aliases in order to compute an indicator | `rlang::expr(foreign / (foreign + native))` |
+| summary_expression | yes | An R expression object showing how to compute an indicator as a function of the column aliases for the topic categories | `rlang::expr(foreign / (foreign + native))` |
+| ss_csv | optional | ------ | `"csv/hbictpop_ss.csv"` |
+| cs_csv | optional | ------ | `"csv/hbictpop_cs.csv"` |
+| linehoverformat | required | [D3 format code](https://github.com/d3/d3-format/tree/v1.4.5#d3-format) for the numbers that appear when users hover over points on the line chart | `".0%"` (to show a fraction between 0 and 1 as a rounded percentage) |
 
 etc fill out indicator params
 
 ## how pull_data.R prepares data for
 
 if you saved a new set of geographies, add x to app config. if a new topic for an existing set, add y within that topic.
-
-The Neighborhood Change Explorer app uses R data frames to store and work with the data for each topic. A data frame is a data structure can be thought of as a spreadsheet table with rows of features and columns of fields / attributes.
-
-The app also uses [simple features objects](https://r-spatial.github.io/sf/articles/sf1.html), which are basically just data frames with an additional geometry column that stores the spatial properties of each feature. Simple features objects allow spatial data to be displayed on a map.
 
 pull_data creates four data frames for each topic based on a given csv: (this is out of date - pull_data most of the time just includes the sb df in the rds - other dfs only included if they are overrides)
 
