@@ -4,10 +4,52 @@ library(tidyr)
 library(sf)
 
 tract2020_geoms <- read_sf('../geoms/boston_tracts_2020_complex.geojson') %>% mutate(GEOID = as.character(geoid20))
+tract2010_geoms <- read_sf('../geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
 neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020tract.geojson') %>% mutate(GEOID = nbhd)
 
 # Define parameters for each geography type and variable ##########
 APP_CONFIG <- list(
+  "tracts" = list(geoms = tract2010_geoms, topics = list(
+    "Numbers of Loans to Small Businesses" = list(
+      data_code = 'loannsb', agg_func = sum,
+      sb_csv = 'csv/loans_num_sbus_bins.csv',
+      barTitle = 'Number of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f",
+      barCats = list("Small Businesses" = "num_sml_sbus", "Large Businesses" = "num_sml_bbus"),
+      summary_indicators = list(
+        "Share of small loans going to small businesses" = list(
+          summary_expression = rlang::expr(num_sml_sbus/(num_sml_sbus + num_sml_bbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Total small loans" = list(
+          summary_expression = rlang::expr(num_sml_sbus + num_sml_bbus),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+        )
+      ),
+      source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
+    ),
+    "Volume ($) of Loans to Small Businesses" = list(
+      data_code = 'loanvsb', agg_func = sum,
+      sb_csv = 'csv/loans_vol_sbus_bins.csv',
+      barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = "$,.0f",
+      barCats = list("Small Businesses" = "vol_sml_sbus", "Large Businesses" = "vol_sml_bbus"),
+      summary_indicators = list(
+        "Share of small loan volume ($) going to small businesses" = list(
+          summary_expression = rlang::expr(vol_sml_sbus/(vol_sml_sbus + vol_sml_bbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+        ),
+        "Total small loan volume ($)" = list(
+          summary_expression = rlang::expr(vol_sml_sbus + vol_sml_bbus),
+          citywide_comparison = FALSE,
+          hoverformat = "$,.0f", tickprefix = NULL, tickformat = ""
+        )
+      ),
+      source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
+    )
+    )
+  ),
   "census tracts" = list(geoms = tract2020_geoms, topics = list(
 
     "Population" = list(
@@ -796,10 +838,8 @@ prep_data <- function(topic) {
 # Prep data #######
 
 # # # You can either prep data for individual topics...
-prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
-prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Race and Ethnicity']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Race and Ethnicity']])
+prep_data(APP_CONFIG[['tracts']]$topics[['Numbers of Loans to Small Businesses']])
+prep_data(APP_CONFIG[['tracts']]$topics[['Volume ($) of Loans to Small Businesses']])
 
 # # ...or prep data for all topics
 # for (geo_type in APP_CONFIG) {

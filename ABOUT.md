@@ -174,10 +174,10 @@ For some topics, it may only make sense to have one indicator, but for other top
 
 what should the four csvs / dfs be called? Summary vs (binned? categories?) is one dimension. (citywide? placewide? total area?) vs (subcity? sub place? individual areas?)
 
-ib / tb / is / ts
-indivareas_categories_csv
+I think I will eventually rename the csv parameters to the following:
+areas_categories_csv
 totalarea_categories_csv_override
-indivareas_summary_csv_override
+areas_summary_csv_override
 totalarea_summary_csv_override
 
 ### Indicator parameters
