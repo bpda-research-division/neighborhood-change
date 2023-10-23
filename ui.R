@@ -21,12 +21,24 @@ geoTabPanelUI <- function(geo_type) {
     # the left side of the screen will be filled by a sidebarPanel containing the controls
     sidebarPanel(width=6, style="height:850px;", tags$style(".well {background-color:#ebedf2;}"),
         fluidRow(
-          column(width=4, style="margin-top:5px;",
-                 HTML("<b>Choose a topic:</b>")
+          column(width=4, style="margin-top:5px;", 
+                 HTML("<b>Choose a general topic:</b>")
+                 ),
+          column(width=8, style="z-index:1012;", # ensure drop-down menu displays in front of other stuff
+                 selectInput(ns("broadCatSelect"),
+                             NULL, 
+                             choices = c("Demographics", "Housing", "Businesses")
+                             )
+                 )
+        ),
+        fluidRow(
+          column(width=4, style="margin-top:5px;", 
+                 HTML("<b>Choose a specific topic:</b>")
                  ),
           column(width=8, style="z-index:1011;", # ensure drop-down menu displays in front of other stuff
                  selectInput(ns("topicSelect"),
-                             NULL, choices = names(variables) %>% 
+                             NULL, 
+                             choices = names(variables) %>% 
                                lapply(function (n) { # display each variable with its start and end year
                                  paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
                                })
@@ -34,7 +46,7 @@ geoTabPanelUI <- function(geo_type) {
                  )
         ),
         fluidRow(
-          column(width=4, style="margin-top:5px;",
+          column(width=4, style="margin-top:5px;", 
                  HTML("<b>Choose a variable:</b>")
           ),
           column(width=8, style="z-index:1010;",
@@ -44,7 +56,7 @@ geoTabPanelUI <- function(geo_type) {
           )
         ),
         fluidRow(
-           column(width=4, style="margin-top:5px;", 
+           column(width=4, 
                   HTML(
                     "<b>Drag the slider or click &#9658; to move through time:</b>"
                     ), # the above jumble of characters is the HTML code for a play button symbol
@@ -60,7 +72,7 @@ geoTabPanelUI <- function(geo_type) {
        div(style="padding-bottom:5px;", HTML(
          sprintf("<b>Select one or more %s on the map:</b>", geo_type)
        )),
-       leafletOutput(ns("map"), height="550px") %>%
+       leafletOutput(ns("map"), height="510px") %>%
          htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
     ),
     mainPanel(width=6, # the right-hand side of the screen displays the charts, any notes, and source citations
