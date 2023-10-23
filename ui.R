@@ -6,8 +6,8 @@
 #' with a given set of UI components (map, bar chart, line chart, etc). 
 #' This function creates those components, namespacing them by geography type. 
 geoTabPanelUI <- function(geo_type) {
-  ns <- NS(gsub(" ","_",geo_type))
-  variables <- APP_CONFIG[[geo_type]]$topics
+  ns <- NS(gsub(" ","_",geo_type)) # when the initialization is only general topics...
+  variables <- APP_CONFIG[[geo_type]]$topics # ...most of these lines of code will be moved to the server # xyz123
   variables_years <- APP_DATA[[geo_type]] %>% 
     lapply(function(var) unique(var$sb_df$YEAR))
   initial_years <- variables_years[[1]]
@@ -21,13 +21,13 @@ geoTabPanelUI <- function(geo_type) {
     # the left side of the screen will be filled by a sidebarPanel containing the controls
     sidebarPanel(width=6, style="height:850px;", tags$style(".well {background-color:#ebedf2;}"),
         fluidRow(
-          column(width=4, style="margin-top:5px;", 
+          column(width=4, style="margin-top:5px;",
                  HTML("<b>Choose a general topic:</b>")
                  ),
           column(width=8, style="z-index:1012;", # ensure drop-down menu displays in front of other stuff
-                 selectInput(ns("broadCatSelect"),
-                             NULL, 
-                             choices = c("Demographics", "Housing", "Businesses")
+                 selectInput(ns("generalTopicSelect"),
+                             NULL,
+                             choices = c("Demographics", "Housing", "Businesses") # names(APP_CONFIG[[geo_unit]]$generalTopics) # xyz123
                              )
                  )
         ),
@@ -41,7 +41,7 @@ geoTabPanelUI <- function(geo_type) {
                              choices = names(variables) %>% 
                                lapply(function (n) { # display each variable with its start and end year
                                  paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
-                               })
+                               }) # NULL # xyz123
                              )
                  )
         ),

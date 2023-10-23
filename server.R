@@ -24,22 +24,33 @@ tabPanelServer <- function(geo_type) {
     function(input, output, session) {
       # string representation of the namespaced geography type (e.g. "census tracts")
       geo_units <- gsub("_"," ", session$ns(''))
-      geo_unit <- substr(geo_units, 1, nchar(geo_units) - 1) # "census tract"
+      geo_unit <- substr(geo_units, 1, nchar(geo_units) - 1)
       geo_shapes <- APP_CONFIG[[geo_unit]]$geoms
       
-      selected_topic <- reactiveVal()
+      # selected_topic <- reactiveVal()
       
       # input$topicSelect values are initialized in the UI with the year range
       # concatenated to each variable name. To extract the topic name from input$topicSelect... 
       topic_name <- reactive({ # ...we use a regex to find the last occurrence of a ( followed by a digit...
         idxs <- gregexpr("\\((\\d)", input$topicSelect)
         idx <- idxs[[1]][length(idxs)]
-        substr(input$topicSelect, 1, idx - 2) # ...and strip that part away.
+        topicName <- substr(input$topicSelect, 1, idx - 2) # ...and strip that part away.
+        # req(topicName %in% names(generalTopic_params()$topics)) # xyz123
+        topicName
       })
+      
+      # # Keep track of the parameters for whichever general topic is selected
+      # generalTopic_params <- reactive({
+      #   APP_CONFIG[[geo_unit]]$generalTopics[[input$generalTopicSelect]]
+      # }) # xyz123
+      
+      # in theory, the req() in topic_name should keep anything from being done with a topic (including var_params()) 
+      # until topicSelect inputs have been updated in response to generalTopicSelect
       
       # Keep track of the parameters for whichever topic is selected
       var_params <- reactive({
         APP_CONFIG[[geo_unit]]$topics[[topic_name()]]
+        # generalTopic_params()$topics[[topic_name()]] # xyz123
       })
       
       # Keep track of the parameters for whichever indicator is selected...
@@ -52,7 +63,7 @@ tabPanelServer <- function(geo_type) {
       # Keep track of the data frames for whichever indicator is selected...
       var_data <- reactive({
         # ...making sure that the indicator is updated before we start accessing data
-        req(indicator_params())
+        req(input$indicatorSelect %in% names(var_params()$summary_indicators))
         APP_DATA[[geo_unit]][[topic_name()]]
       })
       
@@ -79,8 +90,11 @@ tabPanelServer <- function(geo_type) {
       
       # subcity summary dataframe: one summary value for each year and geography
       ss_df <- reactive({
+        data <- var_data()$sb_df # I'm not 100% sure why, but we need this extra variable declaration 
+        # When I try passing sb_df directly into pivot_summarise() in the df argument, the app mysteriously crashes
+        
         pivot_summarise(
-          df = var_data()$sb_df, 
+          df = data, 
           cats = var_params()$barCats, 
           summary_expr = indicator_params()$summary_expression, 
           id_columns = c("YEAR", "GEOID", "NAME")
@@ -236,11 +250,22 @@ tabPanelServer <- function(geo_type) {
         selectedPolygons$groups <- vector() # ...unselect all polygons and hide them on the map.
       })
       
+      # # To update the specific topic selection menu each time the user selects a different general topic...
+      # observeEvent(input$generalTopicSelect, {
+      # variables_years <- generalTopic_params()$topics %>% 
+      #   lapply(function(var) unique(var$sb_df$YEAR))
+      #   topics <- names(generalTopic_params()$topics) %>% 
+      # lapply(function (n) { # display each variable with its start and end year
+      #   paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
+      # })
+      #   updateSelectInput(session, "topicSelect", choices=topics, selected=topics[[1]])
+      # }) # xyz123
+      
       # To update the slider input each time the user selects a different topic...
       observeEvent(input$topicSelect, {
-        if (is.null(selected_topic())) { # only executes on initial load
-          selected_topic(input$topicSelect)
-        }
+        # if (is.null(selected_topic())) { # only executes on initial load
+        #   selected_topic(input$topicSelect)
+        # }
         indicators <- names(var_params()$summary_indicators)
         updateSelectInput(session, "indicatorSelect", choices=indicators, selected=indicators[[1]])
         updateSliderTextInput(session, "yearSelect",
@@ -248,7 +273,7 @@ tabPanelServer <- function(geo_type) {
           choices = var_years(),
           selected = tail(var_years(), 1) # ...and reset the slider to start on the most recent year of data
           )
-        selected_topic(input$topicSelect) # Now that indicator is updated, we can trigger the data to update
+        # selected_topic(input$topicSelect) # Now that indicator is updated, we can trigger the data to update
         
       })
       
