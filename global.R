@@ -216,10 +216,12 @@ APP_CONFIG <- readRDS("config/APP_CONFIG.rds")
 
 # using APP_CONFIG, read the four data frames for each variable into APP_DATA
 # APP_DATA has the same structure as APP_CONFIG, but with a list of data
-# frames instead of a list of parameters being stored for each variable
+# frames instead of a list of parameters being stored for each specific topic
 APP_DATA <- APP_CONFIG %>% 
-  lapply(function(geo_type) geo_type$topics %>% 
-    lapply(
-      function(topic) readRDS(sprintf("./data/%s.rds", topic$data_code))
+  lapply(function(geo_type) geo_type$generalTopics %>% 
+    lapply(function(generalTopic) generalTopic$topics %>% # previously, went str8 to geo_type$topics # xyz123
+      lapply(
+        function(topic) readRDS(sprintf("./data/%s.rds", topic$data_code))
+      )
     )
   )

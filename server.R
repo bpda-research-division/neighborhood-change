@@ -32,25 +32,31 @@ tabPanelServer <- function(geo_type) {
       # input$topicSelect values are initialized in the UI with the year range
       # concatenated to each variable name. To extract the topic name from input$topicSelect... 
       topic_name <- reactive({ # ...we use a regex to find the last occurrence of a ( followed by a digit...
+        req(nchar(input$topicSelect) > 0)
         idxs <- gregexpr("\\((\\d)", input$topicSelect)
         idx <- idxs[[1]][length(idxs)]
         topicName <- substr(input$topicSelect, 1, idx - 2) # ...and strip that part away.
-        # req(topicName %in% names(generalTopic_params()$topics)) # xyz123
+        req(topicName %in% names(generalTopic_params()$topics)) # xyz123
         topicName
       })
       
-      # # Keep track of the parameters for whichever general topic is selected
-      # generalTopic_params <- reactive({
-      #   APP_CONFIG[[geo_unit]]$generalTopics[[input$generalTopicSelect]]
-      # }) # xyz123
+      # Keep track of the parameters for whichever general topic is selected
+      generalTopic_params <- reactive({
+        APP_CONFIG[[geo_unit]]$generalTopics[[input$generalTopicSelect]]
+      }) # xyz123
+      
+      # Keep track of the parameters for whichever general topic is selected
+      generalTopic_data <- reactive({
+        APP_DATA[[geo_unit]][[input$generalTopicSelect]]
+      }) # xyz123
       
       # in theory, the req() in topic_name should keep anything from being done with a topic (including var_params()) 
       # until topicSelect inputs have been updated in response to generalTopicSelect
       
       # Keep track of the parameters for whichever topic is selected
       var_params <- reactive({
-        APP_CONFIG[[geo_unit]]$topics[[topic_name()]]
-        # generalTopic_params()$topics[[topic_name()]] # xyz123
+        # APP_CONFIG[[geo_unit]]$topics[[topic_name()]]
+        generalTopic_params()$topics[[topic_name()]] # xyz123
       })
       
       # Keep track of the parameters for whichever indicator is selected...
@@ -63,8 +69,8 @@ tabPanelServer <- function(geo_type) {
       # Keep track of the data frames for whichever indicator is selected...
       var_data <- reactive({
         # ...making sure that the indicator is updated before we start accessing data
-        req(input$indicatorSelect %in% names(var_params()$summary_indicators))
-        APP_DATA[[geo_unit]][[topic_name()]]
+        #req(input$indicatorSelect %in% names(var_params()$summary_indicators))
+        generalTopic_data()[[topic_name()]] # xyz123
       })
       
       # citywide binned dataframe: one value for each year and category
@@ -205,7 +211,7 @@ tabPanelServer <- function(geo_type) {
       
       # Keep track of the unique set of years for the variable the user selects
       var_years <- reactive({
-        unique(APP_DATA[[geo_unit]][[topic_name()]]$sb_df$YEAR)
+        unique(var_data()$sb_df$YEAR) # xyz123
       })
       
       # Update the map When the user moves the time slider or picks a new variable
@@ -250,16 +256,16 @@ tabPanelServer <- function(geo_type) {
         selectedPolygons$groups <- vector() # ...unselect all polygons and hide them on the map.
       })
       
-      # # To update the specific topic selection menu each time the user selects a different general topic...
-      # observeEvent(input$generalTopicSelect, {
-      # variables_years <- generalTopic_params()$topics %>% 
-      #   lapply(function(var) unique(var$sb_df$YEAR))
-      #   topics <- names(generalTopic_params()$topics) %>% 
-      # lapply(function (n) { # display each variable with its start and end year
-      #   paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
-      # })
-      #   updateSelectInput(session, "topicSelect", choices=topics, selected=topics[[1]])
-      # }) # xyz123
+      # To update the specific topic selection menu each time the user selects a different general topic...
+      observeEvent(input$generalTopicSelect, {
+      variables_years <- generalTopic_data() %>%
+        lapply(function(var) unique(var$sb_df$YEAR))
+      topics <- names(generalTopic_params()$topics) %>%
+        lapply(function (n) { # display each variable with its start and end year
+          paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
+        })
+        updateSelectInput(session, "topicSelect", choices=topics, selected=topics[[1]])
+      }) # xyz123
       
       # To update the slider input each time the user selects a different topic...
       observeEvent(input$topicSelect, {

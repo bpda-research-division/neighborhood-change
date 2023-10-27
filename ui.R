@@ -7,8 +7,8 @@
 #' This function creates those components, namespacing them by geography type. 
 geoTabPanelUI <- function(geo_type) {
   ns <- NS(gsub(" ","_",geo_type)) # when the initialization is only general topics...
-  variables <- APP_CONFIG[[geo_type]]$topics # ...most of these lines of code will be moved to the server # xyz123
-  variables_years <- APP_DATA[[geo_type]] %>% 
+  # variables <- APP_CONFIG[[geo_type]]$topics # ...most of these lines of code will be moved to the server # xyz123
+  variables_years <- APP_DATA[[geo_type]][[1]] %>% # xyz123
     lapply(function(var) unique(var$sb_df$YEAR))
   initial_years <- variables_years[[1]]
   
@@ -27,7 +27,7 @@ geoTabPanelUI <- function(geo_type) {
           column(width=8, style="z-index:1012;", # ensure drop-down menu displays in front of other stuff
                  selectInput(ns("generalTopicSelect"),
                              NULL,
-                             choices = c("Demographics", "Housing", "Businesses") # names(APP_CONFIG[[geo_unit]]$generalTopics) # xyz123
+                             choices = names(APP_CONFIG[[geo_type]]$generalTopics) # xyz123
                              )
                  )
         ),
@@ -38,10 +38,11 @@ geoTabPanelUI <- function(geo_type) {
           column(width=8, style="z-index:1011;", # ensure drop-down menu displays in front of other stuff
                  selectInput(ns("topicSelect"),
                              NULL, 
-                             choices = names(variables) %>% 
-                               lapply(function (n) { # display each variable with its start and end year
-                                 paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
-                               }) # NULL # xyz123
+                             choices = NULL # will be populated by the server
+                               # names(variables) %>% 
+                               # lapply(function (n) { # display each variable with its start and end year
+                               #   paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
+                               # }) # xyz123
                              )
                  )
         ),
@@ -51,7 +52,7 @@ geoTabPanelUI <- function(geo_type) {
           ),
           column(width=8, style="z-index:1010;",
                  selectInput(ns("indicatorSelect"),
-                             NULL, choices = NULL
+                             NULL, choices = NULL # will be populated by the server
                  )
           )
         ),
