@@ -27,31 +27,29 @@ tabPanelServer <- function(geo_type) {
       geo_unit <- substr(geo_units, 1, nchar(geo_units) - 1)
       geo_shapes <- APP_CONFIG[[geo_unit]]$geoms
       
-      # selected_topic <- reactiveVal()
+      # Keep track of the parameters for whichever general topic is selected
+      generalTopic_params <- reactive({
+        APP_CONFIG[[geo_unit]]$generalTopics[[input$generalTopicSelect]]
+      })
       
-      # input$topicSelect values are initialized in the UI with the year range
-      # concatenated to each variable name. To extract the topic name from input$topicSelect... 
+      # Keep track of the data for whichever general topic is selected
+      generalTopic_data <- reactive({
+        APP_DATA[[geo_unit]][[input$generalTopicSelect]]
+      })
+      
+      # input$topicSelect values are displayed with the year range concatenated to each variable name. 
+      # To extract the topic name from input$topicSelect... 
       topic_name <- reactive({ # ...we use a regex to find the last occurrence of a ( followed by a digit...
         req(nchar(input$topicSelect) > 0)
         idxs <- gregexpr("\\((\\d)", input$topicSelect)
         idx <- idxs[[1]][length(idxs)]
         topicName <- substr(input$topicSelect, 1, idx - 2) # ...and strip that part away.
-        req(topicName %in% names(generalTopic_params()$topics)) # xyz123
+        
+        # this req() statement prevents anything dependent on topic_name from executing until input$topicSelect
+        # has finished updating
+        req(topicName %in% names(generalTopic_params()$topics))
         topicName
       })
-      
-      # Keep track of the parameters for whichever general topic is selected
-      generalTopic_params <- reactive({
-        APP_CONFIG[[geo_unit]]$generalTopics[[input$generalTopicSelect]]
-      }) # xyz123
-      
-      # Keep track of the parameters for whichever general topic is selected
-      generalTopic_data <- reactive({
-        APP_DATA[[geo_unit]][[input$generalTopicSelect]]
-      }) # xyz123
-      
-      # in theory, the req() in topic_name should keep anything from being done with a topic (including var_params()) 
-      # until topicSelect inputs have been updated in response to generalTopicSelect
       
       # Keep track of the parameters for whichever topic is selected
       var_params <- reactive({
@@ -66,21 +64,18 @@ tabPanelServer <- function(geo_type) {
         var_params()$summary_indicators[[input$indicatorSelect]]
       })
       
-      # Keep track of the data frames for whichever indicator is selected...
+      # Keep track of the data for whichever topic is selected...
       var_data <- reactive({
-        # ...making sure that the indicator is updated before we start accessing data
-        #req(input$indicatorSelect %in% names(var_params()$summary_indicators))
         generalTopic_data()[[topic_name()]] # xyz123
       })
       
       # citywide binned dataframe: one value for each year and category
       cb_df <- reactive({
-        if ("cb_df" %in% names(var_data())) {var_data()$cb_df}
-        else {
-          var_data()$sb_df %>% 
+        if ("cb_df" %in% names(var_data())) {var_data()$cb_df} # use override if one was specified
+        else { # otherwise calculate cb_df from sb_df
+          var_data()$sb_df %>%
             group_by(YEAR, CATEGORY) %>% 
-            summarise_at(c("VALUE"), var_params()$agg_func, na.rm = TRUE) %>%
-            ungroup()
+            summarise(VALUE = var_params()[["agg_func"]](VALUE, na.rm = TRUE), .groups = 'drop')
         }
       })
       
@@ -96,17 +91,14 @@ tabPanelServer <- function(geo_type) {
       
       # subcity summary dataframe: one summary value for each year and geography
       ss_df <- reactive({
-        data <- var_data()$sb_df # I'm not 100% sure why, but we need this extra variable declaration 
-        # When I try passing sb_df directly into pivot_summarise() in the df argument, the app mysteriously crashes
-        
         pivot_summarise(
-          df = data, 
+          df = var_data()$sb_df, 
           cats = var_params()$barCats, 
           summary_expr = indicator_params()$summary_expression, 
           id_columns = c("YEAR", "GEOID", "NAME")
           ) %>% # add geometries to the subcity summary data so we can map them
           mutate(GEOID = as.character(GEOID)) %>%
-          merge(y=geo_shapes, by.y = "GEOID", by.x = "GEOID") %>%
+          merge(y=geo_shapes, by = "GEOID") %>%
           st_as_sf()
       })
       
@@ -119,14 +111,14 @@ tabPanelServer <- function(geo_type) {
           # currently selected by the user are always displayed in front of other polygons
           addMapPane("layer1", zIndex=420) %>% addMapPane("layer2",zIndex=410) %>%
           
-          # could be worth parameterizing the initial map center and zoom level at some point
+          # Would be nice to have this initial map center and zoom level be data responsive instead of hard coded
           setView(-71.075, 42.318, zoom = 12)
       })
       
-      # The label for map polygons with null values is a function of the geography type
+      # The label for map polygons with null values is currently a function of the geography type
       null_label <- lapply(
         split_max_2_lines(paste(
-          tools::toTitleCase(geo_unit), 'with little or no population')
+          tools::toTitleCase(geo_unit), 'with little or no population') # but should probably be a topic param
         )
         , htmltools::HTML)
       
@@ -253,37 +245,33 @@ tabPanelServer <- function(geo_type) {
       # In response to the user clearing all selections or choosing a new variable...
       observeEvent(session$input$clearSelections, {
         leafletProxy("map") %>% hideGroup(group = selectedPolygons$groups)
-        selectedPolygons$groups <- vector() # ...unselect all polygons and hide them on the map.
+        selectedPolygons$groups <- vector() # ...unselect all selected polygons and hide them on the map.
       })
       
-      # To update the specific topic selection menu each time the user selects a different general topic...
+      # Each time the user selects a different general topic...
       observeEvent(input$generalTopicSelect, {
-      variables_years <- generalTopic_data() %>%
-        lapply(function(var) unique(var$sb_df$YEAR))
-      topics <- names(generalTopic_params()$topics) %>%
-        lapply(function (n) { # display each variable with its start and end year
-          paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
-        })
+        # ...we want to get the list of years of data for each of the specific topics within that general topic...
+        variables_years <- generalTopic_data() %>%
+          lapply(function(var) unique(var$sb_df$YEAR))
+        topics <- names(generalTopic_params()$topics) %>%
+          lapply(function (n) { # ...so that we can display each specific topic name with its start and end year
+            paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
+          })
         updateSelectInput(session, "topicSelect", choices=topics, selected=topics[[1]])
-      }) # xyz123
+      })
       
-      # To update the slider input each time the user selects a different topic...
+      # Each time the user selects a different specific topic...
       observeEvent(input$topicSelect, {
-        # if (is.null(selected_topic())) { # only executes on initial load
-        #   selected_topic(input$topicSelect)
-        # }
-        indicators <- names(var_params()$summary_indicators)
+        indicators <- names(var_params()$summary_indicators) # ...update the indicators available for that topic...
         updateSelectInput(session, "indicatorSelect", choices=indicators, selected=indicators[[1]])
         updateSliderTextInput(session, "yearSelect",
           # ...reset the choices on the slider based on the new topic's parameters...
           choices = var_years(),
-          selected = tail(var_years(), 1) # ...and reset the slider to start on the most recent year of data
+          selected = tail(var_years(), 1) # ...and reset the slider to start on the most recent year of data.
           )
-        # selected_topic(input$topicSelect) # Now that indicator is updated, we can trigger the data to update
-        
       })
       
-      # Describes the geographic scope of the currently displayed data (e.g. "2 selected tracts")
+      # Describes the geographic scope of the currently displayed data (e.g. "3 selected tracts")
       selectionName <- reactive({ # this is used for the legends on the bar and line charts
         geo_type <- geo_unit
         num_selected <- length(selectedPolygons$groups)
@@ -298,9 +286,9 @@ tabPanelServer <- function(geo_type) {
       
       # This is the data that is displayed on the bar chart. It's a function of 
       # the current variable and map selection as well as the year on the slider.
-      filteredBar <- reactive({ # if the user doesn't have any polygons selected...
-        if (length(selectedPolygons$groups) == 0) { # ...show citywide data for the given year
-          data <- subset(cb_df(), YEAR == input$yearSelect) 
+      filteredBar <- reactive({ 
+        if (length(selectedPolygons$groups) == 0) { # if the user doesn't have any polygons selected...
+          data <- subset(cb_df(), YEAR == input$yearSelect) # ...show citywide data for the given year
         } else if (length(selectedPolygons$groups) == 1) { # if only one polygon is selected...
           # ...use the subcity binned data filtered to that polygon
           data <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups & YEAR == input$yearSelect)
@@ -420,7 +408,7 @@ tabPanelServer <- function(geo_type) {
       # "Bookend" is my term for the amount of padding to put on each side of the
       # line chart x-axis range to ensure that no data points are visually cut off
       line_xrange_bookend <- reactive({
-        # 0.1 of the difference between the min and max year seems to be a good bookend
+        # 0.1 of the difference between the min and max year seems to look good for most topics
         0.1*(as.numeric(tail(var_years(), 1))-as.numeric(var_years()[1]))
       })
       
@@ -511,7 +499,7 @@ server <- function(input, output, session) {
       htmltools::includeMarkdown("dialog/welcome.md"),
       # tags$video(
       #   id = "video", type = "mp4",
-      #   src = "demo_v1.mp4", # place the video in the www folder
+      #   src = "demo_v1.mp4", # whatever file you specify should be stored in the www folder
       #   controls=TRUE, width="100%"
       # ),
       footer = modalButton("Got it!"),

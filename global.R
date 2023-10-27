@@ -214,8 +214,8 @@ addLegend_decreasing <- function (map, position = c("topright", "bottomright", "
 
 APP_CONFIG <- readRDS("config/APP_CONFIG.rds")
 
-# using APP_CONFIG, read the four data frames for each variable into APP_DATA
-# APP_DATA has the same structure as APP_CONFIG, but with a list of data
+# using APP_CONFIG, read the data for each topic into APP_DATA from their RDS files
+# APP_DATA has a similar nesting structure as APP_CONFIG, but with a list of data
 # frames instead of a list of parameters being stored for each specific topic
 APP_DATA <- APP_CONFIG %>% 
   lapply(function(geo_type) geo_type$generalTopics %>% 

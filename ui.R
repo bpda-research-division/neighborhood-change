@@ -6,11 +6,8 @@
 #' with a given set of UI components (map, bar chart, line chart, etc). 
 #' This function creates those components, namespacing them by geography type. 
 geoTabPanelUI <- function(geo_type) {
-  ns <- NS(gsub(" ","_",geo_type)) # when the initialization is only general topics...
-  # variables <- APP_CONFIG[[geo_type]]$topics # ...most of these lines of code will be moved to the server # xyz123
-  variables_years <- APP_DATA[[geo_type]][[1]] %>% # xyz123
-    lapply(function(var) unique(var$sb_df$YEAR))
-  initial_years <- variables_years[[1]]
+  ns <- NS(gsub(" ","_",geo_type)) # namespace so that we can use the same UI elements across multiple tabs
+  initial_years <- APP_DATA[[geo_type]][[1]][[1]]$sb_df$YEAR %>% unique() # first topic's years, to initialize slider
   
   # the below variables are used to reformat the map legend to place the NA value below the color
   # palette - default behavior in the current version of Leaflet is for them to be side by side
@@ -26,8 +23,8 @@ geoTabPanelUI <- function(geo_type) {
                  ),
           column(width=8, style="z-index:1012;", # ensure drop-down menu displays in front of other stuff
                  selectInput(ns("generalTopicSelect"),
-                             NULL,
-                             choices = names(APP_CONFIG[[geo_type]]$generalTopics) # xyz123
+                             NULL, # no need for a default label since we set up a custom one
+                             choices = names(APP_CONFIG[[geo_type]]$generalTopics)
                              )
                  )
         ),
@@ -37,12 +34,8 @@ geoTabPanelUI <- function(geo_type) {
                  ),
           column(width=8, style="z-index:1011;", # ensure drop-down menu displays in front of other stuff
                  selectInput(ns("topicSelect"),
-                             NULL, 
+                             NULL, # no need for a default label since we set up a custom one
                              choices = NULL # will be populated by the server
-                               # names(variables) %>% 
-                               # lapply(function (n) { # display each variable with its start and end year
-                               #   paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
-                               # }) # xyz123
                              )
                  )
         ),
@@ -52,7 +45,8 @@ geoTabPanelUI <- function(geo_type) {
           ),
           column(width=8, style="z-index:1010;",
                  selectInput(ns("indicatorSelect"),
-                             NULL, choices = NULL # will be populated by the server
+                             NULL, # no need for a default label since we set up a custom one
+                             choices = NULL # will be populated by the server
                  )
           )
         ),
@@ -65,7 +59,8 @@ geoTabPanelUI <- function(geo_type) {
            column(width=8, #style="margin-top:5px;",
                   sliderTextInput(inputId = ns("yearSelect"), 
                       choices = initial_years,
-                      selected = tail(initial_years, 1), grid=TRUE, label = NULL,
+                      selected = tail(initial_years, 1), 
+                      grid=TRUE, label = NULL,
                       animate = animationOptions(interval = 800) # set animation speed here
                       )
                   )
