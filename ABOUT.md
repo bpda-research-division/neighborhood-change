@@ -101,7 +101,7 @@ setView(-71.075, 42.318, zoom = 12)
 
 ### Preparing tabular data
 
-Tabular data are ingested using R's read.csv() function, which expects a csv file. One of the parameters to be specified for each topic in the `APP_CONFIG` variable within `pull_data.R` is the filepath of the csv file containing the tabular data for that topic. 
+Tabular data are ingested using R's read.csv() function, which expects a csv file. One of the parameters to be specified for each topic in the `APP_CONFIG` variable within `pull_data.R`, (name of parameter here), is the filepath of the csv file containing the tabular data for that topic. 
 
 The csv file should have one row for each geographic area with data in a given year. There are three required column names: GEOID (which should uniquely identify each geographic area and correspond with the GEOID attribute of the geographic features), NAME (the display label for each geographic area), and YEAR.
 
@@ -120,19 +120,17 @@ Topics with more than two categories (e.g. age brackets or racial groups) will h
 
 Any rows in the tabular data with blank data values for one or more years will result in the corresponding geographic areas being shaded in gray on the map across all years in a given topic, and those areas won't be able to be map-selected for custom aggregation. Handling blank values in this way is useful for displaying census geographies with little to no population, and ensures that the bar and line charts won't look buggy due to selected areas having null data values. Any non-blank data from other years for these geographies will still be included in the place-wide totals that are displayed on the line and bar charts when no areas are selected on the map.
 
-If years of missing data for particular areas are excluded entirely from the tabular data (instead of leaving in rows with blank values), those areas will be shaded normally for years with data, they will still be selectable, and the shapes will simply disappear when moving the time slider over the years without data, as demonstrated below:
+If years of missing data for particular areas are excluded entirely from the tabular data (instead of leaving in rows with blank cell values), those areas will be shaded normally for years with data, they will still be selectable, and the shapes will simply disappear when moving the time slider over the years without data, as demonstrated below:
 
 ![screenshot of pseudocode version of the tool](img/gapyear_demo.gif)
 
 If an individual area with no rows for one or more years is selected, data for the non-missing years will still be plotted on the bar and line charts, but any excluded years will be blank on the bar chart and not have markers on the line chart.
 
-
-
 ## Configuring topics and defining indicators
 
 The configuration of each variable is defined by a set of _**parameters**_ within `APP_CONFIG`, including parameters for entire topics as well as parameters for specific indicators within topics. 
 
-As illustrated in the [basic configuration](#basic-configuration-of-the-neighborhood-change-explorer) section of this document, each geograhpic unit declared in APP_CONFIG should have a list() of topics. Each topic is itself composed of a list() of topic parameters, as illustrated below. One of those topic parameters is summary_indicators, which is where each indicator is defined by its list() of indicator parameters.
+As illustrated in the [basic configuration](#basic-configuration-of-the-neighborhood-change-explorer) section of this document, each geographic unit declared in APP_CONFIG should have a list() of topics. Each topic is itself composed of a list() of topic parameters, as illustrated below. One of those topic parameters is summary_indicators, which is where each indicator is defined by its list() of indicator parameters.
 
 ```
 "topic A" = list(
@@ -162,13 +160,13 @@ For some topics, it may only make sense to have one indicator, but for other top
 | parameter | required? | description | example value |
 | ------ | ---- | ------ | ----- |
 | data_code | required | a short string of characters unique to the topic, which will also be the name for the corresponding .RDS file in the `data/` folder | `"hbicttp"` |
-| agg_func | required | ------ | `sum` |
-| sb_csv | required | ------ | `"csv/hbic_tract_totpop_sex_bins.csv"` |
-| cb_csv | optional | ------ | `"csv/hbictpop_cb.csv"` |
+| agg_func | required | The name of an R function with which to aggregate the tabular data for individual areas when multiple ones are selected. Very rarely will this not be the sum function. | `sum` |
+| sb_csv | required | see the [Preparing tabular data](#preparing-tabular-data) section of this document | `"csv/hbic_tract_totpop_sex_bins.csv"` |
+| cb_csv | optional | see the Overrides section of this document | `"csv/hbictpop_cb.csv"` |
 | barTitle | required | bar chart title for the topic | `"Population by sex"` |
-| barhoverformat | required | [D3 format code](https://github.com/d3/d3-format/tree/v1.4.5#d3-format) for the numbers that appear when users hover over bars on the bar chart | `",.0f"` (to show 0 decimal places with commas separating thousands) |
-| barCats | required | ------ | `list("Occupied" = "occ", "Vacant" = "vac")` |
-| summary_indicators | required | ------ |  |
+| barhoverformat | required | [D3 format code](https://github.com/d3/d3-format/tree/v1.4.5#d3-format) specifying a number format for the numbers that appear when users hover over bars on the bar chart | `",.0f"` (to show 0 decimal places with commas separating thousands) |
+| barCats | required | `list()` associating each column alias from the tabular data with its display name for the bar chart. Columns whose aliases aren't in barCats will not appear on the bar chart. | `list("Occupied" = "occ", "Vacant" = "vac")` |
+| summary_indicators | required | `list()` of indicator names and parameters | see the [Configuring topics](#configuring-topics-and-defining-indicators) section of this document |
 | source | required | citation information to display for the topic | `"U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"` |
 | note | optional | any additional note about the topic to be displayed between the bar chart and line chart | `"Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."` |
 
