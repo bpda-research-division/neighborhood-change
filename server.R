@@ -309,7 +309,10 @@ tabPanelServer <- function(geo_type) {
           data <- subset(cb_df(), YEAR == input$yearSelect)
           data$VALUE <- 0 # ... display the bar chart with all 0s for the given categories
         }
-        return(data)
+        
+        return( # only plot the categories that have been named in the barCats parameter
+          data %>% filter(CATEGORY %in% names(var_params()$barCats))
+          )
       })
       
       # The y-axis range for the bar chart is a function of the map selection, but
