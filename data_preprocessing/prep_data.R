@@ -55,7 +55,7 @@ APP_CONFIG <- list(
   "tracts" = list(geoms = tract2010_geoms, topics = list( 
     ### num of sm. bus. loans ------
     "Numbers of Loans to Small Businesses" = list( 
-      data_code = 'loannsb', agg_func = sum,
+      data_code = 'loannsb', 
       sb_csv = 'csv/loans_num_sbus_bins.csv',
       barTitle = 'Number of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f",
       barCats = list("Small Businesses" = "num_sml_sbus", "Large Businesses" = "num_sml_bbus"),
@@ -75,7 +75,7 @@ APP_CONFIG <- list(
     ),
     ### $ of sm. bus. loans ------
     "Volume ($) of Loans to Small Businesses" = list( 
-      data_code = 'loanvsb', agg_func = sum,
+      data_code = 'loanvsb', 
       sb_csv = 'csv/loans_vol_sbus_bins.csv',
       barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = "$,.0f",
       barCats = list("Small Businesses" = "vol_sml_sbus", "Large Businesses" = "vol_sml_bbus"),
@@ -99,7 +99,7 @@ APP_CONFIG <- list(
   "census tracts" = list(geoms = tract2020_geoms, topics = list(
     ### pop by sex -----
     "Population" = list(
-      data_code = 'hbicttp', agg_func = sum,
+      data_code = 'hbicttp', 
       sb_csv = 'csv/hbic_tract_totpop_sex_bins.csv', cb_csv = 'csv/hbictpop_cb.csv',
       barTitle = "Population by sex", barhoverformat = ",.0f",
       barCats = list("Male" = "male", "Female" = "female"),
@@ -122,7 +122,7 @@ APP_CONFIG <- list(
     ),
     ### age -----
     "Age" = list(
-      data_code = "hbicta", agg_func = sum,
+      data_code = "hbicta",
       sb_csv = 'csv/hbic_tract_age_year_bins.csv',
       barTitle = "Population by age", barhoverformat = ",.0f",
       barCats = list(
@@ -182,7 +182,7 @@ APP_CONFIG <- list(
     ),
     ### children by age ------
     "Children by Age" = list(
-      data_code = "chilta", agg_func = sum,
+      data_code = "chilta",
       sb_csv = 'csv/children_tract_age_bins.csv',
       barTitle = "Children by age", barhoverformat = ",.0f",
       barCats = list(
@@ -212,7 +212,7 @@ APP_CONFIG <- list(
     ),
     ### race & ethnicity -----
     "Race and Ethnicity" = list(
-      data_code = "hbictre", agg_func = sum,
+      data_code = "hbictre",
       sb_csv = 'csv/hbic_tract_race_ethn_bins.csv',
       barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
       barCats = list(
@@ -264,7 +264,7 @@ APP_CONFIG <- list(
     ),
     ### children by race & ethnicity -----
     "Children by Race and Ethnicity" = list(
-      data_code = "chiltre", agg_func = sum,
+      data_code = "chiltre",
       sb_csv = 'csv/children_tract_race_bins.csv',
       barTitle = "Children by race/ethnicity", barhoverformat = ",.0f",
       barCats = list(
@@ -317,7 +317,7 @@ APP_CONFIG <- list(
     ),
     ### nativity ------
     "Nativity" = list(
-      data_code = "hbictnat", agg_func = sum,
+      data_code = "hbictnat",
       sb_csv = 'csv/hbic_tract_nativity_bins.csv',
       barTitle = "Population by nativity", barhoverformat = ",.0f",
       barCats = list("Native-born" = "native", "Foreign-born" = "foreign"),
@@ -338,7 +338,7 @@ APP_CONFIG <- list(
     ),
     ### educ attainment -----
     "Educational Attainment" = list(
-      data_code = "hbictedu", agg_func = sum,
+      data_code = "hbictedu", 
       sb_csv = 'csv/hbic_tract_edu_attain_bins.csv',
       barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
       barCats = list(
@@ -364,7 +364,7 @@ APP_CONFIG <- list(
     ),
     ### labor force ----
     "Labor Force" = list(
-      data_code = "hbictlf",agg_func = sum,
+      data_code = "hbictlf",
       sb_csv = 'csv/hbic_tract_labor_force_bins.csv',
       barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
       barCats = list(
@@ -392,7 +392,7 @@ APP_CONFIG <- list(
     #
     # # "Income" = list(data_code = 'acshhi',
     # #   lineTitle = "Median Household Income", linehoverformat = ",.0f",
-    # #   tickprefix = "$", tickformat = "~s", agg_func = sum, citywide_comparison = TRUE,
+    # #   tickprefix = "$", tickformat = "~s",  citywide_comparison = TRUE,
     # #   barTitle = "Households by Income", barhoverformat = ",.0f",
     # #   barCats = list(
     # #     "Less than $10,000" = "S1901_C01_002"
@@ -414,7 +414,7 @@ APP_CONFIG <- list(
     # # )
     ### housing units ----
     "Housing Units" = list(
-      data_code = "hbicthou", agg_func = sum,
+      data_code = "hbicthou", 
       sb_csv = 'csv/hbic_tract_housing_bins.csv',
       cb_csv = 'csv/hbicthou_cb.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
@@ -434,7 +434,7 @@ APP_CONFIG <- list(
     ),
     ### housing occupancy -----
     "Housing Occupancy" = list(
-      data_code = "hbicthouvac", agg_func = sum,
+      data_code = "hbicthouvac", 
       sb_csv = 'csv/hbic_tract_housing_vacancy_bins.csv',
       cb_csv = 'csv/hbicthouvac_cb.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
@@ -458,7 +458,7 @@ APP_CONFIG <- list(
     ),
     ### housing tenure ----
     "Housing Tenure" = list(
-      data_code = "hbicthouten", agg_func = sum,
+      data_code = "hbicthouten", 
       sb_csv = 'csv/hbic_tract_housing_tenure_bins.csv',
       barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
       barCats = list(
@@ -481,7 +481,7 @@ APP_CONFIG <- list(
   "neighborhoods" = list(geoms = neigh2020_geoms, topics = list(
     ### pop by sex ----
     "Population" = list(
-      data_code = 'hbicntp', agg_func = sum,
+      data_code = 'hbicntp', 
       sb_csv = 'csv/hbic_neigh_totpop_sex_bins.csv',
       barTitle = "Population by sex", barhoverformat = ",.0f",
       barCats = list("Male" = "male", "Female" = "female"),
@@ -503,7 +503,7 @@ APP_CONFIG <- list(
     ),
     ### age ----
     "Age" = list(
-      data_code = "hbicna", agg_func = sum,
+      data_code = "hbicna", 
       sb_csv = 'csv/hbic_neigh_age_year_bins.csv',
       barTitle = "Population by age", barhoverformat = ",.0f",
       barCats = list(
@@ -563,7 +563,7 @@ APP_CONFIG <- list(
     ),
     ### children by age -----
     "Children by Age" = list(
-      data_code = "chilna", agg_func = sum,
+      data_code = "chilna", 
       sb_csv = 'csv/children_neigh_age_bins.csv',
       barTitle = "Children by age", barhoverformat = ",.0f",
       barCats = list(
@@ -592,7 +592,7 @@ APP_CONFIG <- list(
     ),
     ### race & ethnicity -----
     "Race and Ethnicity" = list(
-      data_code = "hbicnre", agg_func = sum,
+      data_code = "hbicnre", 
       sb_csv = 'csv/hbic_neigh_race_ethn_bins.csv',
       barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
       barCats = list(
@@ -652,7 +652,7 @@ APP_CONFIG <- list(
     ),
     ### children by race & ethnicity ----
     "Children by Race and Ethnicity" = list(
-      data_code = "chilnre", agg_func = sum,
+      data_code = "chilnre", 
       sb_csv = 'csv/children_neigh_race_bins.csv',
       barTitle = "Children by race/ethnicity", barhoverformat = ",.0f",
       barCats = list(
@@ -705,7 +705,7 @@ APP_CONFIG <- list(
     ),
     ### nativity ----
     "Nativity" = list(
-      data_code = "hbicnnat", agg_func = sum,
+      data_code = "hbicnnat", 
       sb_csv = 'csv/hbic_neigh_nativity_bins.csv',
       barTitle = "Population by nativity", barhoverformat = ",.0f",
       barCats = list("Native-born" = "native", "Foreign-born" = "foreign"),
@@ -726,7 +726,7 @@ APP_CONFIG <- list(
     ),
     ### educ attainment ----
     "Educational Attainment" = list(
-      data_code = "hbicnedu", agg_func = sum,
+      data_code = "hbicnedu", 
       sb_csv = 'csv/hbic_neigh_edu_attain_bins.csv',
       barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
       barCats = list(
@@ -752,7 +752,7 @@ APP_CONFIG <- list(
     ),
     ### labor force ----
     "Labor Force" = list(
-      data_code = "hbicnlf",agg_func = sum,
+      data_code = "hbicnlf",
       sb_csv = 'csv/hbic_neigh_labor_force_bins.csv',
       barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
       barCats = list(
@@ -778,7 +778,7 @@ APP_CONFIG <- list(
     ),
     ### housing units ----
     "Housing Units" = list(
-      data_code = "hbicnhou", agg_func = sum,
+      data_code = "hbicnhou", 
       sb_csv = 'csv/hbic_neigh_housing_bins.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
       barCats = list(
@@ -797,7 +797,7 @@ APP_CONFIG <- list(
     ),
     ### housing occupancy -----
     "Housing Occupancy" = list(
-      data_code = "hbicnhouvac", agg_func = sum,
+      data_code = "hbicnhouvac", 
       sb_csv = 'csv/hbic_neigh_housing_vacancy_bins.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
       barCats = list(
@@ -820,7 +820,7 @@ APP_CONFIG <- list(
     ),
     ### housing tenure -----
     "Housing Tenure" = list(
-      data_code = "hbicnhouten", agg_func = sum,
+      data_code = "hbicnhouten", 
       sb_csv = 'csv/hbic_neigh_housing_tenure_bins.csv',
       barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
       barCats = list(

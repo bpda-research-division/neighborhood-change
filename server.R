@@ -73,8 +73,7 @@ tabPanelServer <- function(geo_type) {
         else {
           var_data()$sb_df %>% 
             group_by(YEAR, CATEGORY) %>% 
-            summarise_at(c("VALUE"), var_params()$agg_func, na.rm = TRUE) %>%
-            ungroup()
+            summarise(VALUE = sum(VALUE, na.rm=TRUE), .groups='drop')
         }
       })
       
@@ -301,8 +300,8 @@ tabPanelServer <- function(geo_type) {
         } else { # If multiple polygons are selected...
           # ...we aggregate the data for the set of selected polygons for each year...
           data <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups & YEAR == input$yearSelect) %>%
-            group_by(CATEGORY) %>% # ...by category, using the agg_func that's defined for the given variable
-            summarise(VALUE = var_params()[["agg_func"]](VALUE))
+            group_by(CATEGORY) %>% # ...by category
+            summarise(VALUE = sum(VALUE))
         }
         
         if (nrow(data) == 0) { # if there's missing data for a given year...
@@ -324,7 +323,7 @@ tabPanelServer <- function(geo_type) {
         else { # otherwise, consider all the data values by category and year
           data <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups) %>%
             group_by(CATEGORY, YEAR) %>% 
-            summarise(VALUE = var_params()[["agg_func"]](VALUE), .groups="drop")
+            summarise(VALUE = sum(VALUE), .groups="drop")
         }
         # The y axis range is set according to the maximum data value for all years
         # Multiplying by 1.1 adds some padding between the max value and the top of the chart
@@ -381,7 +380,7 @@ tabPanelServer <- function(geo_type) {
           # we start by aggregating the subcity binned data for those polygons...
           t <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups) %>%
             group_by(CATEGORY, YEAR) %>% # ...by category and year
-            summarise(VALUE = var_params()[["agg_func"]](VALUE), .groups = "drop")
+            summarise(VALUE = sum(VALUE), .groups = "drop")
 
           # then, we convert the category values from their labels to their identifiers...
           t$CATEGORY <- plyr::mapvalues(t$CATEGORY,
