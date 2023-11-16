@@ -482,7 +482,7 @@ APP_CONFIG <- list(
     ### pop by sex ----
     "Population" = list(
       data_code = 'hbicntp', 
-      sb_csv = 'csv/hbic_neigh_totpop_sex_bins.csv',
+      sb_csv = 'csv/hbic_neigh_totpop_sex_bins.csv', cb_csv = 'csv/hbictpop_cb.csv',
       barTitle = "Population by sex", barhoverformat = ",.0f",
       barCats = list("Male" = "male", "Female" = "female"),
       summary_indicators = list(
@@ -844,8 +844,8 @@ APP_CONFIG <- list(
 # Prep data #######
 
 # # You can either prep data for individual topics...
-# prep_data(APP_CONFIG[['tracts']]$topics[['Numbers of Loans to Small Businesses']])
-# prep_data(APP_CONFIG[['tracts']]$topics[['Volume ($) of Loans to Small Businesses']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
 
 # # ...or prep data for all topics
 # for (geo_type in APP_CONFIG) {
