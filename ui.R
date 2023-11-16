@@ -69,9 +69,19 @@ geoTabPanelUI <- function(geo_type) {
                       )
                   )
        ),
-       div(style="padding-bottom:5px;", HTML(
-         sprintf("<b>Select one or more %s on the map:</b>", geo_type)
-       )),
+       fluidRow(
+         column(width=6,
+                HTML(
+                  sprintf("<b>Select one or more %s on the map:</b>", geo_type)
+                ) # the above jumble of characters is the HTML code for a play button symbol
+         ),
+         column(width=6, align='center', style="margin-bottom:5px;",
+                downloadButton(ns("downloadData"), "Download data for current selection")
+         )
+       ),
+       # div(style="padding-bottom:5px;", HTML(
+       #   sprintf("<b>Select one or more %s on the map:</b>", geo_type)
+       # )),
        leafletOutput(ns("map"), height="510px") %>%
          htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
     ),

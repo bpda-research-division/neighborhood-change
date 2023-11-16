@@ -493,6 +493,21 @@ tabPanelServer <- function(geo_type) {
       output$sourceText <- reactive({
         paste("Source:", var_params()$source)
       })
+      
+      # Handles downloads
+      output$downloadData <- downloadHandler(
+        filename = function() {
+          # for the suggested filename, maybe include the topic? maybe geo desc?
+          "nce_download.csv"
+        },
+        content = function(file) {
+          # Write the dataset to the `file` that will be downloaded
+          # we might want to pivot the bar categories into columns and then add a column
+          # with the line chart data merged by year
+          # ideally, we'd also include the source citation in the download
+          write.csv(filteredBar(), file, row.names=FALSE)
+        }
+      )
     }
   )
 }
