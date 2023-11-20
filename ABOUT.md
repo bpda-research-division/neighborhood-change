@@ -65,10 +65,6 @@ Examples of topics include "Age" and "Housing Occupancy". Each topic declared fo
 
 Examples of indicators within an "Age" topic might include "Young adult (20-34) share of population" or "Total population aged 65+". Indicator options are displayed from top to bottom in the order in which they're declared in `APP_CONFIG`. The names of indicators appear on the app exactly as they are declared.
 
-For example, if the above pseudocode were to be used in a new instance of the Neighborhood Change Explorer, it would look like this:
-
-![screenshot of pseudocode version of the tool](img/geo_topic_demo.png)
-
 Each combination of geographic unit, topic, and indicator constitutes a unique _**variable**_. Variables are the fundamental unit of analysis within the Neighborhood Change Explorer. `ui.R` and `server.R` are basically large functions that are designed to display data about one variable at a time in response to user selections.
 
 ## Setting up data for the Neighborhood Change Explorer
@@ -157,62 +153,52 @@ For some topics, it may only make sense to have one indicator, but for other top
 
 ### Topic parameters
 
-| parameter | required? | description | example value |
+| parameter | required? | description | example value(s) |
 | ------ | ---- | ------ | ----- |
 | data_code | required | a short string of characters unique to the topic, which will also be the name for the corresponding .RDS file in the `data/` folder | `"hbicttp"` |
-| agg_func | required | The name of an R function with which to aggregate the tabular data for individual areas when multiple ones are selected. Very rarely will this not be the sum function. | `sum` |
-| sb_csv | required | see the [Preparing tabular data](#preparing-tabular-data) section of this document | `"csv/hbic_tract_totpop_sex_bins.csv"` |
-| cb_csv | optional | see the Overrides section of this document | `"csv/hbictpop_cb.csv"` |
+| areas_categories_csv | required | see the [Preparing tabular data](#preparing-tabular-data) section of this document | `"csv/hbic_tract_totpop_sex_bins.csv"` |
+| totalarea_categories_csv | optional | see the Overrides section of this document | `"csv/hbictpop_cb.csv"` |
 | barTitle | required | bar chart title for the topic | `"Population by sex"` |
 | barhoverformat | required | [D3 format code](https://github.com/d3/d3-format/tree/v1.4.5#d3-format) specifying a number format for the numbers that appear when users hover over bars on the bar chart | `",.0f"` (to show 0 decimal places with commas separating thousands) |
 | barCats | required | `list()` associating each column alias from the tabular data with its display name for the bar chart. Columns whose aliases aren't in barCats will not appear on the bar chart. | `list("Occupied" = "occ", "Vacant" = "vac")` |
-| summary_indicators | required | `list()` of indicator names and parameters | see the [Configuring topics](#configuring-topics-and-defining-indicators) section of this document |
+| summary_indicators | required | `list()` of indicator names and parameters | see the [Configuring topics](#configuring-topics-and-defining-indicators) section above |
 | source | required | citation information to display for the topic | `"U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"` |
 | note | optional | any additional note about the topic to be displayed between the bar chart and line chart | `"Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."` |
-
-what should the four csvs / dfs be called? Summary vs (binned? categories?) is one dimension. (citywide? placewide? total area?) vs (subcity? sub place? individual areas?)
-
-I think I will eventually rename the csv parameters to the following:
-areas_categories_csv
-totalarea_categories_csv_override
-areas_summary_csv_override
-totalarea_summary_csv_override
 
 ### Indicator parameters
 
 For some topics, it may only make sense to have one indicator, but for other topics, particularly ones with a larger number of categories, a larger number of indicators may be possible and desirable to implement.
 
-| parameter | required? | description | example |
+| parameter | required? | description | example value(s) |
 | ------ | ---- | ------ | ----- |
-| summary_expression | yes | An R expression object showing how to compute an indicator as a function of the column aliases for the topic categories | `rlang::expr(foreign / (foreign + native))` |
-| ss_csv | optional | ------ | `"csv/hbictpop_ss.csv"` |
-| cs_csv | optional | ------ | `"csv/hbictpop_cs.csv"` |
-| linehoverformat | required | [D3 format code](https://github.com/d3/d3-format/tree/v1.4.5#d3-format) for the numbers that appear when users hover over points on the line chart | `".0%"` (to show a fraction between 0 and 1 as a rounded percentage) |
+| summary_expression | required | An R expression object showing how to compute an indicator as a function of the column aliases for the topic categories | `rlang::expr(foreign / (foreign + native))` |
+| areas_summary_csv | optional | see the Overrides section of this document | `"csv/hbictpop_ss.csv"` |
+| totalarea_summary_csv | optional | see the Overrides section of this document | `"csv/hbictpop_cs.csv"` |
+| hoverformat | required | [D3 format code](https://github.com/d3/d3-format/tree/v1.4.5#d3-format) for the numbers that appear when users hover over points on the line chart | `".0%"` (to show a fraction between 0 and 1 as a rounded percentage) |
+| citywide_comparison | required | specify whether the line chart should include | either `TRUE` or `FALSE` |
 
-etc fill out indicator params
+## Overrides
 
-## how pull_data.R prepares data for
+areas_categories_csv is aggregated to the citywide level, and it is summarized using summary_expression parameter. This results in four dataframes under the hood. However, some situations where you may want to override.
 
-if you saved a new set of geographies, add x to app config. if a new topic for an existing set, add y within that topic.
+for citywide bins, it's useful if you may have only a subset of areas you want to map, but the citywide totals should match other data sources.
 
-pull_data creates four data frames for each topic based on a given csv: (this is out of date - pull_data most of the time just includes the sb df in the rds - other dfs only included if they are overrides)
+for areas summary and citywide summary, they're useful if your summary expression is an approximation of the true value. For example, displaying median values based on binned totals, summary expression could be a pareto interpolation. But you may have data on the actual medians for individual tracts or the totalarea. override the summaries to use those actuals instead of interpolating based on the bins data.
 
 | name | alias | required fields | fields which uniquely identify each row | type of R object | where it's used |
 | -------- | --------- | --------- | ---------- | ---------- | -------- |
-| sb_df | subcity bins | GEOID, NAME, CATEGORY, YEAR, VALUE | GEOID, CATEGORY, YEAR | data frame | bar chart |
-| ss_df | subcity summary | GEOID, NAME, YEAR, SUMMARY_VALUE | GEOID, YEAR | simple features object | line chart, map |
-| cb_df | citywide bins | CATEGORY, YEAR, VALUE | CATEGORY, YEAR | data frame | bar chart |
-| cs_df | citywide summary | YEAR, SUMMARY_VALUE | YEAR | data frame | line chart |
+| areas_categories_csv | subcity bins | GEOID, NAME, CATEGORY, YEAR, VALUE | GEOID, CATEGORY, YEAR | data frame | bar chart |
+| areas_summary_csv | subcity summary | GEOID, NAME, YEAR, SUMMARY_VALUE | GEOID, YEAR | simple features object | line chart, map |
+| totalarea_categories_csv | citywide bins | CATEGORY, YEAR, VALUE | CATEGORY, YEAR | data frame | bar chart |
+| totalarea_summary_csv | citywide summary | YEAR, SUMMARY_VALUE | YEAR | data frame | line chart |
 
 ss_df is a simple features object because that is the data frame that is used for the map. sb_df and cb_df are used on the bar chart, and cs_df and ss_df are used on the line chart.
 
 sb and cb are topic specific, ss and cs change by indicator
 
-For each topic, all four data frames are bundled together into a list and stored in an RDS file named after the variable code. Each file within the `data/` folder contains all the data for a given geographic unit and topic. 
+Each file within the `data/` folder contains all the data for a given geographic unit and topic. 
 
 use pull data to both create new data files and modify existing ones. walk through the example of modifying a category name.
-
-also talk about the use case of overrides and walk through an example of that.
 
 ## Publishing and deployment
 
