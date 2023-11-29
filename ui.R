@@ -76,7 +76,10 @@ geoTabPanelUI <- function(geo_type) {
                 ) # the above jumble of characters is the HTML code for a play button symbol
          ),
          column(width=6, align='center', style="margin-bottom:5px;",
-                downloadButton(ns("downloadData"), "Download data for current selection")
+                downloadButton(
+                  ns("downloadData"), 
+                  textOutput(ns("downloadText")), icon=NULL
+                  )
          )
        ),
        # div(style="padding-bottom:5px;", HTML(

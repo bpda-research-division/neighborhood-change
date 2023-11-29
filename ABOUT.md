@@ -167,7 +167,7 @@ For some topics, it may only make sense to have one indicator, but for other top
 
 ### Indicator parameters
 
-For some topics, it may only make sense to have one indicator, but for other topics, particularly ones with a larger number of categories, a larger number of indicators may be possible and desirable to implement.
+For some topics, it may only make sense to have one indicator, but for other topics, particularly ones with a larger number of categories, it may be possible and desirable to add a larger number of indicators.
 
 | parameter | required? | description | example value(s) |
 | ------ | ---- | ------ | ----- |
@@ -184,6 +184,8 @@ areas_categories_csv is aggregated to the citywide level, and it is summarized u
 for citywide bins, it's useful if you may have only a subset of areas you want to map, but the citywide totals should match other data sources.
 
 for areas summary and citywide summary, they're useful if your summary expression is an approximation of the true value. For example, displaying median values based on binned totals, summary expression could be a pareto interpolation. But you may have data on the actual medians for individual tracts or the totalarea. override the summaries to use those actuals instead of interpolating based on the bins data.
+
+need to specify required columns. also need to confirm whether the override csv formats match the formats below which are for the dfs under the hood
 
 | name | alias | required fields | fields which uniquely identify each row | type of R object | where it's used |
 | -------- | --------- | --------- | ---------- | ---------- | -------- |
@@ -202,12 +204,8 @@ use pull data to both create new data files and modify existing ones. walk throu
 
 ## Publishing and deployment
 
-shiny apps account
+The Neighborhood Change Explorer is published through Shiny Apps. In RStudio, this is done using the Publish button. It's also possible to [deploy Shiny apps outside of RStudio](https://docs.posit.co/shinyapps.io/getting-started.html#deploying-applications).
 
-outside of rstudio, https://docs.posit.co/shinyapps.io/getting-started.html#deploying-applications
+In RStudio, it's a good rule of thumb to clear the global environment before clicking the (Re)publish button - not doing so can sometimes introduce issues or errors. 
 
-using rstudio, (re)publish button
-
-clearing global environment before publishing
-
-intermittent timeouts that sometimes still work
+An additional note is that the deployment process through RStudio will sometimes print an SSL error message, but this does not always mean that the deployment failed. Before trying the deployment again, wait a minute and check the URL of the published app to confirm whether your changes went through or not.

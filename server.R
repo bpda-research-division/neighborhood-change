@@ -494,6 +494,10 @@ tabPanelServer <- function(geo_type) {
         paste("Source:", var_params()$source)
       })
       
+      output$downloadText <- renderText({
+        paste("Download data:", selectionName()) # 
+      })
+      
       # Handles downloads
       output$downloadData <- downloadHandler(
         filename = function() {
