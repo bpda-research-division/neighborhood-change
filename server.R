@@ -289,6 +289,25 @@ tabPanelServer <- function(geo_type) {
         sprintf("%s selected %s", num_selected, geo_type) # show the current number of selected areas
       })
       
+      # new reactive that is filteredBar without subsetting by year yet
+      selectionData <- reactive({
+        if (length(selectedPolygons$groups) == 0) { # ...show citywide data for the given year
+          data <- cb_df() 
+        } else if (length(selectedPolygons$groups) == 1) { # if only one polygon is selected...
+          # ...use the subcity binned data filtered to that polygon
+          data <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups)
+        } else { # If multiple polygons are selected...
+          # ...we aggregate the data for the set of selected polygons for each year...
+          data <- subset(var_data()$sb_df, GEOID %in% selectedPolygons$groups) %>%
+            group_by(CATEGORY, YEAR) %>% # ...by category
+            summarise(VALUE = sum(VALUE), .groups='drop')
+        }
+        
+        return( # only plot the categories that have been named in the barCats parameter
+          data %>% filter(CATEGORY %in% names(var_params()$barCats))
+        )
+      })
+      
       # This is the data that is displayed on the bar chart. It's a function of 
       # the current variable and map selection as well as the year on the slider.
       filteredBar <- reactive({ # if the user doesn't have any polygons selected...
@@ -505,12 +524,36 @@ tabPanelServer <- function(geo_type) {
           # for the suggested filename, maybe include the topic? maybe geo desc?
           "nce_download.csv"
         },
-        content = function(file) {
-          # Write the dataset to the `file` that will be downloaded
-          # we might want to pivot the bar categories into columns and then add a column
-          # with the line chart data merged by year
-          # ideally, we'd also include the source citation in the download
-          write.csv(filteredBar(), file, row.names=FALSE)
+        content = function(out_file) {
+          output <- selectionData() %>% 
+            pivot_wider(id_cols = "YEAR", names_from='CATEGORY', values_from='VALUE') %>%
+            merge(selectedLine(), by='YEAR') %>%
+            mutate(YEAR = as.character(YEAR), !!input$indicatorSelect := SUMMARY_VALUE, .keep='unused')
+          
+          list_of_areas <- ifelse(
+            length(selectedPolygons$groups) > 0, 
+            paste0("(", toString(selectedPolygons$groups), ")"),
+            "")
+            
+          o <- as.data.frame(
+            rbind(
+              c(paste("Topic:", topic_name()),rep(NA,ncol(output)-1)),
+              c(paste("Geographic Extent:", selectionName(), list_of_areas),rep(NA,ncol(output)-1)),
+              c(paste("Source:", gsub("\\s+", " ", gsub("[\r\n]", "", var_params()$source))),rep(NA,ncol(output)-1)),
+              c(rep(NA,ncol(output))),
+              colnames(output),
+              matrix(unlist(output, use.names=FALSE),
+                     nrow = nrow(output),
+              )
+            )
+          )
+          write.table( 
+            o,
+            na = "", 
+            out_file, 
+            sep = ",", # add this per road_to_quantdom on May/05/22
+            col.names = FALSE, 
+            row.names = FALSE)
         }
       )
     }

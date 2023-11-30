@@ -70,12 +70,12 @@ geoTabPanelUI <- function(geo_type) {
                   )
        ),
        fluidRow(
-         column(width=6,
+         column(width=7,
                 HTML(
                   sprintf("<b>Select one or more %s on the map:</b>", geo_type)
                 ) # the above jumble of characters is the HTML code for a play button symbol
          ),
-         column(width=6, align='center', style="margin-bottom:5px;",
+         column(width=5, align='right', style="margin-bottom:5px; margin-top: -5px;",
                 downloadButton(
                   ns("downloadData"), 
                   textOutput(ns("downloadText")), icon=NULL
