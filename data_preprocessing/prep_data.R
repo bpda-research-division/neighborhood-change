@@ -77,7 +77,7 @@ APP_CONFIG <- list(
     "Volume ($) of Loans to Small Businesses" = list( 
       data_code = 'loanvsb', 
       sb_csv = 'csv/loans_vol_sbus_bins.csv',
-      barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = "$,.0f",
+      barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = "$,.0f", bartickprefix = "$",
       barCats = list("Small Businesses" = "vol_sml_sbus", "Large Businesses" = "vol_sml_bbus"),
       summary_indicators = list(
         "Share of small loan volume ($) going to small businesses" = list(
@@ -88,7 +88,7 @@ APP_CONFIG <- list(
         "Total small loan volume ($)" = list(
           summary_expression = rlang::expr(vol_sml_sbus + vol_sml_bbus),
           citywide_comparison = FALSE,
-          hoverformat = "$,.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = "$,.0f", tickprefix = "$", tickformat = ""
         )
       ),
       source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
@@ -844,8 +844,9 @@ APP_CONFIG <- list(
 # Prep data #######
 
 # # You can either prep data for individual topics...
-prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
+prep_data(APP_CONFIG[['tracts']]$topics[['Volume ($) of Loans to Small Businesses']])
+# prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
+# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
 
 # # ...or prep data for all topics
 # for (geo_type in APP_CONFIG) {

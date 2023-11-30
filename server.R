@@ -196,7 +196,7 @@ tabPanelServer <- function(geo_type) {
                transform = ifelse( # additionally (for percentages)...
                  grepl("%", indicator_params()$tickformat, fixed = TRUE), 
                  function(x) round(x*100), # ...multiply the data values by 100 when displaying...
-                 function (x) x  # ...otherwise, display the data values as they are
+                 identity  # ...otherwise, display the data values as they are
                  )
                )
             ) %>% showGroup(group = selectedPolygons$groups)
@@ -350,7 +350,8 @@ tabPanelServer <- function(geo_type) {
                               categoryorder = 'array', categoryarray = names(var_params()$barCats)
                               ),
                  yaxis = list(title = '' , fixedrange = TRUE, range = barRange(), 
-                              hoverformat = var_params()$barhoverformat
+                              hoverformat = var_params()$barhoverformat,
+                              tickprefix = var_params()$bartickprefix
                               ), 
                  hoverlabel = list(bordercolor = 'white', # hover text formatting options
                                    font = list(color="white", size=APP_FONT_SIZE-2)
