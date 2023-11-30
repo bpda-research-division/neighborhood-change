@@ -63,12 +63,12 @@ APP_CONFIG <- list(
         "Share of small loans going to small businesses" = list(
           summary_expression = rlang::expr(num_sml_sbus/(num_sml_sbus + num_sml_bbus)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Total small loans" = list(
           summary_expression = rlang::expr(num_sml_sbus + num_sml_bbus),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
@@ -77,18 +77,18 @@ APP_CONFIG <- list(
     "Volume ($) of Loans to Small Businesses" = list( 
       data_code = 'loanvsb', 
       sb_csv = 'csv/loans_vol_sbus_bins.csv',
-      barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = "$,.0f", bartickprefix = "$",
+      barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f", bartickprefix = "$",
       barCats = list("Small Businesses" = "vol_sml_sbus", "Large Businesses" = "vol_sml_bbus"),
       summary_indicators = list(
         "Share of small loan volume ($) going to small businesses" = list(
           summary_expression = rlang::expr(vol_sml_sbus/(vol_sml_sbus + vol_sml_bbus)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Total small loan volume ($)" = list(
           summary_expression = rlang::expr(vol_sml_sbus + vol_sml_bbus),
           citywide_comparison = FALSE,
-          hoverformat = "$,.0f", tickprefix = "$", tickformat = ""
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
         )
       ),
       source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
@@ -107,13 +107,13 @@ APP_CONFIG <- list(
         "Total Population" = list(
           summary_expression = rlang::expr(male + female),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
           # cs_csv = 'csv/hbictpop_cs.csv'
         ),
         "Female share of population" = list(
           summary_expression = rlang::expr(female / (male + female)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted
@@ -141,12 +141,12 @@ APP_CONFIG <- list(
                 thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
          ),
          citywide_comparison = TRUE,
-         hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+         hoverformat = ".0%", tickformat = ".0%"
        ),
        "Total population aged 20-34" = list(
          summary_expression = rlang::expr(twenty_thirtyfour),
          citywide_comparison = FALSE,
-         hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+         hoverformat = ",.0f", tickformat = ""
        ),
        "Share of population aged 0-9" = list(
          summary_expression = rlang::expr(
@@ -155,12 +155,12 @@ APP_CONFIG <- list(
                 thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
          ),
          citywide_comparison = TRUE,
-         hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+         hoverformat = ".0%", tickformat = ".0%"
        ),
        "Total population aged 0-9" = list(
          summary_expression = rlang::expr(zero_nine),
          citywide_comparison = FALSE,
-         hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+         hoverformat = ",.0f", tickformat = ""
        ),
        "Share of population aged 55+" = list(
          summary_expression = rlang::expr(
@@ -169,12 +169,12 @@ APP_CONFIG <- list(
                 thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
          ),
          citywide_comparison = TRUE,
-         hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+         hoverformat = ".0%", tickformat = ".0%"
        ),
        "Total population aged 55+" = list(
          summary_expression = rlang::expr(fiftyfive_sixtyfour + sixtyfive_more),
          citywide_comparison = FALSE,
-         hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+         hoverformat = ",.0f", tickformat = ""
        )
      ),
      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses,
@@ -193,17 +193,17 @@ APP_CONFIG <- list(
         "Total children (0-17)" = list(
           summary_expression = rlang::expr(under5 + fiveto17),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         ),
         "Total children aged 5-17" = list(
           summary_expression = rlang::expr(fiveto17),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         ),
         "Total children aged 0-4" = list(
           summary_expression = rlang::expr(under5),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       additional_null_geoms = c("Census Tract 9811"),
@@ -231,7 +231,7 @@ APP_CONFIG <- list(
               (white + black + hisp + asian + native + two_plus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
           ),
         "Share of population, Black alone" = list(
           summary_expression = rlang::expr(
@@ -239,7 +239,7 @@ APP_CONFIG <- list(
               (white + black + hisp + asian + native + two_plus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
           ),
         "Share of population, Hispanic of any race" = list(
           summary_expression = rlang::expr(
@@ -247,7 +247,7 @@ APP_CONFIG <- list(
               (white + black + hisp + asian + native + two_plus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
           ),
         "Share of population, Asian alone" = list(
           summary_expression = rlang::expr(
@@ -255,7 +255,7 @@ APP_CONFIG <- list(
               (white + black + hisp + asian + native + two_plus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
           )
       ),
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS,
@@ -283,7 +283,7 @@ APP_CONFIG <- list(
               (white + black + hisp + aapi + ainh + twoplus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of children, Black alone" = list(
           summary_expression = rlang::expr(
@@ -291,7 +291,7 @@ APP_CONFIG <- list(
               (white + black + hisp + aapi + ainh + twoplus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of children, Hispanic of any race" = list(
           summary_expression = rlang::expr(
@@ -299,7 +299,7 @@ APP_CONFIG <- list(
               (white + black + hisp + aapi + ainh + twoplus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of children, Asian alone" = list(
           summary_expression = rlang::expr(
@@ -307,7 +307,7 @@ APP_CONFIG <- list(
               (white + black + hisp + aapi + ainh + twoplus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
       additional_null_geoms = c("Census Tract 9811"),
@@ -325,12 +325,12 @@ APP_CONFIG <- list(
         "Foreign-born share of population" = list(
           summary_expression = rlang::expr(foreign / (foreign + native)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Total foreign-born population" = list(
           summary_expression = rlang::expr(foreign),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
@@ -351,12 +351,12 @@ APP_CONFIG <- list(
         "Share of population (25+) with bachelor's or more" = list(
           summary_expression = rlang::expr(bm / (lhs + he + sc + bm)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of population (25+) with less than high school" = list(
           summary_expression = rlang::expr(lhs / (lhs + he + sc + bm)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
       source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
@@ -377,12 +377,12 @@ APP_CONFIG <- list(
         "Female labor force participation rate (16+)" = list(
           summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Male labor force participation rate (16+)" = list(
           summary_expression = rlang::expr(ilf_m / (ilf_m + nilf_m)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
       source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
@@ -426,7 +426,7 @@ APP_CONFIG <- list(
         "Total housing units" = list(
           summary_expression = rlang::expr(vac + occ),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of
@@ -446,12 +446,12 @@ APP_CONFIG <- list(
         "Housing vacancy rate" = list(
           summary_expression = rlang::expr(vac / (vac + occ)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Total vacant units" = list(
           summary_expression = rlang::expr(vac),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
@@ -469,7 +469,7 @@ APP_CONFIG <- list(
         "Owner occupancy rate" = list(
           summary_expression = rlang::expr(owner / (owner + renter)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American
@@ -489,12 +489,12 @@ APP_CONFIG <- list(
         "Total Population" = list(
           summary_expression = rlang::expr(male + female),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         ),
         "Female share of population" = list(
           summary_expression = rlang::expr(female / (male + female)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted
@@ -522,12 +522,12 @@ APP_CONFIG <- list(
                  thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Total population aged 20-34" = list(
           summary_expression = rlang::expr(twenty_thirtyfour),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         ),
         "Share of population aged 0-9" = list(
           summary_expression = rlang::expr(
@@ -536,12 +536,12 @@ APP_CONFIG <- list(
                  thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Total population aged 0-9" = list(
           summary_expression = rlang::expr(zero_nine),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         ),
         "Share of population aged 55+" = list(
           summary_expression = rlang::expr(
@@ -550,12 +550,12 @@ APP_CONFIG <- list(
                  thirtyfive_fiftyfour + fiftyfive_sixtyfour + sixtyfive_more)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Total population aged 55+" = list(
           summary_expression = rlang::expr(fiftyfive_sixtyfour + sixtyfive_more),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses,
@@ -574,17 +574,17 @@ APP_CONFIG <- list(
         "Total children (0-17)" = list(
           summary_expression = rlang::expr(under5 + fiveto17),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         ),
         "Total children aged 5-17" = list(
           summary_expression = rlang::expr(fiveto17),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         ),
         "Total children aged 0-4" = list(
           summary_expression = rlang::expr(under5),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1980-2020 Decennial Censuses,
@@ -611,7 +611,7 @@ APP_CONFIG <- list(
               (white + black + hisp + asian + native + two_plus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of population, Black alone" = list(
           summary_expression = rlang::expr(
@@ -619,7 +619,7 @@ APP_CONFIG <- list(
               (white + black + hisp + asian + native + two_plus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of population, Hispanic of any race" = list(
           summary_expression = rlang::expr(
@@ -627,7 +627,7 @@ APP_CONFIG <- list(
               (white + black + hisp + asian + native + two_plus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of population, Asian alone" = list(
           summary_expression = rlang::expr(
@@ -635,7 +635,7 @@ APP_CONFIG <- list(
               (white + black + hisp + asian + native + two_plus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of population, two or more races" = list(
           summary_expression = rlang::expr(
@@ -643,7 +643,7 @@ APP_CONFIG <- list(
               (white + black + hisp + asian + native + two_plus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS,
@@ -671,7 +671,7 @@ APP_CONFIG <- list(
               (white + black + hisp + aapi + ainh + twoplus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of children, Black alone" = list(
           summary_expression = rlang::expr(
@@ -679,7 +679,7 @@ APP_CONFIG <- list(
               (white + black + hisp + aapi + ainh + twoplus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of children, Hispanic of any race" = list(
           summary_expression = rlang::expr(
@@ -687,7 +687,7 @@ APP_CONFIG <- list(
               (white + black + hisp + aapi + ainh + twoplus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of children, Asian alone" = list(
           summary_expression = rlang::expr(
@@ -695,7 +695,7 @@ APP_CONFIG <- list(
               (white + black + hisp + aapi + ainh + twoplus + other)
           ),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
       additional_null_geoms = c("Census Tract 9811"),
@@ -713,12 +713,12 @@ APP_CONFIG <- list(
         "Foreign-born share of population" = list(
           summary_expression = rlang::expr(foreign / (foreign + native)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Total foreign-born population" = list(
           summary_expression = rlang::expr(foreign),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
@@ -739,12 +739,12 @@ APP_CONFIG <- list(
         "Share of population (25+) with bachelor's or more" = list(
           summary_expression = rlang::expr(bm / (lhs + he + sc + bm)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of population (25+) with less than high school" = list(
           summary_expression = rlang::expr(lhs / (lhs + he + sc + bm)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
       source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
@@ -765,12 +765,12 @@ APP_CONFIG <- list(
         "Female labor force participation rate (16+)" = list(
           summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Male labor force participation rate (16+)" = list(
           summary_expression = rlang::expr(ilf_m / (ilf_m + nilf_m)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
       source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
@@ -789,7 +789,7 @@ APP_CONFIG <- list(
         "Total housing units" = list(
           summary_expression = rlang::expr(vac + occ),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of
@@ -808,12 +808,12 @@ APP_CONFIG <- list(
         "Housing vacancy rate" = list(
           summary_expression = rlang::expr(vac / (vac + occ)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         ),
         "Total vacant units" = list(
           summary_expression = rlang::expr(vac),
           citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = NULL, tickformat = ""
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
@@ -831,7 +831,7 @@ APP_CONFIG <- list(
         "Owner occupancy rate" = list(
           summary_expression = rlang::expr(owner / (owner + renter)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickprefix = NULL, tickformat = ".0%"
+          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American
