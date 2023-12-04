@@ -21,18 +21,25 @@ pivot_long_and_rename_categories <- function(df, bin_col_names) {
 }
 
 prep_data <- function(topic) {
-  subcity_bins <- read.csv(topic$areas_categories_csv) %>%
-    pivot_long_and_rename_categories(bin_col_names = topic$barCats) %>%
+  sb <- read.csv(topic$areas_categories_csv) 
+  bc <- topic$barCats
+  for (c in names(sb)) {
+    if (!(c %in% c("YEAR", "NAME", "GEOID")) & !(c %in% bc)) {
+      bc[[c]] <- c
+    }
+  }
+  subcity_bins <- sb %>% # read.csv(topic$areas_categories_csv)
+    pivot_long_and_rename_categories(bin_col_names = bc) %>% # topic$barCats
     mutate(GEOID = as.character(GEOID))
   
   dfs = list("sb_df" = subcity_bins)
   if ("totalarea_categories_csv" %in% names(topic)) {
-    dfs$cb_df <- read.csv(topic$totalarea_categories_csv) %>% pivot_long_and_rename_categories(bin_col_names = topic$barCats)
+    dfs$cb_df <- read.csv(topic$totalarea_categories_csv) %>% pivot_long_and_rename_categories(bin_col_names = bc) # topic$barCats
   }
   indicators = list()
   for (ind_name in names(topic$summary_indicators)) {
     ind_dfs = list()
-    for (x in c("ss", "cs")) {
+    for (x in c("areas_summary", "totalarea_summary")) {
       if (paste0(x, "_csv") %in% names(topic$summary_indicators[[ind_name]])) {
         ind_dfs[[paste0(x, "_df")]] = read.csv(topic$summary_indicators[[ind_name]][[paste0(x, "_csv")]])
       }
@@ -44,7 +51,7 @@ prep_data <- function(topic) {
   if (length(indicators) > 0) {
     dfs$indicators = indicators
   }
-  #appdata = dfs
+
   dfs %>% saveRDS(file=sprintf('../data/%s.rds', topic$data_code))
 }
 
@@ -108,8 +115,17 @@ APP_CONFIG <- list(
           summary_expression = rlang::expr(male + female),
           citywide_comparison = FALSE,
           hoverformat = ",.0f", tickformat = ""
-          # totalarea_summary_csv = 'csv/hbictpop_cs.csv'
         ),
+        "Population per square mile" = list(
+          summary_expression = rlang::expr((male + female) / landarea_sqmiles),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickformat = ""
+        ),
+        # "Average population per occupied housing unit" = list(
+        #   summary_expression = rlang::expr((male + female) / occ_hu),
+        #   citywide_comparison = TRUE,
+        #   hoverformat = ".1f", tickformat = ""
+        # ),
         "Female share of population" = list(
           summary_expression = rlang::expr(female / (male + female)),
           citywide_comparison = TRUE,
@@ -427,6 +443,11 @@ APP_CONFIG <- list(
           summary_expression = rlang::expr(vac + occ),
           citywide_comparison = FALSE,
           hoverformat = ",.0f", tickformat = ""
+        ),
+        "Housing units per acre" = list(
+          summary_expression = rlang::expr((vac + occ) / landarea_acres),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of
@@ -491,6 +512,16 @@ APP_CONFIG <- list(
           citywide_comparison = FALSE,
           hoverformat = ",.0f", tickformat = ""
         ),
+        "Population per square mile" = list(
+          summary_expression = rlang::expr((male + female) / landarea_sqmiles),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickformat = ""
+        ),
+        # "Average population per occupied housing unit" = list(
+        #   summary_expression = rlang::expr((male + female) / occ_hu),
+        #   citywide_comparison = TRUE,
+        #   hoverformat = ".1f", tickformat = ""
+        # ),
         "Female share of population" = list(
           summary_expression = rlang::expr(female / (male + female)),
           citywide_comparison = TRUE,
@@ -790,6 +821,11 @@ APP_CONFIG <- list(
           summary_expression = rlang::expr(vac + occ),
           citywide_comparison = FALSE,
           hoverformat = ",.0f", tickformat = ""
+        ),
+        "Housing units per acre" = list(
+          summary_expression = rlang::expr((vac + occ) / landarea_acres),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of
@@ -845,8 +881,10 @@ APP_CONFIG <- list(
 
 # # You can either prep data for individual topics...
 # prep_data(APP_CONFIG[['tracts']]$topics[['Volume ($) of Loans to Small Businesses']])
-# prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
-# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
+#prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 
 # # ...or prep data for all topics
 # for (geo_type in APP_CONFIG) {
