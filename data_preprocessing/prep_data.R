@@ -21,13 +21,13 @@ pivot_long_and_rename_categories <- function(df, bin_col_names) {
 }
 
 prep_data <- function(topic) {
-  subcity_bins <- read.csv(topic$sb_csv) %>%
+  subcity_bins <- read.csv(topic$areas_categories_csv) %>%
     pivot_long_and_rename_categories(bin_col_names = topic$barCats) %>%
     mutate(GEOID = as.character(GEOID))
   
   dfs = list("sb_df" = subcity_bins)
-  if ("cb_csv" %in% names(topic)) {
-    dfs$cb_df <- read.csv(topic$cb_csv) %>% pivot_long_and_rename_categories(bin_col_names = topic$barCats)
+  if ("totalarea_categories_csv" %in% names(topic)) {
+    dfs$cb_df <- read.csv(topic$totalarea_categories_csv) %>% pivot_long_and_rename_categories(bin_col_names = topic$barCats)
   }
   indicators = list()
   for (ind_name in names(topic$summary_indicators)) {
@@ -56,7 +56,7 @@ APP_CONFIG <- list(
     ### num of sm. bus. loans ------
     "Numbers of Loans to Small Businesses" = list( 
       data_code = 'loannsb', 
-      sb_csv = 'csv/loans_num_sbus_bins.csv',
+      areas_categories_csv = 'csv/loans_num_sbus_bins.csv',
       barTitle = 'Number of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f",
       barCats = list("Small Businesses" = "num_sml_sbus", "Large Businesses" = "num_sml_bbus"),
       summary_indicators = list(
@@ -76,7 +76,7 @@ APP_CONFIG <- list(
     ### $ of sm. bus. loans ------
     "Volume ($) of Loans to Small Businesses" = list( 
       data_code = 'loanvsb', 
-      sb_csv = 'csv/loans_vol_sbus_bins.csv',
+      areas_categories_csv = 'csv/loans_vol_sbus_bins.csv',
       barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f", bartickprefix = "$",
       barCats = list("Small Businesses" = "vol_sml_sbus", "Large Businesses" = "vol_sml_bbus"),
       summary_indicators = list(
@@ -100,7 +100,7 @@ APP_CONFIG <- list(
     ### pop by sex -----
     "Population" = list(
       data_code = 'hbicttp', 
-      sb_csv = 'csv/hbic_tract_totpop_sex_bins.csv', cb_csv = 'csv/hbictpop_cb.csv',
+      areas_categories_csv = 'csv/hbic_tract_totpop_sex_bins.csv', totalarea_categories_csv = 'csv/hbictpop_cb.csv',
       barTitle = "Population by sex", barhoverformat = ",.0f",
       barCats = list("Male" = "male", "Female" = "female"),
       summary_indicators = list(
@@ -108,7 +108,7 @@ APP_CONFIG <- list(
           summary_expression = rlang::expr(male + female),
           citywide_comparison = FALSE,
           hoverformat = ",.0f", tickformat = ""
-          # cs_csv = 'csv/hbictpop_cs.csv'
+          # totalarea_summary_csv = 'csv/hbictpop_cs.csv'
         ),
         "Female share of population" = list(
           summary_expression = rlang::expr(female / (male + female)),
@@ -123,7 +123,7 @@ APP_CONFIG <- list(
     ### age -----
     "Age" = list(
       data_code = "hbicta",
-      sb_csv = 'csv/hbic_tract_age_year_bins.csv',
+      areas_categories_csv = 'csv/hbic_tract_age_year_bins.csv',
       barTitle = "Population by age", barhoverformat = ",.0f",
       barCats = list(
         "0-9 years" = "zero_nine",
@@ -183,7 +183,7 @@ APP_CONFIG <- list(
     ### children by age ------
     "Children by Age" = list(
       data_code = "chilta",
-      sb_csv = 'csv/children_tract_age_bins.csv',
+      areas_categories_csv = 'csv/children_tract_age_bins.csv',
       barTitle = "Children by age", barhoverformat = ",.0f",
       barCats = list(
         "0-4 years" = "under5",
@@ -213,7 +213,7 @@ APP_CONFIG <- list(
     ### race & ethnicity -----
     "Race and Ethnicity" = list(
       data_code = "hbictre",
-      sb_csv = 'csv/hbic_tract_race_ethn_bins.csv',
+      areas_categories_csv = 'csv/hbic_tract_race_ethn_bins.csv',
       barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
       barCats = list(
         "White" = "white",
@@ -265,7 +265,7 @@ APP_CONFIG <- list(
     ### children by race & ethnicity -----
     "Children by Race and Ethnicity" = list(
       data_code = "chiltre",
-      sb_csv = 'csv/children_tract_race_bins.csv',
+      areas_categories_csv = 'csv/children_tract_race_bins.csv',
       barTitle = "Children by race/ethnicity", barhoverformat = ",.0f",
       barCats = list(
         "White" = "white",
@@ -318,7 +318,7 @@ APP_CONFIG <- list(
     ### nativity ------
     "Nativity" = list(
       data_code = "hbictnat",
-      sb_csv = 'csv/hbic_tract_nativity_bins.csv',
+      areas_categories_csv = 'csv/hbic_tract_nativity_bins.csv',
       barTitle = "Population by nativity", barhoverformat = ",.0f",
       barCats = list("Native-born" = "native", "Foreign-born" = "foreign"),
       summary_indicators = list(
@@ -339,7 +339,7 @@ APP_CONFIG <- list(
     ### educ attainment -----
     "Educational Attainment" = list(
       data_code = "hbictedu", 
-      sb_csv = 'csv/hbic_tract_edu_attain_bins.csv',
+      areas_categories_csv = 'csv/hbic_tract_edu_attain_bins.csv',
       barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
       barCats = list(
         "Less than high school" = "lhs",
@@ -365,7 +365,7 @@ APP_CONFIG <- list(
     ### labor force ----
     "Labor Force" = list(
       data_code = "hbictlf",
-      sb_csv = 'csv/hbic_tract_labor_force_bins.csv',
+      areas_categories_csv = 'csv/hbic_tract_labor_force_bins.csv',
       barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
       barCats = list(
         "Male in labor force" = "ilf_m"
@@ -415,8 +415,8 @@ APP_CONFIG <- list(
     ### housing units ----
     "Housing Units" = list(
       data_code = "hbicthou", 
-      sb_csv = 'csv/hbic_tract_housing_bins.csv',
-      cb_csv = 'csv/hbicthou_cb.csv',
+      areas_categories_csv = 'csv/hbic_tract_housing_bins.csv',
+      totalarea_categories_csv = 'csv/hbicthou_cb.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
       barCats = list(
         "Occupied" = "occ",
@@ -435,8 +435,8 @@ APP_CONFIG <- list(
     ### housing occupancy -----
     "Housing Occupancy" = list(
       data_code = "hbicthouvac", 
-      sb_csv = 'csv/hbic_tract_housing_vacancy_bins.csv',
-      cb_csv = 'csv/hbicthouvac_cb.csv',
+      areas_categories_csv = 'csv/hbic_tract_housing_vacancy_bins.csv',
+      totalarea_categories_csv = 'csv/hbicthouvac_cb.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
       barCats = list(
         "Occupied" = "occ",
@@ -459,7 +459,7 @@ APP_CONFIG <- list(
     ### housing tenure ----
     "Housing Tenure" = list(
       data_code = "hbicthouten", 
-      sb_csv = 'csv/hbic_tract_housing_tenure_bins.csv',
+      areas_categories_csv = 'csv/hbic_tract_housing_tenure_bins.csv',
       barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
       barCats = list(
         "Owner-occupied" = "owner",
@@ -482,7 +482,7 @@ APP_CONFIG <- list(
     ### pop by sex ----
     "Population" = list(
       data_code = 'hbicntp', 
-      sb_csv = 'csv/hbic_neigh_totpop_sex_bins.csv', cb_csv = 'csv/hbictpop_cb.csv',
+      areas_categories_csv = 'csv/hbic_neigh_totpop_sex_bins.csv', totalarea_categories_csv = 'csv/hbictpop_cb.csv',
       barTitle = "Population by sex", barhoverformat = ",.0f",
       barCats = list("Male" = "male", "Female" = "female"),
       summary_indicators = list(
@@ -504,7 +504,7 @@ APP_CONFIG <- list(
     ### age ----
     "Age" = list(
       data_code = "hbicna", 
-      sb_csv = 'csv/hbic_neigh_age_year_bins.csv',
+      areas_categories_csv = 'csv/hbic_neigh_age_year_bins.csv',
       barTitle = "Population by age", barhoverformat = ",.0f",
       barCats = list(
         "0-9 years" = "zero_nine",
@@ -564,7 +564,7 @@ APP_CONFIG <- list(
     ### children by age -----
     "Children by Age" = list(
       data_code = "chilna", 
-      sb_csv = 'csv/children_neigh_age_bins.csv',
+      areas_categories_csv = 'csv/children_neigh_age_bins.csv',
       barTitle = "Children by age", barhoverformat = ",.0f",
       barCats = list(
         "0-4 years" = "under5",
@@ -593,7 +593,7 @@ APP_CONFIG <- list(
     ### race & ethnicity -----
     "Race and Ethnicity" = list(
       data_code = "hbicnre", 
-      sb_csv = 'csv/hbic_neigh_race_ethn_bins.csv',
+      areas_categories_csv = 'csv/hbic_neigh_race_ethn_bins.csv',
       barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
       barCats = list(
         "White" = "white",
@@ -653,7 +653,7 @@ APP_CONFIG <- list(
     ### children by race & ethnicity ----
     "Children by Race and Ethnicity" = list(
       data_code = "chilnre", 
-      sb_csv = 'csv/children_neigh_race_bins.csv',
+      areas_categories_csv = 'csv/children_neigh_race_bins.csv',
       barTitle = "Children by race/ethnicity", barhoverformat = ",.0f",
       barCats = list(
         "White" = "white",
@@ -706,7 +706,7 @@ APP_CONFIG <- list(
     ### nativity ----
     "Nativity" = list(
       data_code = "hbicnnat", 
-      sb_csv = 'csv/hbic_neigh_nativity_bins.csv',
+      areas_categories_csv = 'csv/hbic_neigh_nativity_bins.csv',
       barTitle = "Population by nativity", barhoverformat = ",.0f",
       barCats = list("Native-born" = "native", "Foreign-born" = "foreign"),
       summary_indicators = list(
@@ -727,7 +727,7 @@ APP_CONFIG <- list(
     ### educ attainment ----
     "Educational Attainment" = list(
       data_code = "hbicnedu", 
-      sb_csv = 'csv/hbic_neigh_edu_attain_bins.csv',
+      areas_categories_csv = 'csv/hbic_neigh_edu_attain_bins.csv',
       barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
       barCats = list(
         "Less than high school" = "lhs",
@@ -753,7 +753,7 @@ APP_CONFIG <- list(
     ### labor force ----
     "Labor Force" = list(
       data_code = "hbicnlf",
-      sb_csv = 'csv/hbic_neigh_labor_force_bins.csv',
+      areas_categories_csv = 'csv/hbic_neigh_labor_force_bins.csv',
       barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
       barCats = list(
         "Male in labor force" = "ilf_m"
@@ -779,7 +779,7 @@ APP_CONFIG <- list(
     ### housing units ----
     "Housing Units" = list(
       data_code = "hbicnhou", 
-      sb_csv = 'csv/hbic_neigh_housing_bins.csv',
+      areas_categories_csv = 'csv/hbic_neigh_housing_bins.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
       barCats = list(
         "Occupied" = "occ",
@@ -798,7 +798,7 @@ APP_CONFIG <- list(
     ### housing occupancy -----
     "Housing Occupancy" = list(
       data_code = "hbicnhouvac", 
-      sb_csv = 'csv/hbic_neigh_housing_vacancy_bins.csv',
+      areas_categories_csv = 'csv/hbic_neigh_housing_vacancy_bins.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
       barCats = list(
         "Occupied" = "occ",
@@ -821,7 +821,7 @@ APP_CONFIG <- list(
     ### housing tenure -----
     "Housing Tenure" = list(
       data_code = "hbicnhouten", 
-      sb_csv = 'csv/hbic_neigh_housing_tenure_bins.csv',
+      areas_categories_csv = 'csv/hbic_neigh_housing_tenure_bins.csv',
       barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
       barCats = list(
         "Owner-occupied" = "owner",
@@ -844,7 +844,7 @@ APP_CONFIG <- list(
 # Prep data #######
 
 # # You can either prep data for individual topics...
-prep_data(APP_CONFIG[['tracts']]$topics[['Volume ($) of Loans to Small Businesses']])
+# prep_data(APP_CONFIG[['tracts']]$topics[['Volume ($) of Loans to Small Businesses']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
 
