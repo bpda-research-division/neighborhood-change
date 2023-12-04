@@ -1,7 +1,7 @@
 # For maintainers
-This document provides an overview of how the Neighborhood Change Explorer app works, plus step-by-step instructions on:
-* how to create your own version of the app
-* how to update the underlying data for an existing app
+This document provides a more detailed overview of how the Neighborhood Change Explorer app works, aimed at providing enough information for people with basic R programming experience to: 
+* create their own version of the Neighborhood Change Explorer
+* update the underlying data for an existing instance of the Neighborhood Change Explorer
 
 For instructions on how to set up your R development environment in order to run an instance of the Neighborhood Change Explorer locally, see the [contribution guidelines](CONTRIBUTING.md).
 
@@ -11,7 +11,7 @@ The Neighborhood Change Explorer is built in R Shiny, a framework for building w
 | name | description |
 | -------- | --------- |
 | `ui.R` | defines the basic layout of the app + some styling parameters |
-| `server.R` | defines how the map & charts are rendered + how the various controls interact with the visualizations & with each other |
+| `server.R` | defines how the map & charts are rendered + how the various user controls interact with the visualizations & with each other |
 | `global.R` | defines how the data are loaded into the app + some app-wide formatting parameters (e.g. colors and fonts) and miscellaneous functions |
 
 The actual data are loaded in from RDS files in the `data/` folder, and the contents of the welcome page and the about page are rendered from markdown files stored in the `dialog/` folder. 
@@ -20,17 +20,17 @@ When the app runs, every R object defined in `global.R` is made available to bot
 
 ### Publishing and deployment
 
-The Neighborhood Change Explorer is published through Shiny Apps. In RStudio, this is done using the Publish button. It's also possible to [deploy Shiny apps outside of RStudio](https://docs.posit.co/shinyapps.io/getting-started.html#deploying-applications).
+The Neighborhood Change Explorer is published through Shiny Apps. In RStudio, this is done by opening one of the source code files for the app and using the Publish button. It's also possible to [deploy Shiny apps outside of RStudio](https://docs.posit.co/shinyapps.io/getting-started.html#deploying-applications).
 
-In RStudio, it's a good rule of thumb to clear the global environment before clicking the (Re)publish button - not doing so can sometimes introduce issues or errors. 
+In RStudio, it's a good rule of thumb to clear the global environment before clicking the Publish/Republish button - not doing so can sometimes introduce issues or errors. 
 
-An additional note is that the deployment process through RStudio will sometimes print an SSL error message, but this does not always mean that the deployment failed. Before trying the deployment again, wait a minute and check the URL of the published app to confirm whether your changes went through or not.
+An additional note is that the deployment process through RStudio will sometimes print an SSL error message, but this does not always mean that the deployment failed. Before trying to deploy again, wait a minute and visit the URL of the published app to confirm whether your changes went through or not.
 
 ## Basic configuration of the Neighborhood Change Explorer
 
-The `data_preprocessing/` folder of this repository includes a script called `prep_data.R` which does not run as part of the app itself, but rather is meant to be modified and run by app maintainers in order to set up the data files that are used by a given instance of the Neighborhood Change Explorer. 
+The `data_preprocessing/` folder of this repository includes a script called `prep_data.R` which does not run as part of the app itself, but rather is meant to be modified and run by app maintainers in order to set up the data files and overall configuration of a given instance of the Neighborhood Change Explorer. 
 
-Specifically, the names, data sources, and configuration parameters for all of the topics displayed by a Neighborhood Change Explorer instance are defined within the `APP_CONFIG` object in `prep_data.R`. `APP_CONFIG` is set up as a nested list of _**geographic units**_, which contain or more _**topics**_, which in turn contain one or more _**indicators**_.
+Specifically, the names, data sources, and configuration parameters for all of the topics displayed by a Neighborhood Change Explorer instance are defined within the `APP_CONFIG` object in `prep_data.R`. The `APP_CONFIG` object is set up as a nested list of _**geographic units**_, which contain or more _**topics**_, which in turn contain one or more _**indicators**_.
 
 ```
 APP_CONFIG <- list(
@@ -65,13 +65,13 @@ APP_CONFIG <- list(
 )
 ```
 
-Examples of geographic units include "census tracts" and "neighborhoods". Each geographic unit becomes a tab on the app. Tabs are displayed from left to right in the order in which they're declared in `APP_CONFIG`. The declared names of geographic units should be entered in all lower case, but they will be converted into title case when displayed on tabs.
+Examples of geographic units include `"census tracts"` and `"neighborhoods"`. Each geographic unit becomes a tab on the app. Tabs are displayed from left to right in the order in which they're declared in `APP_CONFIG`. The declared names of geographic units should be entered in all lower case, but they will be converted into title case when displayed on tabs.
 
-The value for each `geoms` parameter should be a variable defined earlier in `prep_data.R` containing the polygon/multipolygon geographic features that make up your study area. The ["Preparing geographic features"](#preparing-geographic-features) section of this document describes how to read geographic features into an R variable.
+The value for each `geoms` parameter should be a variable defined earlier in `prep_data.R` containing the polygon/multipolygon geographic features that make up your study area. The [preparing geographic features](#preparing-geographic-features) section of this document describes how to read geographic features into an R variable.
 
-Examples of topics include "Age" and "Housing Occupancy". Each topic declared for a given geographic unit becomes an entry on that tab's drop-down menu. Topic entries are displayed from top to bottom in the order in which they're declared in `APP_CONFIG`. The names of topics appear on the app exactly as they are declared.
+Examples of topics include `"Age"` and `"Housing Occupancy"`. Each topic declared for a given geographic unit becomes an entry on that tab's drop-down menu. Topic entries are displayed from top to bottom in the order in which they're declared in `APP_CONFIG`. The names of topics appear on the app exactly as they are declared.
 
-Examples of indicators within an "Age" topic might include "Young adult (20-34) share of population" or "Total population aged 65+". Indicator options are displayed from top to bottom in the order in which they're declared in `APP_CONFIG`. The names of indicators appear on the app exactly as they are declared.
+Examples of indicators within an `"Age"` topic might include `"Young adult (20-34) share of population"` or `"Total population aged 65+"`. Indicator options are displayed from top to bottom in the order in which they're declared in `APP_CONFIG`. The names of indicators appear on the app exactly as they are declared.
 
 Each combination of geographic unit, topic, and indicator constitutes a unique _**variable**_. Variables are the fundamental unit of analysis within the Neighborhood Change Explorer. `ui.R` and `server.R` are basically large functions that are designed to display data about one variable at a time in response to user selections.
 
@@ -79,8 +79,8 @@ Each combination of geographic unit, topic, and indicator constitutes a unique _
 
 Both tabular data and geographic information are needed for each topic in the Neighborhood Change Explorer. In general, the steps required to set up data for the Neighborhood Change Explorer are:
 
-0. If necessary, save the geographic features for the topic into the `geoms/` folder of this repo, noting the requirements in the [preparing geographic features](#preparing-geographic-features) section.
-1. Create a csv file for the topic using the format specified in the [preparing tabular data](#preparing-tabular-data) section and save it in the `csv/` subfolder of the `data_preprocessing/` folder. For topics that require [overriding default calculations](#overriding-default-calculations), create and save those additional csv files.
+0. If necessary, save the geographic features for the topic into the `geoms/` folder of this repo, noting the requirements in the [preparing geographic features](#preparing-geographic-features) section of this document.
+1. Create a csv file for the topic using the format specified in the [preparing tabular data](#preparing-tabular-data) section of this document and save it in the `csv/` subfolder of the `data_preprocessing/` folder. For topics that require [overriding default calculations](#overriding-default-calculations), create and save those additional csv files.
 2. Open `prep_data.R` (located within the `data_preprocessing/` folder of this repo) and modify the `APP_CONFIG` variable, adding all the required and optional [parameters](#configuring-topics-and-defining-indicators) desired for the topic, and adding references to any new geographic features.
 3. Set the working directory of your R session to the source file location of `prep_data.R`. 
 4. Run `prep_data.R`. This will create or update an RDS file for the topic within the `data/` folder and will also update `APP_CONFIG.rds`. To confirm that the changes went through successfully, run the Neighborhood Change Explorer app by opening and running `global.R`.
@@ -108,9 +108,9 @@ setView(-71.075, 42.318, zoom = 12)
 
 Tabular data are ingested using R's read.csv() function, which expects a csv file. One of the parameters to be specified for each topic (`areas_categories_csv`) is the filepath of a csv file containing the tabular data for that topic. The [Configuring topics](#configuring-topics-and-defining-indicators) section of this document goes into more detail about how the various parameters are defined and what they do.
 
-The required csv file for each topic should have one row for each geographic area for each year. There are three required column names: `GEOID` (which should uniquely identify each geographic area and correspond with the GEOID attribute of the geographic features), `NAME` (the display label for each geographic area), and `YEAR`.
+The required csv file for each topic should have one row for each geographic area for each year. There are three required column names: `GEOID` (which should uniquely identify each geographic area and correspond with the `GEOID` attribute of the geographic features), `NAME` (the display label for each geographic area), and `YEAR`.
 
-All other columns in the csv file for a given topic should represent the **_categories_** for that topic. For example, the topic of housing occupancy might have just two categories, occupied housing units and vacant housing units, which are represented in the example rows below using the **_category aliases_** "occ" and "vac":
+All other columns in the csv file for a given topic should represent the **_categories_** for that topic. For example, the topic of housing occupancy might have just two categories, occupied housing units and vacant housing units, which are represented in the example rows below using the **_column aliases_** `occ` and `vac`:
 
 | GEOID | NAME | vac | occ | YEAR |
 | -------- | --------- | -------- | ------ | -------- |
@@ -119,9 +119,9 @@ All other columns in the csv file for a given topic should represent the **_cate
 | 25025070202 | Census Tract 702.02 | 141 | 1186 | 1990 |
 | ... | ... | ... | ... | ... |
 
-Topics with more than two categories (e.g. age brackets or racial groups) will have more than two columns besides `GEOID`, `NAME`, and `YEAR` in their csv files. Also note that for any topic, the order of columns from left to right does not matter. 
+Column aliases should not use spaces or other special characters besides underscores, and they should not start with numbers. Topics with more than two categories (e.g. age brackets or racial groups) will have more than two column aliases in their csv files alongside the `GEOID`, `NAME`, and `YEAR` columns. Also note that for any topic, the order of columns from left to right does not matter. 
 
-It's also possible to include columns in `areas_categories_csv` that are used for calculating metrics that go on the map and line chart, but which aren't displayed on the bar chart. See the description of the barCats parameter in the [Topic parameters](#topic-parameters) section of this document.
+Most of the time, the column aliases for a given topic correspond with the categories that are displayed on the bar chart of the tool. However, it may sometimes be useful to include columns of data which aren't displayed on the bar chart, but which are used for calculating certain indicators for the map and line chart (i.e. for measures of density, you may want a column with the land area of each feature). The `barCats` parameter (described more in the [Topic parameters](#topic-parameters) section of this document) is used to specify the display names of the column aliases whose values should be displayed on the bar chart.
 
 #### How the app handles missing tabular data
 
@@ -135,26 +135,24 @@ If an individual area with no rows for one or more years is selected, data for t
 
 #### Overriding default calculations
 
-In most cases, `areas_categories_csv` s the only piece of tabular data that is needed to initialize a topic. The tool sums up category totals on the fly in order to display data on the bar chart by category for the city as a whole and for user-selected areas. For the line chart, the tool uses the `summary_expression` parameter to calculate the data that are displayed on the map and line chart for a given indicator. However, there are some situations where it may be desirable to override these default aggregations. 
+In most cases, `areas_categories_csv` is the only piece of tabular data that is needed to initialize a topic. The tool sums up category totals on the fly in order to display data on the bar chart by category for the city as a whole and for user-selected areas. For the line chart, the tool uses the `summary_expression` parameter to calculate the data that are displayed on the map and line chart for a given indicator (see the [indicator parameters](#indicator-parameters) section of this document for an example). However, there are some situations where it may be desirable to override these default aggregations. 
 
-For example, if you only want to display data for some subset of areas within the larger city (e.g. omitting tracts or neighborhoods with little to no population), the tool may calculate citywide totals that do not quite match official totals. For cases like this, one can use the `totalarea_categories_csv` parameter to point to a csv file with the citywide category totals that should be displayed instead of the default aggregations.
+For example, if you only want to omit some subset of areas within the larger city, the tool may calculate citywide totals that do not quite match official totals. For cases like this, one can use the `totalarea_categories_csv` parameter to point to a csv file with the citywide category totals that should be displayed instead of the default aggregations.
 
-There are also cases where it may be useful to override the default values for given indicator because the calculation of the `summary_expression` is an approximation of the true value. For example, to display median household incomes based on data that specifies the numbers of households in each income bucket, one might use a Pareto interpolation function within the `summary_expression` in order to have the tool estimate median incomes for arbitrary combinations of tracts or neighborhoods. However, if the actual median values for individual areas or for a wider place are available from the original data source, it may be desirable for the tool to display those instead of having it display estimates. 
+There are also cases where it may be useful to override the default values for given indicator because the calculation of the `summary_expression` is an approximation of the true value. For example, to display median household incomes based on data that specifies the numbers of households in each income bucket, one might use a Pareto interpolation function within the `summary_expression` in order to have the tool estimate median incomes for arbitrary combinations of tracts or neighborhoods. However, if the actual median values for individual areas or for a wider place are available from the original data source, it may be desirable for the tool to display those instead of having it display estimates. The summary values for individual sub-city areas can be overridden using the `areas_summary_csv` parameter, and citywide summary values can be overridden using the `totalarea_summary_csv` parameter.
 
-for areas summary and citywide summary, they're useful if your summary expression is an approximation of the true value. For example, displaying median values based on binned totals, summary expression could be a pareto interpolation. But you may have data on the actual medians for individual tracts or the totalarea. override the summaries to use those actuals instead of interpolating based on the bins data.
+The following table provides an overview of the required column names and unique identifier columns for each of the tabular data files that one can supply as a parameter for a given topic / indicator:
 
-need to specify required columns. also need to confirm whether the override csv formats match the formats below which are for the dfs under the hood
-
-| name | required? | type of parameter | required fields | fields which uniquely identify each row |
+| name | required? | type of parameter | required columns | unique identifier columns |
 | -------- | --------- | ------ | ------ | ------- |
-| `areas_categories_csv` | required | topic parameter | `GEOID`, `NAME`, `YEAR`, category aliases | `GEOID`, `YEAR` | 
+| `areas_categories_csv` | required | topic parameter | `GEOID`, `NAME`, `YEAR`, column aliases | `GEOID`, `YEAR` | 
 | `areas_summary_csv` | optional | indicator parameter | `GEOID`, `NAME`, `YEAR`, `SUMMARY_VALUE` | `GEOID`, `YEAR` | 
-| `totalarea_categories_csv` | optional | topic parameter | `YEAR`, category aliases | `YEAR` |
+| `totalarea_categories_csv` | optional | topic parameter | `YEAR`, column aliases | `YEAR` |
 | `totalarea_summary_csv` | optional | indicator parameter | `YEAR`, `SUMMARY_VALUE` | `YEAR` |
 
 ## Configuring topics and defining indicators
 
-The configuration of each variable is defined by a set of _**parameters**_ within `APP_CONFIG`, which is initialized in the `prep_data.R`. There are parameters for entire topics as well as parameters for specific indicators within topics. 
+The configuration of each variable is defined by a set of _**parameters**_ within `APP_CONFIG`, which is initialized in the `prep_data.R`. There are parameters for entire topics as well as parameters for specific indicators within topics.
 
 As illustrated in the [basic configuration](#basic-configuration-of-the-neighborhood-change-explorer) section of this document, each geographic unit declared in `APP_CONFIG` should have a list() of topics. Each topic is itself composed of a list() of topic parameters, as illustrated below. One of those topic parameters is `summary_indicators`, which is where each indicator is defined by its list() of indicator parameters.
 
@@ -181,6 +179,8 @@ As illustrated in the [basic configuration](#basic-configuration-of-the-neighbor
 
 For some topics, it may only make sense to have one indicator, but for other topics, particularly ones with a larger number of categories, it may be possible and desirable to add a larger number of indicators.
 
+Below are lists of the required and optional parameters for topics and indicators.
+
 ### Topic parameters
 
 | parameter | required? | description | example value(s) |
@@ -191,7 +191,7 @@ For some topics, it may only make sense to have one indicator, but for other top
 | `barTitle` | required | bar chart title for the topic | `"Population by sex"` |
 | `barhoverformat` | required | [D3 format code](https://github.com/d3/d3-format/tree/v1.4.5#d3-format) specifying a number format for the numbers that appear when users hover over bars on the bar chart | `",.0f"` (to show 0 decimal places with commas separating thousands) |
 | `bartickprefix` | optional | string to prepend to the numbers on the y axis of the bar chart | `"$"` |
-| `barCats` | required | `list()` associating each column alias from the tabular data with its display name for the bar chart. Columns whose aliases aren't in barCats will not appear on the bar chart. | `list("Occupied" = "occ", "Vacant" = "vac")` |
+| `barCats` | required | `list()` associating each column alias from the tabular data with its display name for the bar chart. Columns whose aliases aren't declared in barCats will not appear on the bar chart. | `list("Occupied" = "occ", "Vacant" = "vac")` |
 | `summary_indicators` | required | `list()` of indicator names and parameters | see the [Configuring topics](#configuring-topics-and-defining-indicators) section above |
 | `source` | required | citation information to display for the topic | `"U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"` |
 | `note` | optional | any additional note about the topic to be displayed between the bar chart and line chart | `"Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."` |
@@ -200,7 +200,7 @@ For some topics, it may only make sense to have one indicator, but for other top
 
 | parameter | required? | description | example value(s) |
 | ------ | ---- | ------ | ----- |
-| `summary_expression` | required | An R expression object showing how to compute an indicator as a function of the column aliases for the topic categories | `rlang::expr(foreign / (foreign + native))` |
+| `summary_expression` | required | An R expression object showing how to compute an indicator as a function of the column aliases for the topic categories | `rlang::expr(vac / (occ + vac))` to calculate a housing vacancy rate |
 | `citywide_comparison` | required | specify whether the line chart should include a dashed line showing the citywide trend for the given indicator (typically, you'd only use this for indicators that are indexes or percentages) | either `TRUE` or `FALSE` |
 | `areas_summary_csv` | optional | see the Overrides section of this document | `"csv/hbictpop_ss.csv"` |
 | `totalarea_summary_csv` | optional | see the Overrides section of this document | `"csv/hbictpop_cs.csv"` |
