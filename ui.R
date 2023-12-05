@@ -17,23 +17,27 @@ geoTabPanelUI <- function(geo_type) {
   css_legend_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
   html_legend_fix <- htmltools::tags$style(type = "text/css", css_legend_fix)  # Convert CSS to HTML
   
+  generalTopics <- variables %>% lapply(function(topic) {topic$generalTopic}) %>% unique()
+  
   tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', # within each tab,
     # the left side of the screen will be filled by a sidebarPanel containing the controls
     sidebarPanel(width=6, style="height:850px;", tags$style(".well {background-color:#ebedf2;}"),
         fluidRow(
-          column(width=4, style="margin-top:5px;",
-                 HTML("<b>Choose a general topic:</b>")
+          column(width=4, #style="margin-top:5px;",
+                 HTML("<b>Topic filters:</b>")
                  ),
-          column(width=8, style="z-index:1012;", # ensure drop-down menu displays in front of other stuff
-                 selectInput(ns("generalTopicSelect"),
-                             NULL,
-                             choices = c("Demographics", "Housing", "Businesses") # names(APP_CONFIG[[geo_unit]]$generalTopics) # xyz123
+          column(width=8, align='right', style="z-index:1012;", # ensure drop-down menu displays in front of other stuff
+                 checkboxGroupInput(ns("generalTopicSelect"),
+                             NULL, #"Filter list of topics by broad categories:",
+                             choices = generalTopics, #c("Demographics", "Housing", "Businesses"),
+                             selected = generalTopics, #c("Demographics", "Housing", "Businesses"),
+                             inline = TRUE # names(APP_CONFIG[[geo_unit]]$generalTopics) # xyz123
                              )
                  )
         ),
         fluidRow(
           column(width=4, style="margin-top:5px;", 
-                 HTML("<b>Choose a specific topic:</b>")
+                 HTML("<b>Choose a topic:</b>")
                  ),
           column(width=8, style="z-index:1011;", # ensure drop-down menu displays in front of other stuff
                  selectInput(ns("topicSelect"),
