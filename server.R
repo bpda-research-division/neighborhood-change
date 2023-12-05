@@ -414,7 +414,7 @@ tabPanelServer <- function(geo_type) {
             # ...we can use the variable's summary_expression (which uses category identifiers)...
             rowwise() %>% mutate(SUMMARY_VALUE = !!indicator_params()$summary_expression) %>%
             # ...to compute the yearly summary values for the selected polygons.
-            select(c("YEAR", "SUMMARY_VALUE"))
+            select(all_of(c("YEAR", "SUMMARY_VALUE")))
         }
       })
       
