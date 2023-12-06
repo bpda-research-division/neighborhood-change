@@ -358,7 +358,7 @@ tabPanelServer <- function(geo_type) {
         }
         # The y axis range is set according to the maximum data value for all years
         # Multiplying by 1.1 adds some padding between the max value and the top of the chart
-        return(c(0, 1.1*max(data$VALUE, na.rm = TRUE)))
+        return(c(0, 1.25*max(data$VALUE, na.rm = TRUE)))
       })
       
       # Define how we render the bar chart at any given time
@@ -367,6 +367,10 @@ tabPanelServer <- function(geo_type) {
                 x = ~CATEGORY, 
                 y = ~VALUE, 
                 name = selectionName(), # name the series according to the selection (displayed on legend)
+                text = ~VALUE,
+                texttemplate=paste0(var_params()$bartickprefix, '%', sprintf('{y:%s}', var_params()$barhoverformat)),
+                textposition = 'outside',
+                textfont=list(color="black", family = APP_FONT, size=APP_FONT_SIZE - 2),
                 hoverinfo = 'text' # enable text to be displayed on hover
                 ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
@@ -393,7 +397,7 @@ tabPanelServer <- function(geo_type) {
                                itemclick = FALSE, itemdoubleclick = FALSE
                                ),
                  margin = list(t=50) # top padding to make sure chart title is visible
-                 )
+                 ) #%>% add_annotations(text = ~VALUE, x = ~CATEGORY, y=~VALUE + barRange()[[2]] / 22, showarrow = FALSE)
       })
       
       # Displays any note that's been provided for the variable in APP_CONFIG
@@ -506,7 +510,7 @@ tabPanelServer <- function(geo_type) {
             add_markers(x = input$yearSelect, y = marker_y_data$SUMMARY_VALUE,
                         marker = list(color=LINE_COLOR, symbol="diamond", size=10), showlegend = F,
                         hoverinfo = "skip" # we already have hoverinfo for the lines, so no need for the marker
-                        )           
+                        )
         }
         return(p)
       })
@@ -530,6 +534,31 @@ tabPanelServer <- function(geo_type) {
       #   paste("Download data:", selectionName()) # 
       # })
       
+      observeEvent(input$downloadButton, {
+        showModal(modalDialog(
+          HTML(
+            paste(
+              "<b>Topic:</b>", topic_name(), "<br>", 
+              "<b>Geographic extent:</b>", selectionName(), selectedAreas(), "<br>",
+              "<b>Variable:</b>", input$indicatorSelect
+              )
+          ), 
+          title=h2("Confirm download details", align='center'),
+          easyClose = TRUE,
+          footer = tagList(modalButton("Cancel"),
+                           downloadButton(session$ns("downloadData"), "Download .csv file")
+                           
+          )
+        ))
+      })
+      
+      selectedAreas <- reactive({
+        ifelse(
+          length(selectedPolygons$groups) > 0, 
+          paste0("(", toString(selectedPolygons$groups), ")"),
+          "")
+      })
+      
       # Handles downloads
       output$downloadData <- downloadHandler(
         filename = function() {
@@ -537,20 +566,16 @@ tabPanelServer <- function(geo_type) {
           "nce_download.csv"
         },
         content = function(out_file) {
+          removeModal()
           output <- selectionData() %>% 
             pivot_wider(id_cols = "YEAR", names_from='CATEGORY', values_from='VALUE') %>%
             merge(selectedLine() %>% select(YEAR, SUMMARY_VALUE) %>% st_drop_geometry(), by='YEAR') %>%
             mutate(YEAR = as.character(YEAR), !!input$indicatorSelect := SUMMARY_VALUE, .keep='unused')
-          
-          list_of_areas <- ifelse(
-            length(selectedPolygons$groups) > 0, 
-            paste0("(", toString(selectedPolygons$groups), ")"),
-            "")
             
           o <- as.data.frame(
             rbind(
               c(paste("Topic:", topic_name()),rep(NA,ncol(output)-1)),
-              c(paste("Geographic Extent:", selectionName(), list_of_areas),rep(NA,ncol(output)-1)),
+              c(paste("Geographic extent:", selectionName(), selectedAreas()),rep(NA,ncol(output)-1)),
               c(paste("Source:", gsub("\\s+", " ", gsub("[\r\n]", "", var_params()$source))),rep(NA,ncol(output)-1)),
               c(rep(NA,ncol(output))),
               colnames(output),

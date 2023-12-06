@@ -10,14 +10,15 @@ geoTabPanelUI <- function(geo_type) {
   variables <- APP_CONFIG[[geo_type]]$topics # ...most of these lines of code will be moved to the server # xyz123
   variables_years <- APP_DATA[[geo_type]] %>% 
     lapply(function(var) unique(var$sb_df$YEAR))
-  initial_years <- variables_years[[1]]
+  initial_years <- APP_DATA[[geo_type]][[1]]$sb_df$YEAR %>% unique()
+  generalTopics <- variables %>% lapply(function(topic) {topic$generalTopic}) %>% unique()
   
   # the below variables are used to reformat the map legend to place the NA value below the color
   # palette - default behavior in the current version of Leaflet is for them to be side by side
   css_legend_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
   html_legend_fix <- htmltools::tags$style(type = "text/css", css_legend_fix)  # Convert CSS to HTML
   
-  generalTopics <- variables %>% lapply(function(topic) {topic$generalTopic}) %>% unique()
+  
   
   tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', # within each tab,
     # the left side of the screen will be filled by a sidebarPanel containing the controls
@@ -81,9 +82,9 @@ geoTabPanelUI <- function(geo_type) {
                 ) # the above jumble of characters is the HTML code for a play button symbol
          ),
          column(width=5, align='right', style="margin-bottom:5px; margin-top: -5px;",
-                downloadButton(
-                  ns("downloadData"), 
-                  "Download selected data" #textOutput(ns("downloadText")), icon=NULL
+                actionButton(
+                  ns("downloadButton"), 
+                  "Download selected data", icon = icon("download")
                   )
          )
        ),
