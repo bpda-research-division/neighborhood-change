@@ -539,7 +539,7 @@ tabPanelServer <- function(geo_type) {
         content = function(out_file) {
           output <- selectionData() %>% 
             pivot_wider(id_cols = "YEAR", names_from='CATEGORY', values_from='VALUE') %>%
-            merge(selectedLine(), by='YEAR') %>%
+            merge(selectedLine() %>% select(YEAR, SUMMARY_VALUE) %>% st_drop_geometry(), by='YEAR') %>%
             mutate(YEAR = as.character(YEAR), !!input$indicatorSelect := SUMMARY_VALUE, .keep='unused')
           
           list_of_areas <- ifelse(
