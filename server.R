@@ -249,16 +249,28 @@ tabPanelServer <- function(geo_type) {
         selectedPolygons$groups <- vector() # ...unselect all polygons and hide them on the map.
       })
       
-      # # To update the specific topic selection menu each time the user selects a different general topic...
-      # observeEvent(input$generalTopicSelect, {
-      # variables_years <- generalTopic_params()$topics %>% 
-      #   lapply(function(var) unique(var$sb_df$YEAR))
-      #   topics <- names(generalTopic_params()$topics) %>% 
-      # lapply(function (n) { # display each variable with its start and end year
-      #   paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
-      # })
-      #   updateSelectInput(session, "topicSelect", choices=topics, selected=topics[[1]])
-      # }) # xyz123
+      # To update the specific topic selection menu each time the user selects a different general topic...
+      observeEvent(input$generalTopicSelect, {
+        variables_years <- APP_DATA[[geo_unit]] %>%
+          lapply(function(var) unique(var$sb_df$YEAR))
+        # extract the vector of general topics
+        topics <- names(APP_CONFIG[[geo_unit]]$topics) %>%
+          lapply(function (n) { # display each variable with its start and end year
+            paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
+          }) # NULL # xyz123
+
+        selected_gt <- input$generalTopicSelect
+        if (length(selected_gt) > 0) {
+          selected <- APP_CONFIG[[geo_unit]]$topics %>%
+            lapply(function(topic) {topic$generalTopic %in% selected_gt}) %>%
+            unlist()
+          selectedTopics <- topics[selected]
+        }
+        else {
+          selectedTopics <- topics
+        }
+        updateSelectInput(session, "topicSelect", choices=selectedTopics, selected=selectedTopics[[1]])
+      }, ignoreNULL = FALSE) # xyz123
       
       # To update the slider input each time the user selects a different topic...
       observeEvent(input$topicSelect, {
@@ -514,9 +526,9 @@ tabPanelServer <- function(geo_type) {
         paste("Source:", var_params()$source)
       })
       
-      output$downloadText <- renderText({
-        paste("Download data:", selectionName()) # 
-      })
+      # output$downloadText <- renderText({
+      #   paste("Download data:", selectionName()) # 
+      # })
       
       # Handles downloads
       output$downloadData <- downloadHandler(
@@ -551,7 +563,7 @@ tabPanelServer <- function(geo_type) {
             o,
             na = "", 
             out_file, 
-            sep = ",", # add this per road_to_quantdom on May/05/22
+            sep = ",",
             col.names = FALSE, 
             row.names = FALSE)
         }

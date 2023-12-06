@@ -26,7 +26,7 @@ geoTabPanelUI <- function(geo_type) {
           column(width=4, #style="margin-top:5px;",
                  HTML("<b>Topic filters:</b>")
                  ),
-          column(width=8, align='right', style="z-index:1012;", # ensure drop-down menu displays in front of other stuff
+          column(width=8, align='center', style="margin-top:-5px;",
                  checkboxGroupInput(ns("generalTopicSelect"),
                              NULL, #"Filter list of topics by broad categories:",
                              choices = generalTopics, #c("Demographics", "Housing", "Businesses"),
@@ -36,21 +36,22 @@ geoTabPanelUI <- function(geo_type) {
                  )
         ),
         fluidRow(
-          column(width=4, style="margin-top:5px;", 
+          column(width=4, #style="margin-top:5px;", 
                  HTML("<b>Choose a topic:</b>")
                  ),
-          column(width=8, style="z-index:1011;", # ensure drop-down menu displays in front of other stuff
+          column(width=8, style="z-index:1011; margin-top:-5px;", # ensure this drop-down menu displays in front of other stuff
                  selectInput(ns("topicSelect"),
                              NULL, 
-                             choices = names(variables) %>% 
-                               lapply(function (n) { # display each variable with its start and end year
-                                 paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
-                               }) # NULL # xyz123
+                             choices = NULL
+                               # names(variables) %>% 
+                               # lapply(function (n) { # display each variable with its start and end year
+                               #   paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
+                               # }) # NULL # xyz123
                              )
                  )
         ),
         fluidRow(
-          column(width=4, style="margin-top:5px;", 
+          column(width=4, #style="margin-top:5px;", 
                  HTML("<b>Choose a variable:</b>")
           ),
           column(width=8, style="z-index:1010;",
@@ -82,7 +83,7 @@ geoTabPanelUI <- function(geo_type) {
          column(width=5, align='right', style="margin-bottom:5px; margin-top: -5px;",
                 downloadButton(
                   ns("downloadData"), 
-                  textOutput(ns("downloadText")), icon=NULL
+                  "Download selected data" #textOutput(ns("downloadText")), icon=NULL
                   )
          )
        ),
