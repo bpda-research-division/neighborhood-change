@@ -204,7 +204,7 @@ tabPanelServer <- function(geo_type) {
       
       # Keep track of the unique set of years for the variable the user selects
       var_years <- reactive({
-        unique(APP_DATA[[geo_unit]][[topic_name()]]$sb_df$YEAR)
+        unique(APP_DATA[[geo_unit]][[topic_name()]]$sb_df$YEAR) %>% sort()
       })
       
       # Update the map When the user moves the time slider or picks a new variable
@@ -252,7 +252,7 @@ tabPanelServer <- function(geo_type) {
       # To update the specific topic selection menu each time the user selects a different general topic...
       observeEvent(input$generalTopicSelect, {
         variables_years <- APP_DATA[[geo_unit]] %>%
-          lapply(function(var) unique(var$sb_df$YEAR))
+          lapply(function(var) unique(var$sb_df$YEAR) %>% sort())
         # extract the vector of general topics
         topics <- names(APP_CONFIG[[geo_unit]]$topics) %>%
           lapply(function (n) { # display each variable with its start and end year
