@@ -170,7 +170,7 @@ tabPanelServer <- function(geo_type) {
                 color = "black", # ...given them a black border of weight 3 so they "pop out"
                 bringToFront = TRUE
               ),
-            )
+            ) %>% hideGroup(group = yr)
         } 
         # on top of the layers of polygons for each year, add a hidden layer of 
         # polygons that will be displayed when they're clicked on by users
@@ -199,7 +199,7 @@ tabPanelServer <- function(geo_type) {
                  identity  # ...otherwise, display the data values as they are
                  )
                )
-            ) %>% showGroup(group = selectedPolygons$groups)
+            ) %>% showGroup(group = yr) %>% showGroup(selectedPolygons$groups)
       })
       
       # Keep track of the unique set of years for the variable the user selects
@@ -386,7 +386,7 @@ tabPanelServer <- function(geo_type) {
                               ),
                  yaxis = list(title = '' , fixedrange = TRUE, range = barRange(), 
                               hoverformat = var_params()$barhoverformat,
-                              tickprefix = var_params()$bartickprefix
+                              tickprefix = var_params()$bartickprefix#, showticklabels = FALSE#, visible = FALSE
                               ), 
                  hoverlabel = list(bordercolor = 'white', # hover text formatting options
                                    font = list(color="white", size=APP_FONT_SIZE-2)
