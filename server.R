@@ -386,7 +386,7 @@ tabPanelServer <- function(geo_type) {
                               ),
                  yaxis = list(title = '' , fixedrange = TRUE, range = barRange(), 
                               hoverformat = var_params()$barhoverformat,
-                              tickprefix = var_params()$bartickprefix#, showticklabels = FALSE#, visible = FALSE
+                              tickprefix = var_params()$bartickprefix, showticklabels = FALSE, showgrid = FALSE
                               ), 
                  hoverlabel = list(bordercolor = 'white', # hover text formatting options
                                    font = list(color="white", size=APP_FONT_SIZE-2)

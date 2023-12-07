@@ -881,9 +881,9 @@ APP_CONFIG <- list(
 
 # # You can either prep data for individual topics...
 # prep_data(APP_CONFIG[['tracts']]$topics[['Volume ($) of Loans to Small Businesses']])
-prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
+#prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
 #prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
 #prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 
 # # ...or prep data for all topics
