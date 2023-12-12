@@ -6,11 +6,12 @@
 #' with a given set of UI components (map, bar chart, line chart, etc). 
 #' This function creates those components, namespacing them by geography type. 
 geoTabPanelUI <- function(geo_type) {
-  ns <- NS(gsub(" ","_",geo_type)) # when the initialization is only general topics...
-  variables <- APP_CONFIG[[geo_type]]$topics # ...most of these lines of code will be moved to the server # xyz123
-  variables_years <- APP_DATA[[geo_type]] %>% 
-    lapply(function(var) unique(var$sb_df$YEAR))
-  initial_years <- variables_years[[1]]
+  ns <- NS(gsub(" ","_",geo_type)) # define the namespace based on the geography type
+  initial_years <- APP_DATA[[geo_type]][[1]]$areas_categories_df$YEAR %>% 
+    unique() # extract year range for the initial slider
+  generalTopics <- APP_CONFIG[[geo_type]]$topics %>% 
+    lapply(function(topic) {topic$generalTopic}) %>% 
+    unique() # extract list of general topics for the topic filter checkboxes
   
   # the below variables are used to reformat the map legend to place the NA value below the color
   # palette - default behavior in the current version of Leaflet is for them to be side by side
@@ -20,79 +21,63 @@ geoTabPanelUI <- function(geo_type) {
   tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', # within each tab,
     # the left side of the screen will be filled by a sidebarPanel containing the controls
     sidebarPanel(width=6, style="height:850px;", tags$style(".well {background-color:#ebedf2;}"),
-        fluidRow(
-          column(width=4, style="margin-top:5px;",
-                 HTML("<b>Choose a general topic:</b>")
+        fluidRow( # The first row of controls is dedicated to general topic filtering
+          column(width=4, 
+                 HTML("<b>Topic filters:</b>")
                  ),
-          column(width=8, style="z-index:1012;", # ensure drop-down menu displays in front of other stuff
-                 selectInput(ns("generalTopicSelect"),
-                             NULL,
-                             choices = c("Demographics", "Housing", "Businesses") # names(APP_CONFIG[[geo_unit]]$generalTopics) # xyz123
+          column(width=8, align='center', style="margin-top:-5px;",
+                 checkboxGroupInput(ns("generalTopicSelect"), label = NULL, # no default label since we have our own
+                             choices = generalTopics, selected = generalTopics, 
+                             inline = TRUE # displays general topics horizontally rather than vertically
                              )
                  )
         ),
-        fluidRow(
-          column(width=4, style="margin-top:5px;", 
-                 HTML("<b>Choose a specific topic:</b>")
+        fluidRow( # The second row of controls is for choosing a specific topic
+          column(width=4, 
+                 HTML("<b>Choose a topic:</b>")
                  ),
-          column(width=8, style="z-index:1011;", # ensure drop-down menu displays in front of other stuff
-                 selectInput(ns("topicSelect"),
-                             NULL, 
-                             choices = names(variables) %>% 
-                               lapply(function (n) { # display each variable with its start and end year
-                                 paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
-                               }) # NULL # xyz123
+          column(width=8, style="z-index:1011; margin-top:-5px;", # ensure this drop-down menu displays in front of other stuff
+                 selectInput(ns("topicSelect"), label = NULL, 
+                             choices = NULL # topic choices are populated by the server, so no initialization here
                              )
                  )
         ),
-        fluidRow(
-          column(width=4, style="margin-top:5px;", 
+        fluidRow( # The third row of controls is for choosing a specific indicator / variable within a topic
+          column(width=4, 
                  HTML("<b>Choose a variable:</b>")
           ),
           column(width=8, style="z-index:1010;",
-                 selectInput(ns("indicatorSelect"),
-                             NULL, choices = NULL
+                 selectInput(ns("indicatorSelect"), label = NULL, 
+                             choices = NULL # again, these choices will be populated by the server
                  )
           )
         ),
-        fluidRow(
+        fluidRow( # The fourth row of controls is for the time slider
            column(width=4, 
                   HTML(
                     "<b>Drag the slider or click &#9658; to move through time:</b>"
                     ), # the above jumble of characters is the HTML code for a play button symbol
                   ),
-           column(width=8, #style="margin-top:5px;",
+           column(width=8,
                   sliderTextInput(inputId = ns("yearSelect"), 
                       choices = initial_years,
                       selected = tail(initial_years, 1), grid=TRUE, label = NULL,
-                      animate = animationOptions(interval = 800) # set animation speed here
+                      animate = animationOptions(interval = 800) # set play button's animation speed here
                       )
                   )
        ),
-       fluidRow(
-         column(width=7,
-                HTML(
-                  sprintf("<b>Select one or more %s on the map:</b>", geo_type)
-                ) # the above jumble of characters is the HTML code for a play button symbol
-         ),
-         column(width=5, align='right', style="margin-bottom:5px; margin-top: -5px;",
-                downloadButton(
-                  ns("downloadData"), 
-                  textOutput(ns("downloadText")), icon=NULL
-                  )
-         )
-       ),
-       # div(style="padding-bottom:5px;", HTML(
-       #   sprintf("<b>Select one or more %s on the map:</b>", geo_type)
-       # )),
-       leafletOutput(ns("map"), height="510px") %>%
+
+       div(style="padding-bottom:5px;", HTML(
+         sprintf("<b>Select one or more %s on the map:</b>", geo_type)
+       )), # the bottom section of the controls is dedicated to the map, with a line of instructional text above it
+       leafletOutput(ns("map"), height="530px") %>%
          htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
     ),
     mainPanel(width=6, # the right-hand side of the screen displays the charts, any notes, and source citations
        plotlyOutput(ns("bar_chart")), # default background color for plotly charts is white, so our note matches that
        htmlOutput(align="center", style="font-size:9pt; background-color: #ffffff; padding-bottom:5px;", ns("note")),
        plotlyOutput(ns("line_chart")),
-       htmlOutput(style=sprintf('padding:10px; font-size:%spx', APP_FONT_SIZE - 4), ns("sourceText"))
+       htmlOutput(style=sprintf('padding:10px; font-size:%spx', APP_FONT_SIZE - 4), ns("sourceText")) # citation at bottom
        )
   )
 }

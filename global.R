@@ -17,9 +17,6 @@ MAP_PALETTE <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.
 BAR_COLOR <- '#60809f' # previously, we set the map palette as Purples with bar/line color 7f76b7
 LINE_COLOR <- BAR_COLOR # could also change line to a separate hex code if desired
 
-tract2020_geoms <- read_sf('geoms/boston_tracts_2020_complex.geojson') %>% mutate(GEOID = as.character(geoid20))
-neigh2020_geoms <- read_sf('geoms/boston_neighborhoods_2020tract.geojson') %>% mutate(GEOID = nbhd)
-
 # Miscellaneous functions ###########
 
 #' Given a string, returns that string with an HTML <br> inserted as close to 
@@ -51,6 +48,18 @@ split_max_2_lines <- function(s) {
       }
     }
   }
+}
+
+#' Helper function which pivots a dataframe of binned values into a dataframe of summary values 
+pivot_summarise <- function(df, cats, summary_expr, id_columns) {
+  df$CATEGORY <- df$CATEGORY %>% recode(!!!cats) # rename categories from their display names to their aliases
+  df <- df %>% 
+    pivot_wider(id_cols = all_of(id_columns),
+                names_from = 'CATEGORY', 
+                values_from = 'VALUE') %>% 
+    mutate(SUMMARY_VALUE = !!summary_expr) %>% 
+    select(-all_of(unlist(unname(cats))))
+  df
 }
 
 #' Implements https://en.wikipedia.org/wiki/Pareto_interpolation, returning the
@@ -212,11 +221,12 @@ addLegend_decreasing <- function (map, position = c("topright", "bottomright", "
 
 # Data loading ######################
 
-APP_CONFIG <- readRDS("config/APP_CONFIG.rds")
+# this configuration object is created and modified in prep_data.R, along with the rds data files for each topic
+APP_CONFIG <- readRDS("config/APP_CONFIG.rds") 
 
-# using APP_CONFIG, read the four data frames for each variable into APP_DATA
+# using APP_CONFIG, read the data frames for each variable into APP_DATA
 # APP_DATA has the same structure as APP_CONFIG, but with a list of data
-# frames instead of a list of parameters being stored for each variable
+# frames instead of a list of parameters being stored for each topic
 APP_DATA <- APP_CONFIG %>% 
   lapply(function(geo_type) geo_type$topics %>% 
     lapply(
