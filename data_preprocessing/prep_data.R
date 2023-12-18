@@ -5,7 +5,7 @@ library(sf)
 
 tract2020_geoms <- read_sf('../geoms/boston_tracts_2020_complex.geojson') %>% mutate(GEOID = as.character(geoid20))
 tract2010_geoms <- read_sf('../geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
-neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020tract.geojson') %>% mutate(GEOID = nbhd)
+neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020tract_2.geojson') 
 
 # Functions ##########
 
@@ -881,16 +881,16 @@ APP_CONFIG <- list(
 # # You can either prep data for individual topics...
 # prep_data(APP_CONFIG[['tracts']]$topics[['Volume ($) of Loans to Small Businesses']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
-#prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
+# prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
+# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 
 # # ...or prep data for all topics
-for (geo_type in APP_CONFIG) {
-  for (topic in geo_type$topics) {
-    prep_data(topic)
-  }
-}
+# for (geo_type in APP_CONFIG) {
+#   for (topic in geo_type$topics) {
+#     prep_data(topic)
+#   }
+# }
 
 # always save config after making changes to it
 APP_CONFIG %>% saveRDS(file='../config/APP_CONFIG.rds')
