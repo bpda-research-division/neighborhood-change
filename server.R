@@ -473,17 +473,21 @@ tabPanelServer <- function(geo_type) {
                         hoverinfo = "skip" # we already have hoverinfo for the lines, so no need for the marker
                         )           
         }
+        line_loaded(TRUE) # change line_loaded() from false to true when line chart is ready to be clicked upon
         p
       })
       
+      # initializing this as FALSE initially and requiring it before event_data() prevents plotly click warnings
+      line_loaded <- reactiveVal(value = FALSE)
+      
       # This returns the year (x axis value) for any clicks that users make on the line chart
       clickedYear <- reactive({
-        req(input$line_chart) # ensure line chart is rendered before we start processing click events
+        req(line_loaded()) # event_data() triggers a warning if it's called before the relevant plot is loaded
         event_data("plotly_click", source=session$ns("line_chart"))[['x']][1]
       })
       
       # This updates the slider anytime the user clicks on the line chart to select a year
-      observeEvent(clickedYear(), { 
+      observeEvent(clickedYear(), {
         updateSliderTextInput(session, "yearSelect", selected = clickedYear())
       })
       
