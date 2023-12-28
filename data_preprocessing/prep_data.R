@@ -6,6 +6,9 @@ library(sf)
 tract2020_geoms <- read_sf('../geoms/boston_tracts_2020_complex.geojson') %>% mutate(GEOID = as.character(geoid20))
 tract2010_geoms <- read_sf('../geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
 neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020tract_2.geojson') 
+zca_geoms <- read_sf('../geoms/boston_zipcodeAreas_complex.geojson') %>% 
+  select(-NAME) %>%
+  mutate(GEOID = case_when(GEOID == "Zip Code(s) 02108" ~ "Zip Code(s) 02108-10", .default=GEOID))
 
 # Functions ##########
 
@@ -58,50 +61,6 @@ prep_data <- function(topic) {
 # Define parameters for each geography type and variable ##########
 
 APP_CONFIG <- list(
-  ## 2010 tracts ------
-  "tracts" = list(geoms = tract2010_geoms, topics = list( 
-    ### num of sm. bus. loans ------
-    "Numbers of Loans to Small Businesses" = list( 
-      data_code = 'loannsb', generalTopic = 'Businesses',
-      areas_categories_csv = 'csv/loans_num_sbus_bins.csv',
-      barTitle = 'Number of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f",
-      barCats = list("Small Businesses" = "num_sml_sbus", "Large Businesses" = "num_sml_bbus"),
-      summary_indicators = list(
-        "Share of small loans going to small businesses" = list(
-          summary_expression = rlang::expr(num_sml_sbus/(num_sml_sbus + num_sml_bbus)),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        ),
-        "Total small loans" = list(
-          summary_expression = rlang::expr(num_sml_sbus + num_sml_bbus),
-          citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickformat = ""
-        )
-      ),
-      source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
-    ),
-    ### $ of sm. bus. loans ------
-    "Volume ($) of Loans to Small Businesses" = list( 
-      data_code = 'loanvsb', generalTopic = 'Businesses',
-      areas_categories_csv = 'csv/loans_vol_sbus_bins.csv',
-      barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f", bartickprefix = "$",
-      barCats = list("Small Businesses" = "vol_sml_sbus", "Large Businesses" = "vol_sml_bbus"),
-      summary_indicators = list(
-        "Share of small loan volume ($) going to small businesses" = list(
-          summary_expression = rlang::expr(vol_sml_sbus/(vol_sml_sbus + vol_sml_bbus)),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        ),
-        "Total small loan volume ($)" = list(
-          summary_expression = rlang::expr(vol_sml_sbus + vol_sml_bbus),
-          citywide_comparison = FALSE,
-          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
-        )
-      ),
-      source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
-    )
-    )
-  ), 
   ## 2020 tracts ------
   "census tracts" = list(geoms = tract2020_geoms, topics = list(
     ### pop by sex -----
@@ -873,13 +832,79 @@ APP_CONFIG <- list(
       Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
       )
     )
-  )
+    ),
+    ## Zip code areas ------
+    "zip code areas" = list(geoms = zca_geoms, topics = list( 
+      ### num of sm. bus. loans ------
+      "Numbers of Loans to Small Businesses" = list( 
+        data_code = 'loannsb', generalTopic = 'Businesses',
+        areas_categories_csv = 'csv/loans_estabs_zcas_bins.csv',
+        barTitle = 'Number of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f",
+        barCats = list("Loans to small businesses" = "num_sml_sbus", "Loans to large businesses" = "num_sml_bbus"),
+        summary_indicators = list(
+          "Number of small loans per 1000 businesses" = list(
+            summary_expression = rlang::expr(num_sml_sbus*1000/ESTAB),
+            citywide_comparison = TRUE,
+            hoverformat = ",.0f", tickformat = ""
+          ),
+          "Share of small loans going to small businesses" = list(
+            summary_expression = rlang::expr(num_sml_sbus/(num_sml_sbus + num_sml_bbus)),
+            citywide_comparison = TRUE,
+            hoverformat = ".0%", tickformat = ".0%"
+          ),
+          "Total small loans" = list(
+            summary_expression = rlang::expr(num_sml_sbus + num_sml_bbus),
+            citywide_comparison = FALSE,
+            hoverformat = ",.0f", tickformat = ""
+          )
+        ),
+        source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
+      ),
+      ### $ of sm. bus. loans ------
+      "Volume ($) of Loans to Small Businesses" = list( 
+        data_code = 'loanvsb', generalTopic = 'Businesses',
+        areas_categories_csv = 'csv/loans_estabs_zcas_bins.csv',
+        barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f", bartickprefix = "$",
+        barCats = list("Loans to small businesses" = "vol_sml_sbus", "Loans to large businesses" = "vol_sml_bbus"),
+        summary_indicators = list(
+          "Average dollar value of all small loans" = list(
+            summary_expression = rlang::expr((vol_sml_sbus + vol_sml_bbus)/(num_sml_sbus + num_sml_bbus)),
+            citywide_comparison = TRUE,
+            hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+          ),
+          "Average dollar value of small loans to small businesses" = list(
+            summary_expression = rlang::expr((vol_sml_sbus)/(num_sml_sbus)),
+            citywide_comparison = TRUE,
+            hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+          ),
+          "Average dollar value of small loans to large businesses" = list(
+            summary_expression = rlang::expr((vol_sml_bbus)/(num_sml_bbus)),
+            citywide_comparison = TRUE,
+            hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+          ),
+          "Share of small loan volume ($) going to small businesses" = list(
+            summary_expression = rlang::expr(vol_sml_sbus/(vol_sml_sbus + vol_sml_bbus)),
+            citywide_comparison = TRUE,
+            hoverformat = ".0%", tickformat = ".0%"
+          ),
+          "Total small loan volume ($)" = list(
+            summary_expression = rlang::expr(vol_sml_sbus + vol_sml_bbus),
+            citywide_comparison = FALSE,
+            hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+          )
+        ),
+        note = "Note: All dollar values are in 2022 inflation-adjusted dollars.",
+        source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
+      )
+      )
+    )
 )
 
 # Prep data #######
 
 # # You can either prep data for individual topics...
-# prep_data(APP_CONFIG[['tracts']]$topics[['Volume ($) of Loans to Small Businesses']])
+# prep_data(APP_CONFIG[['zip code areas']]$topics[['Numbers of Loans to Small Businesses']])
+# prep_data(APP_CONFIG[['zip code areas']]$topics[['Volume ($) of Loans to Small Businesses']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])

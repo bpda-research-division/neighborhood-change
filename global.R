@@ -96,7 +96,7 @@ pareto_median_income <- function(hh_by_income, cutoffs) {
   total <- sum(hh_by_income)
   sum_so_far <- 0
   
-  for (i in 1:(num_bins - 2)) {
+  for (i in 1:(num_bins - 1)) {
     upper_sum <- sum_so_far + hh_by_income[i]
     
     if (upper_sum > total / 2) {
