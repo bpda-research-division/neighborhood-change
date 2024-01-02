@@ -833,10 +833,10 @@ APP_CONFIG <- list(
       )
     )
     ),
-    ## Zip code areas ------
-    "zip code areas" = list(geoms = zca_geoms, topics = list( 
+    # Zip code areas ------
+    "zip code areas" = list(geoms = zca_geoms, topics = list(
       ### num of sm. bus. loans ------
-      "Numbers of Loans to Small Businesses" = list( 
+      "Numbers of Loans to Small Businesses" = list(
         data_code = 'loannsb', generalTopic = 'Businesses',
         areas_categories_csv = 'csv/loans_estabs_zcas_bins.csv',
         barTitle = 'Number of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f",
@@ -861,7 +861,7 @@ APP_CONFIG <- list(
         source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
       ),
       ### $ of sm. bus. loans ------
-      "Volume ($) of Loans to Small Businesses" = list( 
+      "Volume ($) of Loans to Small Businesses" = list(
         data_code = 'loanvsb', generalTopic = 'Businesses',
         areas_categories_csv = 'csv/loans_estabs_zcas_bins.csv',
         barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f", bartickprefix = "$",
