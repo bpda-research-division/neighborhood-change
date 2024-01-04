@@ -176,10 +176,12 @@ tabPanelServer <- function(geo_type) {
             ) %>% hideGroup(group = yr) # hide each yearly layer after initializing it
         } 
         
+        # prevent topic-switching from inadvertently selecting multiple areas for destination topics where that's disabled
         if ("disable_multiselection" %in% names(indicator_params()) & length(selectedPolygons$groups) > 1) {
-          selectedPolygons$groups <- c()
+          selectedPolygons$groups <- c() 
         }
         
+        # prevent topic-switching from inadvertently selecting an area that has null data for the destination topic
         selectedPolygons$groups <- setdiff(selectedPolygons$groups, areas_with_nulls)
         
         # on top of the layers of polygons for each year, add a hidden layer of 
