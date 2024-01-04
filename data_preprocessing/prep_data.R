@@ -65,7 +65,8 @@ APP_CONFIG <- list(
     "Population" = list(
       data_code = 'hbicttp', generalTopic = 'Demographics',
       areas_categories_csv = 'csv/hbic_tract_totpop_sex_bins.csv', totalarea_categories_csv = 'csv/hbictpop_cb.csv',
-      barTitle = "Population by sex", barhoverformat = ",.0f",
+      barTitle = "Population by sex", barhoverformat = ",.0f", 
+      null_description = "little to no population",
       barCats = list("Male" = "male", "Female" = "female"),
       summary_indicators = list(
         "Total Population" = list(
@@ -98,6 +99,7 @@ APP_CONFIG <- list(
       data_code = "hbicta", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/hbic_tract_age_year_bins.csv',
       barTitle = "Population by age", barhoverformat = ",.0f",
+      null_description = "little to no population",
       barCats = list(
         "0-9 years" = "zero_nine",
         "10-19 years" = "ten_nineteen",
@@ -158,6 +160,7 @@ APP_CONFIG <- list(
       data_code = "chilta", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/children_tract_age_bins.csv',
       barTitle = "Children by age", barhoverformat = ",.0f",
+      null_description = "little to no population",
       barCats = list(
         "0-4 years" = "under5",
         "5-17 years" = "fiveto17"
@@ -179,7 +182,7 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      additional_null_geoms = c("Census Tract 9811"),
+      additional_null_geoms = c("25025981100"),
       source = "U.S. Census Bureau, 1980-2020 Decennial Censuses,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     ),
@@ -188,6 +191,7 @@ APP_CONFIG <- list(
       data_code = "hbictre", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/hbic_tract_race_ethn_bins.csv',
       barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
+      null_description = "little to no population",
       barCats = list(
         "White" = "white",
         "Black/African American" = "black",
@@ -240,6 +244,7 @@ APP_CONFIG <- list(
       data_code = "chiltre", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/children_tract_race_bins.csv',
       barTitle = "Children by race/ethnicity", barhoverformat = ",.0f",
+      null_description = "little to no population",
       barCats = list(
         "White" = "white",
         "Black/African American" = "black",
@@ -283,7 +288,7 @@ APP_CONFIG <- list(
           hoverformat = ".0%", tickformat = ".0%"
         )
       ),
-      additional_null_geoms = c("Census Tract 9811"),
+      additional_null_geoms = c("25025981100"),
       source = "U.S. Census Bureau, 1980-2020 Decennial Censuses, IPUMS-NHGIS,
         University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
       note = "Note: Two or More races did not become an option on the decennial census until 2000."
@@ -294,6 +299,7 @@ APP_CONFIG <- list(
       areas_categories_csv = 'csv/hbic_tract_nativity_bins.csv',
       barTitle = "Population by nativity", barhoverformat = ",.0f",
       barCats = list("Native-born" = "native", "Foreign-born" = "foreign"),
+      null_description = "little to no population",
       summary_indicators = list(
         "Foreign-born share of population" = list(
           summary_expression = rlang::expr(foreign / (foreign + native)),
@@ -314,6 +320,7 @@ APP_CONFIG <- list(
       data_code = "hbictedu", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/hbic_tract_edu_attain_bins.csv',
       barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
+      null_description = "little to no population",
       barCats = list(
         "Less than high school" = "lhs",
         "High school or some equivalent" = "he",
@@ -340,6 +347,7 @@ APP_CONFIG <- list(
       data_code = "hbictlf", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/hbic_tract_labor_force_bins.csv',
       barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
+      null_description = "little to no population",
       barCats = list(
         "Male in labor force" = "ilf_m"
         , "Male not in labor force" = "nilf_m"
@@ -391,6 +399,7 @@ APP_CONFIG <- list(
       areas_categories_csv = 'csv/hbic_tract_housing_bins.csv',
       totalarea_categories_csv = 'csv/hbicthou_cb.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+      null_description = "little to no housing",
       barCats = list(
         "Occupied" = "occ",
         "Vacant" = "vac"
@@ -416,6 +425,7 @@ APP_CONFIG <- list(
       areas_categories_csv = 'csv/hbic_tract_housing_vacancy_bins.csv',
       totalarea_categories_csv = 'csv/hbicthouvac_cb.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+      null_description = "little to no housing",
       barCats = list(
         "Occupied" = "occ",
         "Vacant" = "vac"
@@ -439,6 +449,7 @@ APP_CONFIG <- list(
       data_code = "hbicthouten", generalTopic = 'Housing',
       areas_categories_csv = 'csv/hbic_tract_housing_tenure_bins.csv',
       barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
+      null_description = "little to no housing",
       barCats = list(
         "Owner-occupied" = "owner",
         "Renter-occupied" = "renter"
@@ -824,14 +835,64 @@ APP_CONFIG <- list(
           summary_expression = rlang::expr(owner / (owner + renter)),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Total owner-occupied units" = list(
+          summary_expression = rlang::expr(owner),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        ),
+        "Total rental units" = list(
+          summary_expression = rlang::expr(renter),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American
       Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
-      )
+      ),
+    ### housing sales ------
+    "Housing Sales" = list(
+      data_code = "sales", generalTopic = 'Housing',
+      areas_categories_csv = 'csv/sales_neighborhoods.csv', totalarea_categories_csv = 'csv/sales_citywide.csv',
+      barTitle = "Number of sales transactions by unit type", barhoverformat = ",.0f",
+      null_description = "few or no sales",
+      barCats = list(
+        "Single-family" = 'count_101',
+        "Condominium" = 'count_102'
+      ),
+      summary_indicators = list(
+        "Median condo unit price (nominal dollars)" = list(
+          summary_expression = rlang::expr(median_nom_102),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Median single-family unit price (nominal dollars)" = list(
+          summary_expression = rlang::expr(median_nom_101),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Median condo unit price (2022 inflation-adjusted dollars)" = list(
+          summary_expression = rlang::expr(median_adj_102),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Median single-family unit price (2022 inflation-adjusted dollars)" = list(
+          summary_expression = rlang::expr(median_adj_101),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Total sales transactions" = list(
+          summary_expression = rlang::expr(count_101 + count_102),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        )
+      ),
+      source = "Mayor's Office of Housing, The Warren Group, BPDA Research Division analysis",
+      note = "Note: Only one neighborhood at a time can be selected for median price variables."
+    )
     )
     ),
-    # Zip code areas ------
+    ## Zip code areas ------
     "zip code areas" = list(geoms = zca_geoms, topics = list(
       ### businesses by industry -----
       "Business Establishments by Industry" = list(
@@ -958,11 +1019,11 @@ APP_CONFIG <- list(
 # Prep data #######
 
 # # You can either prep data for individual topics...
-prep_data(APP_CONFIG[['zip code areas']]$topics[['Business Establishments by Industry']])
-prep_data(APP_CONFIG[['zip code areas']]$topics[['Business Establishments by Size']])
+# prep_data(APP_CONFIG[['zip code areas']]$topics[['Business Establishments by Industry']])
+# prep_data(APP_CONFIG[['zip code areas']]$topics[['Business Establishments by Size']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
-# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
+# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 
 # # ...or prep data for all topics

@@ -104,13 +104,22 @@ tabPanelServer <- function(geo_type) {
           setView(-71.075, 42.318, zoom = 12)
       })
       
-      # The label for map polygons with null values is a function of the geography type
-      # at some point, this may need to become a topic parameter instead
-      null_label <- lapply(
-        split_max_2_lines(paste(
-          tools::toTitleCase(geo_unit), 'with little or no population')
+      # The label for map polygons with null values is a function of the geography type and topic
+      null_label <- reactive({
+        
+        if ("null_description" %in% names(var_params())) {
+          null_description <- var_params()$null_description
+        } else {
+          null_description <- "null values"
+        }
+        
+        lapply(
+          split_max_2_lines(paste(
+            tools::toTitleCase(geo_unit), 'with', null_description)
+          )
+          , htmltools::HTML
         )
-        , htmltools::HTML)
+      })
       
       # Make it so that maps on inactive tabs stay rendered
       outputOptions(output, "map", suspendWhenHidden = FALSE) 
@@ -121,11 +130,11 @@ tabPanelServer <- function(geo_type) {
         
         # for any area with a null value in any of the years...
         areas_with_nulls <- c(
-          unique(ss[is.na(ss$SUMMARY_VALUE),]$NAME),
+          unique(ss[is.na(ss$SUMMARY_VALUE),]$GEOID),
           var_params()$additional_null_geoms # ...or areas which have been specified as additional null geoms...
         )
         if (length(areas_with_nulls) > 0) {
-          ss$SUMMARY_VALUE[which(ss$NAME %in% areas_with_nulls)] <- NA
+          ss$SUMMARY_VALUE[which(ss$GEOID %in% areas_with_nulls)] <- NA
         } # ...temporarily replace the value with a NA for the purposes of mapping (to gray the polygon out)
         
         yrdfs <- split(ss, ss$YEAR) # split the data on YEAR to create separate map layers for each year
@@ -166,6 +175,13 @@ tabPanelServer <- function(geo_type) {
               ),
             ) %>% hideGroup(group = yr) # hide each yearly layer after initializing it
         } 
+        
+        if ("disable_multiselection" %in% names(indicator_params()) & length(selectedPolygons$groups) > 1) {
+          selectedPolygons$groups <- c()
+        }
+        
+        selectedPolygons$groups <- setdiff(selectedPolygons$groups, areas_with_nulls)
+        
         # on top of the layers of polygons for each year, add a hidden layer of 
         # polygons that will be displayed when they're clicked on by users
         leafletProxy("map") %>%
@@ -181,7 +197,7 @@ tabPanelServer <- function(geo_type) {
           
           # add the map legend, formatting labels as specified in APP_CONFIG for the given variable 
           addLegend_decreasing(values = ss$SUMMARY_VALUE, decreasing = TRUE,  
-            position = "bottomright", pal = pal, na.label = null_label, 
+            position = "bottomright", pal = pal, na.label = null_label(), 
             title = split_max_2_lines(input$indicatorSelect),
             labFormat = labelFormat(
                prefix = indicator_params()$tickprefix, 
@@ -227,9 +243,16 @@ tabPanelServer <- function(geo_type) {
           
           # if the data for the clicked-upon polygon is all non-null values...
           if (!any(is.na(subset(areas_summary_df(), GEOID == this_selection_id)$SUMMARY_VALUE))) {
-            leafletProxy("map") %>% showGroup(group = this_selection_id) 
-            # ...display that polygon as selected and record the polygon's ID in selectedPolygons$groups
-            selectedPolygons$groups <- c(selectedPolygons$groups, this_selection_id)
+            # ...depending on the indicator parameters, we can either do multiselection...
+            if (!"disable_multiselection" %in% names(indicator_params())) {
+              leafletProxy("map") %>% showGroup(group = this_selection_id) 
+              # ...displaying that polygon as selected and appending thepolygon's ID to selectedPolygons$groups
+              selectedPolygons$groups <- c(selectedPolygons$groups, this_selection_id)
+            } else { # ...or we can do single selection...
+              leafletProxy("map") %>% hideGroup(group = selectedPolygons$groups) # ...hiding the previous selection...
+              leafletProxy("map") %>% showGroup(group = this_selection_id) # ...and showing the current one...
+              selectedPolygons$groups <- c(this_selection_id) # ...and updating selectedPolygons$groups accordingly.
+            }
           }
           
         } else { # To deselect a polygon that's currently selected...
@@ -314,7 +337,7 @@ tabPanelServer <- function(geo_type) {
         data <- selectionData() %>% subset(YEAR == input$yearSelect)
         
         if (nrow(data) == 0) { # if there's missing data for a given year...
-          data <- subset(totalarea_categories_df(), YEAR == input$yearSelect)
+          data <- totalarea_categories_df() %>% filter(CATEGORY %in% names(var_params()$barCats)) %>% subset(YEAR == input$yearSelect)
           data$VALUE <- 0 # ... display the bar chart with all 0s for the given categories
         }
         
@@ -346,7 +369,13 @@ tabPanelServer <- function(geo_type) {
                    marker = list(line = list(color=BAR_COLOR)) #, # set bar outline color
                    # hoverinfo = 'y' # display y-values when hovering over bars
                    ) %>% 
-          layout(title = paste0(var_params()$barTitle, " in ", input$yearSelect), # dynamic title
+          layout(title = list(
+                    text = paste0(var_params()$barTitle, " in ", input$yearSelect), # dynamic title
+                    font=list( # for the chart title
+                      color="black", family = APP_FONT, 
+                      size=APP_FONT_SIZE + 4
+                    )
+                  ),
                  font=list( # for the labels underneath each bar
                    color="black", family = APP_FONT, 
                    size=bar_font_size()
@@ -366,7 +395,7 @@ tabPanelServer <- function(geo_type) {
                  showlegend=T, # always show the legend (even with just 1 series) 
                  legend = list(orientation = 'h', # place legend items side by side
                                x=0.01, y=1.05, # position legend near the top left
-                               font=list( # for the labels underneath each bar
+                               font=list(
                                  color="black", family = APP_FONT, 
                                  size=APP_FONT_SIZE - 2
                                ),
