@@ -321,6 +321,14 @@ tabPanelServer <- function(geo_type) {
         data
       })
       
+      bar_font_size <- reactive({
+        if ("smallbarfont" %in% names(var_params())) {
+          return(APP_FONT_SIZE - 6)
+        } else {
+          return(APP_FONT_SIZE - 2)
+        }
+      })
+      
       # Define how we render the bar chart at any given time
       output$bar_chart <- renderPlotly({
         plot_ly(filteredBar(),
@@ -329,8 +337,8 @@ tabPanelServer <- function(geo_type) {
                 name = selectionName(), # this gets displayed on the chart legend
                 text = ~VALUE, # data label for each bar, formatted according to our topic parameters
                 texttemplate=paste0(var_params()$bartickprefix, '%', sprintf('{y:%s}', var_params()$barhoverformat)),
-                textposition = 'outside', # for a bar chart this means directly above each bar
-                textfont=list(color="black", family = APP_FONT, size=APP_FONT_SIZE - 2), #,
+                textposition = 'outside', # for a bar chart, "text" is the labeling directly above each bar
+                textfont=list(color="black", family = APP_FONT, size=APP_FONT_SIZE - 2),
                 hoverinfo = 'skip' # to enable values to be displayed on hover, use 'y' here and uncomment stuff below
                 ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
@@ -339,7 +347,10 @@ tabPanelServer <- function(geo_type) {
                    # hoverinfo = 'y' # display y-values when hovering over bars
                    ) %>% 
           layout(title = paste0(var_params()$barTitle, " in ", input$yearSelect), # dynamic title
-                 font=list(color="black", family = APP_FONT, size=APP_FONT_SIZE - 2),
+                 font=list( # for the labels underneath each bar
+                   color="black", family = APP_FONT, 
+                   size=bar_font_size()
+                   ),
                  xaxis = list(title = '', fixedrange = TRUE,
                               # set the order in which categories appear on the x axis
                               categoryorder = 'array', categoryarray = names(var_params()$barCats)
@@ -355,6 +366,10 @@ tabPanelServer <- function(geo_type) {
                  showlegend=T, # always show the legend (even with just 1 series) 
                  legend = list(orientation = 'h', # place legend items side by side
                                x=0.01, y=1.05, # position legend near the top left
+                               font=list( # for the labels underneath each bar
+                                 color="black", family = APP_FONT, 
+                                 size=APP_FONT_SIZE - 2
+                               ),
                                itemclick = FALSE, itemdoubleclick = FALSE # disable default plotly clicking options
                                ),
                  margin = list(t=50) # top padding to make sure chart title is visible
@@ -532,6 +547,7 @@ tabPanelServer <- function(geo_type) {
           removeModal() # close confirmation window
           output <- selectionData() %>% 
             pivot_wider(id_cols = "YEAR", names_from='CATEGORY', values_from='VALUE') %>%
+            subset(select = c("YEAR", names(var_params()$barCats))) %>%
             # downloaded data includes bar chart categories + the selected indicator for each year
             merge(selectedLine() %>% select(YEAR, SUMMARY_VALUE) %>% st_drop_geometry(), by='YEAR') %>%
             # rename the SUMMARY_VALUE column to the name of the selected indicator

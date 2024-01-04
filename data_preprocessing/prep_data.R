@@ -6,9 +6,7 @@ library(sf)
 tract2020_geoms <- read_sf('../geoms/boston_tracts_2020_complex.geojson') %>% mutate(GEOID = as.character(geoid20))
 tract2010_geoms <- read_sf('../geoms/boston_tracts_2010.geojson') %>% mutate(GEOID = as.character(GEOID10))
 neigh2020_geoms <- read_sf('../geoms/boston_neighborhoods_2020tract_2.geojson') 
-zca_geoms <- read_sf('../geoms/boston_zipcodeAreas_complex.geojson') %>% 
-  select(-NAME) %>%
-  mutate(GEOID = case_when(GEOID == "Zip Code(s) 02108" ~ "Zip Code(s) 02108-10", .default=GEOID))
+zca_geoms <- read_sf('../geoms/boston_zipcodeAreas_complex.geojson')
 
 # Functions ##########
 
@@ -835,14 +833,71 @@ APP_CONFIG <- list(
     ),
     # Zip code areas ------
     "zip code areas" = list(geoms = zca_geoms, topics = list(
+      ### businesses by industry -----
+      "Business Establishments by Industry" = list(
+        data_code = 'bizind', generalTopic = 'Business Establishments',
+        areas_categories_csv = 'csv/estabs_supersector_bins.csv',
+        barTitle = 'Business Establishments by Broad Industry Grouping', 
+        barhoverformat = ",.0f", smallbarfont = TRUE,
+        barCats = list(
+          "Production, Construction, and Logistics" = "prodcon",
+          "Professional and Business Services" = "fireprof",
+          "Health Care and Education" = "hced",
+          "Food, Hospitality, and Entertainment" = "feara",
+          "Retail Trade" = "retail",
+          "Other Services" = "other"
+        ),
+        summary_indicators = list(
+          "Total business establishments" = list(
+            summary_expression = rlang::expr(prodcon + fireprof + hced + feara + retail + other + x),
+            citywide_comparison = FALSE,
+            hoverformat = ",.0f", tickformat = ""
+          ),
+          "Retail Trade share of establishments" = list(
+            summary_expression = rlang::expr(retail/(prodcon + fireprof + hced + feara + retail + other + x)),
+            citywide_comparison = TRUE,
+            hoverformat = ".0%", tickformat = ".0%"
+          )
+        ),
+        source = "U.S. Census Bureau, Zip Code Business Patterns; BPDA Research Division analysis"
+      ),
+      
+      ### businesses by size ------
+      "Business Establishments by Size" = list(
+        data_code = 'bizemp', generalTopic = 'Business Establishments',
+        areas_categories_csv = 'csv/estabs_empsize_bins.csv',
+        barTitle = 'Business Establishments by Number of Employees', barhoverformat = ",.0f",
+        barCats = list("1 to 4" = "micro", "5 to 9" = "sm5to9",
+          "10 to 49" = "sm10to49", "50 or more" = "large"
+        ),
+        summary_indicators = list(
+          "Total small and micro business establishments (1-49 employees)" = list(
+            summary_expression = rlang::expr(micro + sm5to9 + sm10to49),
+            citywide_comparison = FALSE,
+            hoverformat = ",.0f", tickformat = ""
+          ),
+          "Micro business (1-4 employees) share of establishments" = list(
+            summary_expression = rlang::expr((micro)/(micro + sm5to9 + sm10to49 + large)),
+            citywide_comparison = TRUE,
+            hoverformat = ".0%", tickformat = ".0%"
+          ),
+          "Small business (5-49 employees) share of establishments" = list(
+            summary_expression = rlang::expr((sm5to9 + sm10to49)/(micro + sm5to9 + sm10to49 + large)),
+            citywide_comparison = TRUE,
+            hoverformat = ".0%", tickformat = ".0%"
+          )
+        ),
+        source = "U.S. Census Bureau, Zip Code Business Patterns; BPDA Research Division analysis"
+      ),
+      
       ### num of sm. bus. loans ------
-      "Numbers of Loans to Small Businesses" = list(
-        data_code = 'loannsb', generalTopic = 'Businesses',
+      "Numbers of Small Business Loans" = list(
+        data_code = 'loannsb', generalTopic = 'Business Loans',
         areas_categories_csv = 'csv/loans_estabs_zcas_bins.csv',
         barTitle = 'Number of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f",
         barCats = list("Loans to small businesses" = "num_sml_sbus", "Loans to large businesses" = "num_sml_bbus"),
         summary_indicators = list(
-          "Number of small loans per 1000 businesses" = list(
+          "Number of small loans per 1000 business establishments" = list(
             summary_expression = rlang::expr(num_sml_sbus*1000/ESTAB),
             citywide_comparison = TRUE,
             hoverformat = ",.0f", tickformat = ""
@@ -858,11 +913,11 @@ APP_CONFIG <- list(
             hoverformat = ",.0f", tickformat = ""
           )
         ),
-        source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
+        source = "FFIEC, Community Reinvestment Act data; U.S. Census Bureau, Zip Code Business Patterns; BPDA Research Division analysis"
       ),
       ### $ of sm. bus. loans ------
-      "Volume ($) of Loans to Small Businesses" = list(
-        data_code = 'loanvsb', generalTopic = 'Businesses',
+      "Volume ($) of Small Business Loans" = list(
+        data_code = 'loanvsb', generalTopic = 'Business Loans',
         areas_categories_csv = 'csv/loans_estabs_zcas_bins.csv',
         barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f", bartickprefix = "$",
         barCats = list("Loans to small businesses" = "vol_sml_sbus", "Loans to large businesses" = "vol_sml_bbus"),
@@ -893,8 +948,8 @@ APP_CONFIG <- list(
             hoverformat = ",.0f", tickprefix = "$", tickformat = ""
           )
         ),
-        note = "Note: All dollar values are in 2022 inflation-adjusted dollars.",
-        source = "Community Reinvestment Act data (FFIEC); BPDA Research Division analysis"
+        note = "Note: All monetary values are in 2022 inflation-adjusted dollars.",
+        source = "FFIEC, Community Reinvestment Act data; BPDA Research Division analysis"
       )
       )
     )
@@ -903,8 +958,8 @@ APP_CONFIG <- list(
 # Prep data #######
 
 # # You can either prep data for individual topics...
-# prep_data(APP_CONFIG[['zip code areas']]$topics[['Numbers of Loans to Small Businesses']])
-# prep_data(APP_CONFIG[['zip code areas']]$topics[['Volume ($) of Loans to Small Businesses']])
+prep_data(APP_CONFIG[['zip code areas']]$topics[['Business Establishments by Industry']])
+prep_data(APP_CONFIG[['zip code areas']]$topics[['Business Establishments by Size']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
