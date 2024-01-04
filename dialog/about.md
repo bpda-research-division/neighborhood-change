@@ -4,11 +4,13 @@ For summary tables by neighborhood and topic and for further analysis of demogra
 
 ### Data sources
 
-Data on this website are drawn from 1950-2020 Decennial Censuses and the 2006-2010 and 2016-2020 American Community Surveys. 
+Most of the data on this website are drawn from 1950-2020 Decennial Censuses and the 2006-2010 and 2016-2020 American Community Surveys.
 
-To extend the total housing units time series through 2021 and 2022, we combined 2020 decennial data with Mayor's Office of Housing data on net new units (based on City of Boston building permits) between April 1, 2020 (the date of the 2020 decennial census) and December 31, 2022. 
+Housing unit counts beyond 2020 are calculated by combining 2020 decennial data with Mayor's Office of Housing data on net new units (based on City of Boston building permits) between April 1, 2020 (the date of the 2020 decennial census) and the present. The Mayor's Office of Housing is also the source of the housing sales information presented here, using data originally compiled and processed by the Warren Group.
 
 For the Children by Race and Ethnicity topic, some values from 1980 and 1990 were imputed (estimated) in order to have more consistent race & ethnicity categories over time. See the "Imputation Methodology" section below for a description of this process.
+
+The topics on business establishments and business loans are reported for "zip code areas", a set of geographic boundaries based on Zip Code Tabulation Areas (ZCTAs) that we designed to allow for better correspondence between tract-level FFIEC Community Reinvestment Act (CRA) data on business loans and US Census Zip Code Business Patterns data on business establishments. See the "Businesses and Loans Methodology" section below for a description of this method of tabulation.
 
 ### A note on Boston's total population
 
@@ -41,3 +43,15 @@ Additionally, the only racial categories for Hispanic children for which populat
 As a basic quality check, we summed up our imputed tract-level counts of children for each race/ethnicity by age category in Suffolk County and found that they are very close to the counts reported in county-level 1980 Census tables. For most categories, this difference was less than 0.5%, and the biggest difference was 2%. However, the degree of over- or under-estimation of populations for particular race/ethnicity by age categories in 1980 may be greater for individual tracts or neighborhoods, to the degree that our assumptions about the racial composition of children being comparable to that of the population as a whole don't hold up in those places. 
 
 In 1990, the Census moved away from suppression and started using a different set of techniques for ensuring respondent confidentiality, meaning that we didn't have to impute any baseline race by age counts. However, in 1990, published population counts of Hispanic children are not disaggregated by race at either the tract or county levels, meaning that reporting non-Hispanic race by age population counts required imputation of race by age counts for Hispanic children. For these estimates, we again used the baseline assumption that the share of Hispanic children belonging to each racial category in a given tract is proportional to the share of the total Hispanic population in that tract belonging to each racial category. 
+
+### Businesses and Loans Methodology (Zip Code Areas)
+
+background: wanted a common geography, wanted some normalization of the number of loans by the number of businesses
+each zip code area consists of one or more ZCTAs (or is it just the downtown one that was combined?)
+establishment data come at the zip code level, and zip codes do not have inherent polygon geography, since some represent institutional delivery addresses or PO Box locations. Every zip code that didn't directly correspond with a 2020 ZCTA polygon was assigned to the ZCTA that contains its location. For example, zip code area 02116 includes establishments not just from 02116, but also from 02199 (the Prudential Center) and 02117 (a PO Box zip code located in Back Bay). 
+
+some ZCTAs were subsequently combined with each other in order to better correspond with census tract geographies. 
+
+description of how tracts from vintages going back to 1990 were corresponded with zip code areas
+
+Box link with the correspondence tables?

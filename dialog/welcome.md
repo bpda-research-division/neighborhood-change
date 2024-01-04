@@ -13,3 +13,5 @@ To explore change over time, try:
 * clicking and dragging the time slider
 * pressing the &#9658; button on the time slider
 * clicking on a different year on the line chart
+
+To download data, use the "Download selected data" button located at the bottom right of the map.
