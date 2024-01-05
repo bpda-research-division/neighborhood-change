@@ -472,6 +472,8 @@ tabPanelServer <- function(geo_type) {
                 hoverinfo = 'text' # enable text to be displayed on hover
         ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
+          add_trace(hoverinfo='x', mode = 'markers', type = 'scatter', # add a hidden trace for displaying years on hover
+                    marker=list(size=0, color='white'), showlegend=FALSE, opacity=0) %>%
           add_lines(color=I(LINE_COLOR), # set the line formatting options
                     line=list(width = 2, shape = 'spline', smoothing = 1),
                     hoverinfo = "y", # display y-values when hovering over line chart
@@ -497,7 +499,7 @@ tabPanelServer <- function(geo_type) {
                                x=0.01, y=1.05, # position legend near the top left
                                itemclick = FALSE, itemdoubleclick = FALSE
                                ), 
-                 hovermode = "x unified", # show the data values for all lines upon hover
+                 hovermode = "x unified", # show the data values for all lines when hovering over a given x
                  margin = list(t=40) # top padding to make sure chart title is visible
           )
         
