@@ -393,6 +393,41 @@ APP_CONFIG <- list(
     # #     , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
     # #   ))
     # # )
+    ### living arrangements -------
+    "Living Arrangements" = list(
+      data_code = "hhgqt", generalTopic = "Demographics",
+      areas_categories_csv = 'csv/hh_gq_tract_bins.csv',
+      barTitle = "Population by living arrangement type", barhoverformat = ",.0f",
+      null_description = "little to no population",
+      additional_null_geoms = c(
+        paste0("25025", c("061202", "981201", "981202", "981501", "981502")), 
+        paste0("2502598", c("03", "07", "10", "11", "13", "16", "17", "18", "19"), "00")
+        ),
+      barCats = list(
+        "Household population" = "hh",
+        "Group quarters population" = "gq_adj"
+      ),
+      summary_indicators = list(
+        "Average household size" = list(
+          summary_expression = rlang::expr(hh / hu),
+          citywide_comparison = TRUE,
+          hoverformat = ",.2f", tickformat = ""
+        ),
+        "Total household population" = list(
+          summary_expression = rlang::expr(hh),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        ),
+        "Total group quarters population" = list(
+          summary_expression = rlang::expr(gq_adj),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted
+        to reflect Boston's successful group quarters challenge), IPUMS-NHGIS, University of
+      Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
     ### housing units ----
     "Housing Units" = list(
       data_code = "hbicthou", generalTopic = 'Housing',
@@ -774,6 +809,37 @@ APP_CONFIG <- list(
       source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
       Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     ),
+    ### living arrangements -------
+    "Living Arrangements" = list(
+      data_code = "hhgqn", generalTopic = "Demographics",
+      areas_categories_csv = 'csv/hh_gq_neigh_bins.csv',
+      barTitle = "Population by living arrangement type", barhoverformat = ",.0f",
+      null_description = "little to no population",
+      barCats = list(
+        "Household population" = "hh",
+        "Group quarters population" = "gq_adj"
+      ),
+      summary_indicators = list(
+        "Average household size" = list(
+          summary_expression = rlang::expr(hh / hu),
+          citywide_comparison = TRUE,
+          hoverformat = ",.2f", tickformat = ""
+        ),
+        "Total household population" = list(
+          summary_expression = rlang::expr(hh),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        ),
+        "Total group quarters population" = list(
+          summary_expression = rlang::expr(gq_adj),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted
+        to reflect Boston's successful group quarters challenge), IPUMS-NHGIS, University of
+      Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
     ### housing units ----
     "Housing Units" = list(
       data_code = "hbicnhou", generalTopic = 'Housing',
@@ -1019,10 +1085,11 @@ APP_CONFIG <- list(
 # Prep data #######
 
 # # You can either prep data for individual topics...
-# prep_data(APP_CONFIG[['zip code areas']]$topics[['Business Establishments by Industry']])
-# prep_data(APP_CONFIG[['zip code areas']]$topics[['Business Establishments by Size']])
+# prep_data(APP_CONFIG[['zip code areas']]$topics[['Numbers of Small Business Loans']])
+# prep_data(APP_CONFIG[['zip code areas']]$topics[['Volume ($) of Small Business Loans']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
-# prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Living Arrangements']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Living Arrangements']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 
