@@ -393,6 +393,42 @@ APP_CONFIG <- list(
     # #     , cutoffs = c(10000, 15000, 25000, 35000, 50000, 75000, 100000, 150000, 200000)
     # #   ))
     # # )
+    ### ratio of income to poverty -----
+    "Ratio of Income to Poverty" = list(
+      data_code = "inc2povt", generalTopic = "Demographics",
+      areas_categories_csv = "csv/inc2pov_tract_bins.csv",
+      barTitle = "Population by Ratio of Income to Poverty", barhoverformat = ",.0f",
+      null_description = "little to no population",
+      additional_null_geoms = c(
+        paste0("25025", c("061202", "981201", "981202", "981501", "981502")), 
+        paste0("2502598", c("03", "07", "10", "11", "13", "16", "17", "18", "19"), "00")
+      ),
+      barCats = list(
+        "Under 0.5" = "c20aa", "0.5 to 0.74" = "c20ab", "0.75 to 0.99" = "c20ac",
+        "1.00 to 1.24" = "c20ad", "1.25 to 1.49" = "c20ae", "1.50 to 1.74" = "c20af",
+        "1.75 to 1.84" = "c20ag", "1.85 to 1.99" = "c20ah", "2.00 and over" = "c20ai"
+      ),
+      summary_indicators = list(
+        "Share of population under poverty line" = list(
+          summary_expression = rlang::expr(
+            (c20aa + c20ab + c20ac) / 
+              (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
+            ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of population under 200% of poverty line" = list(
+          summary_expression = rlang::expr(
+            (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah) / 
+              (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
     ### living arrangements -------
     "Living Arrangements" = list(
       data_code = "hhgqt", generalTopic = "Demographics",
@@ -809,6 +845,42 @@ APP_CONFIG <- list(
       source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
       Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     ),
+    ### ratio of income to poverty -----
+    "Ratio of Income to Poverty" = list(
+      data_code = "inc2povn", generalTopic = "Demographics",
+      areas_categories_csv = "csv/inc2pov_neigh_bins.csv",
+      barTitle = "Population by Ratio of Income to Poverty", barhoverformat = ",.0f",
+      null_description = "little to no population",
+      additional_null_geoms = c(
+        paste0("25025", c("061202", "981201", "981202", "981501", "981502")), 
+        paste0("2502598", c("03", "07", "10", "11", "13", "16", "17", "18", "19"), "00")
+      ),
+      barCats = list(
+        "Under 0.5" = "c20aa", "0.5 to 0.74" = "c20ab", "0.75 to 0.99" = "c20ac",
+        "1.00 to 1.24" = "c20ad", "1.25 to 1.49" = "c20ae", "1.50 to 1.74" = "c20af",
+        "1.75 to 1.84" = "c20ag", "1.85 to 1.99" = "c20ah", "2.00 and over" = "c20ai"
+      ),
+      summary_indicators = list(
+        "Share of population under poverty line" = list(
+          summary_expression = rlang::expr(
+            (c20aa + c20ab + c20ac) / 
+              (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of population under 200% of poverty line" = list(
+          summary_expression = rlang::expr(
+            (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah) / 
+              (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
+          ),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
     ### living arrangements -------
     "Living Arrangements" = list(
       data_code = "hhgqn", generalTopic = "Demographics",
@@ -1088,8 +1160,8 @@ APP_CONFIG <- list(
 # prep_data(APP_CONFIG[['zip code areas']]$topics[['Numbers of Small Business Loans']])
 # prep_data(APP_CONFIG[['zip code areas']]$topics[['Volume ($) of Small Business Loans']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
-prep_data(APP_CONFIG[['census tracts']]$topics[['Living Arrangements']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Living Arrangements']])
+# prep_data(APP_CONFIG[['census tracts']]$topics[['Ratio of Income to Poverty']])
+# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Ratio of Income to Poverty']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 
