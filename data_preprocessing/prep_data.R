@@ -505,7 +505,7 @@ APP_CONFIG <- list(
         "Housing vacancy rate" = list(
           summary_expression = rlang::expr(vac / (vac + occ)),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
+          hoverformat = ".1%", tickformat = ".0%"
         ),
         "Total vacant units" = list(
           summary_expression = rlang::expr(vac),
