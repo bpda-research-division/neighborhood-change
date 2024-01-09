@@ -126,7 +126,25 @@ tabPanelServer <- function(geo_type) {
       
       # Redraw all the map polygons when a new variable or indicator is selected
       observeEvent(input$indicatorSelect, { 
-        ss <- areas_summary_df() # for each variable, areas_summary_df is the simple features dataframe that gets mapped
+        label_format_digits <- as.numeric(gsub(".*?([0-9]+).*", "\\1", indicator_params()$hoverformat))
+        
+        # for each variable, areas_summary_df is the simple features dataframe that gets mapped
+        ss <- areas_summary_df() %>% mutate(
+          labelText = paste0( # we add a column to ss with the tooltip label formatted how we want
+            "<center>", NAME, # the name of the geographic area always appears on the tooltip
+            case_when( # If the summary value is not null, we add a second line to the tooltip...
+              !is.na(SUMMARY_VALUE) ~ paste0(
+                "<br>", 
+                indicator_params()$tickprefix, # ...containing the summary value formatted according to our parameters
+                case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ as.character(round(SUMMARY_VALUE*100, digits = label_format_digits)), 
+                          .default = format(round(SUMMARY_VALUE, digits = label_format_digits), big.mark=",", trim=TRUE)
+                          ),
+                case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ "%", .default = "")
+                ), 
+              .default = "" # If the summary value is null, the tooltip just displays the geographic area name
+              )
+          )
+        )
         
         # for any area with a null value in any of the years...
         areas_with_nulls <- c(
@@ -163,7 +181,7 @@ tabPanelServer <- function(geo_type) {
               fillColor = ~pal(SUMMARY_VALUE), fillOpacity = 0.7, # polygon shading
               weight = 1, color = "gray", # polygon border formatting
               options = pathOptions(pane = "layer2"), # place these layers on the lower pane
-              label = ~htmlEscape(NAME), # geography name displayed in a tooltip on hover 
+              label = ~lapply(labelText, htmltools::HTML), # custom label text displayed in a tooltip on hover 
               labelOptions = labelOptions( 
                 style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2))
                 ), # set font size for the tooltips a bit smaller than in the rest of app
@@ -191,7 +209,7 @@ tabPanelServer <- function(geo_type) {
             group=~GEOID, # for these polygons, we'll use the GEOID as the group name
             weight = 3, color = "red", fillOpacity=0, # no fill but red border
             options = pathOptions(pane = "layer1"), # place these polygons on the upper pane
-            label = ~htmlEscape(NAME), # geography name displayed in a tooltip on hover 
+            label = ~lapply(labelText, htmltools::HTML), # custom label text displayed in a tooltip on hover 
             labelOptions = labelOptions( 
               style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2))
             ) # set font size for the tooltips a bit smaller than in the rest of app
