@@ -24,7 +24,7 @@ The Neighborhood Change Explorer is published through Shiny Apps. In RStudio, th
 
 In RStudio, it's a good rule of thumb to clear the global environment before clicking the Publish/Republish button - not doing so can sometimes introduce issues or errors. 
 
-An additional note is that the deployment process through RStudio will sometimes print an SSL error message, but this does not always mean that the deployment failed. Before trying to deploy again, wait a minute and visit the URL of the published app to confirm whether your changes went through or not.
+An additional note is that the deployment process through RStudio will sometimes print an SSL-related error message, but this does not always mean that the deployment failed. If you try to deploy again and there's a message about an existing deployment already take place, wait a minute and visit the URL of the published app to see whether your changes went through or not.
 
 ## Basic configuration of the Neighborhood Change Explorer
 
@@ -190,6 +190,7 @@ Below are lists of the required and optional parameters for topics and indicator
 | `data_code` | required | a short string of characters unique to the topic, which will also be the name for the corresponding .RDS file in the `data/` folder | `"hbicttp"` |
 | `areas_categories_csv` | required | see the [Preparing tabular data](#preparing-tabular-data) section of this document | `"csv/hbic_tract_totpop_sex_bins.csv"` |
 | `totalarea_categories_csv` | optional | see the section on [overriding default calculations](#overriding-default-calculations) | `"csv/hbictpop_cb.csv"` |
+| `generalTopic` | required | the topic filter category to which this topic belongs | `"Demographics"` |
 | `barTitle` | required | bar chart title for the topic | `"Population by sex"` |
 | `barhoverformat` | required | [D3 format code](https://github.com/d3/d3-format/tree/v1.4.5#d3-format) specifying a number format for the numbers that appear when users hover over bars on the bar chart | `",.0f"` (to show 0 decimal places with commas separating thousands) |
 | `bartickprefix` | optional | string to prepend to the numbers on the y axis of the bar chart | `"$"` |
@@ -213,3 +214,4 @@ Below are lists of the required and optional parameters for topics and indicator
 | `tickformat` | required | [D3 format code](https://github.com/d3/d3-format/tree/v1.4.5#d3-format) for the numbers on the y axis of the line chart. To use the default plotly number format, use `tickformat = ""` | `".0%"` (to show a decimal between 0 and 1 as a rounded percentage) |
 | `tickprefix` | optional | string to prepend to the numbers on the y axis of the line chart and the map legend | `"$"` |
 | `disable_multiselection` | optional | Specifying any value for this parameter will make it so that clicking on different map areas will switch between them (displaying data for one at a time), rather than aggregating them. This can be useful for indicators that are not derivable using on-the-fly aggregation. | `TRUE` |
+| `map_legend_bins` | optional | Numeric vector that is used to override the default linear color scale applied to the map legend for topics with upper outliers. The map legend palette will use equal intervals for the values within `map_legend_bins` and then have a single bin at the top of the color scale for upper outliers. | `seq(0, 4, length.out = 9)` (to distribute colors for non-outlier data between 0 and 4 with bins spaced every 0.5 units) |
