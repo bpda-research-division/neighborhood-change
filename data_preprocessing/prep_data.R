@@ -446,7 +446,7 @@ APP_CONFIG <- list(
       summary_indicators = list(
         "Average household size" = list(
           summary_expression = rlang::expr(hh / hu),
-          citywide_comparison = TRUE,
+          citywide_comparison = TRUE, map_legend_bins = seq(0, 4, length.out = 9),
           hoverformat = ",.2f", tickformat = ""
         ),
         "Total household population" = list(
@@ -894,7 +894,7 @@ APP_CONFIG <- list(
       summary_indicators = list(
         "Average household size" = list(
           summary_expression = rlang::expr(hh / hu),
-          citywide_comparison = TRUE,
+          citywide_comparison = TRUE, map_legend_bins = seq(0, 4, length.out = 9),
           hoverformat = ",.2f", tickformat = ""
         ),
         "Total household population" = list(
@@ -1164,6 +1164,7 @@ APP_CONFIG <- list(
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Ratio of Income to Poverty']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
+# prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
 
 # # ...or prep data for all topics
 # for (geo_type in APP_CONFIG) {

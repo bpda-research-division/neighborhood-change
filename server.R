@@ -157,8 +157,15 @@ tabPanelServer <- function(geo_type) {
         
         yrdfs <- split(ss, ss$YEAR) # split the data on YEAR to create separate map layers for each year
         
-        # Shade the polygons on a single continuous scale rather than using new ranges for each year
-        pal <- colorNumeric(MAP_PALETTE, domain = ss$SUMMARY_VALUE)
+        if ("map_legend_bins" %in% names(indicator_params())) {
+          pal <- colorBin(
+            MAP_PALETTE, 
+            domain = ss$SUMMARY_VALUE, 
+            bins = round(c(indicator_params()$map_legend_bins, max(ss$SUMMARY_VALUE, na.rm = TRUE) + 0.01), label_format_digits)
+              )
+        } else { # Shade the polygons on a single continuous scale rather than using new ranges for each year
+          pal <- colorNumeric(MAP_PALETTE, domain = ss$SUMMARY_VALUE)
+        }
         
         leafletProxy("map") %>%
           clearShapes() %>% clearControls() %>% # clear existing stuff before redrawing...
