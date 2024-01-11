@@ -1032,6 +1032,21 @@ APP_CONFIG <- list(
             summary_expression = rlang::expr(retail/(prodcon + fireprof + hced + feara + retail + other + x)),
             citywide_comparison = TRUE,
             hoverformat = ".0%", tickformat = ".0%"
+          ),
+          "Food, Hospitality, and Entertainment share of establishments" = list(
+            summary_expression = rlang::expr(feara/(prodcon + fireprof + hced + feara + retail + other + x)),
+            citywide_comparison = TRUE,
+            hoverformat = ".0%", tickformat = ".0%"
+          ),
+          "Professional and Business Services share of establishments" = list(
+            summary_expression = rlang::expr(fireprof/(prodcon + fireprof + hced + feara + retail + other + x)),
+            citywide_comparison = TRUE,
+            hoverformat = ".0%", tickformat = ".0%"
+          ),
+          "Production, Construction, and Logistics share of establishments" = list(
+            summary_expression = rlang::expr(prodcon/(prodcon + fireprof + hced + feara + retail + other + x)),
+            citywide_comparison = TRUE,
+            hoverformat = ".0%", tickformat = ".0%"
           )
         ),
         source = "U.S. Census Bureau, Zip Code Business Patterns; BPDA Research Division analysis"
@@ -1073,7 +1088,7 @@ APP_CONFIG <- list(
         barCats = list("Loans to small businesses" = "num_sml_sbus", "Loans to large businesses" = "num_sml_bbus"),
         summary_indicators = list(
           "Number of small loans per 1000 business establishments" = list(
-            summary_expression = rlang::expr(num_sml_sbus*1000/ESTAB),
+            summary_expression = rlang::expr((num_sml_sbus+num_sml_bbus)*1000/ESTAB),
             citywide_comparison = TRUE,
             hoverformat = ",.0f", tickformat = ""
           ),
@@ -1086,8 +1101,14 @@ APP_CONFIG <- list(
             summary_expression = rlang::expr(num_sml_sbus + num_sml_bbus),
             citywide_comparison = FALSE,
             hoverformat = ",.0f", tickformat = ""
+          ),
+          "Total small loans going to small businesses" = list(
+            summary_expression = rlang::expr(num_sml_sbus),
+            citywide_comparison = FALSE,
+            hoverformat = ",.0f", tickformat = ""
           )
         ),
+        note = "Note: A business is considered small if it has <$1M in annual revenue.",
         source = "FFIEC, Community Reinvestment Act data; U.S. Census Bureau, Zip Code Business Patterns; BPDA Research Division analysis"
       ),
       ### $ of sm. bus. loans ------
@@ -1112,18 +1133,28 @@ APP_CONFIG <- list(
             citywide_comparison = TRUE,
             hoverformat = ",.0f", tickprefix = "$", tickformat = ""
           ),
-          "Share of small loan volume ($) going to small businesses" = list(
-            summary_expression = rlang::expr(vol_sml_sbus/(vol_sml_sbus + vol_sml_bbus)),
-            citywide_comparison = TRUE,
-            hoverformat = ".0%", tickformat = ".0%"
-          ),
           "Total small loan volume ($)" = list(
             summary_expression = rlang::expr(vol_sml_sbus + vol_sml_bbus),
             citywide_comparison = FALSE,
             hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+          ),
+          "Total small loan volume ($) going to small businesses" = list(
+            summary_expression = rlang::expr(vol_sml_sbus),
+            citywide_comparison = FALSE,
+            hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+          ),
+          "Total small loan volume ($) going to large businesses" = list(
+            summary_expression = rlang::expr(vol_sml_bbus),
+            citywide_comparison = FALSE,
+            hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+          ),
+          "Share of small loan volume ($) going to small businesses" = list(
+            summary_expression = rlang::expr(vol_sml_sbus/(vol_sml_sbus + vol_sml_bbus)),
+            citywide_comparison = TRUE,
+            hoverformat = ".0%", tickformat = ".0%"
           )
         ),
-        note = "Note: All monetary values are in 2022 inflation-adjusted dollars.",
+        note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2022 inflation-adjusted dollars.",
         source = "FFIEC, Community Reinvestment Act data; BPDA Research Division analysis"
       )
       )
