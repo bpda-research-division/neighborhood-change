@@ -60,7 +60,7 @@ prep_data <- function(topic) {
 
 APP_CONFIG <- list(
   ## 2020 tracts ------
-  "census tracts" = list(geoms = tract2020_geoms, topics = list(
+  "census tracts" = list(geoms = tract2020_geoms, center_lat = 42.318, center_lon = -71.075, zoom_level = 12, topics = list(
     ### pop by sex -----
     "Population" = list(
       data_code = 'hbicttp', generalTopic = 'Demographics',
@@ -514,7 +514,7 @@ APP_CONFIG <- list(
     )
   ),
   ## neighborhoods -----
-  "neighborhoods" = list(geoms = neigh2020_geoms, topics = list(
+  "neighborhoods" = list(geoms = neigh2020_geoms, center_lat = 42.318, center_lon = -71.075, zoom_level = 12, topics = list(
     ### pop by sex ----
     "Population" = list(
       data_code = 'hbicntp', generalTopic = 'Demographics',
@@ -1007,7 +1007,7 @@ APP_CONFIG <- list(
     )
     ),
     ## Zip code areas ------
-    "zip code areas" = list(geoms = zca_geoms, topics = list(
+    "zip code areas" = list(geoms = zca_geoms, center_lat = 42.318, center_lon = -71.075, zoom_level = 12, topics = list(
       ### businesses by industry -----
       "Business Establishments by Industry" = list(
         data_code = 'bizind', generalTopic = 'Business Establishments',

@@ -91,17 +91,18 @@ tabPanelServer <- function(geo_type) {
         )
       })
       
+      # initial map centering + zoom level information
+      initial_lat <- APP_CONFIG[[geo_unit]]$center_lat
+      initial_lon <- APP_CONFIG[[geo_unit]]$center_lon
+      initial_zoom_level <- APP_CONFIG[[geo_unit]]$zoom_level
+      
       # Set up static components of the map
       output$map <- renderLeaflet({
         leaflet() %>% 
           addProviderTiles(provider = "CartoDB.Positron", group='basemap') %>%
-          
-          # we create two panes with different z values to ensure that the polygons 
-          # currently selected by the user are always displayed in front of other polygons
-          addMapPane("layer1", zIndex=420) %>% addMapPane("layer2",zIndex=410) %>%
-          
-          # would be nice to parameterize the initial map center and zoom level someday
-          setView(-71.075, 42.318, zoom = 12)
+          addMapPane("layer1", zIndex=420) %>% # we create two panes with different z values to ensure that the polygons 
+          addMapPane("layer2",zIndex=410) %>% # currently selected by the user are always displayed in front of other polygons
+          setView(initial_lon, initial_lat, zoom = initial_zoom_level)
       })
       
       # The label for map polygons with null values is a function of the geography type and topic
@@ -126,6 +127,7 @@ tabPanelServer <- function(geo_type) {
       
       # Redraw all the map polygons when a new variable or indicator is selected
       observeEvent(input$indicatorSelect, { 
+        # extract the number of digits to which summary values should be rounded when displayed
         label_format_digits <- as.numeric(gsub(".*?([0-9]+).*", "\\1", indicator_params()$hoverformat))
         
         # for each variable, areas_summary_df is the simple features dataframe that gets mapped
@@ -157,13 +159,17 @@ tabPanelServer <- function(geo_type) {
         
         yrdfs <- split(ss, ss$YEAR) # split the data on YEAR to create separate map layers for each year
         
+        # This parameter overrides the default map color scale with a custom set of lower bin cutoffs
         if ("map_legend_bins" %in% names(indicator_params())) {
           pal <- colorBin(
             MAP_PALETTE, 
-            domain = ss$SUMMARY_VALUE, 
-            bins = round(c(indicator_params()$map_legend_bins, max(ss$SUMMARY_VALUE, na.rm = TRUE) + 0.01), label_format_digits)
-              )
-        } else { # Shade the polygons on a single continuous scale rather than using new ranges for each year
+            domain = ss$SUMMARY_VALUE,
+            bins = c(
+              indicator_params()$map_legend_bins, # the user-defined bins will be equal intervals...
+              max(ss$SUMMARY_VALUE, na.rm = TRUE) + 0.01 # ...but with a single category at the top which captures outliers
+              ) %>% round(label_format_digits)
+            )
+        } else { # By default, polygons are shaded using a continuous (rather than binned) linear scale
           pal <- colorNumeric(MAP_PALETTE, domain = ss$SUMMARY_VALUE)
         }
         
