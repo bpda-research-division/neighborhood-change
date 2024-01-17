@@ -1,4 +1,4 @@
-If you plan to work on an existing issue, please comment on it. 
+If you plan to work on an existing issue, please comment on it and create a separate branch.
 
 If your idea isn't already an existing issue, feel free to create one of your own.
 
