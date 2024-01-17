@@ -1109,7 +1109,7 @@ APP_CONFIG <- list(
           )
         ),
         note = "Note: A business is considered small if it has <$1M in annual revenue.",
-        source = "FFIEC, Community Reinvestment Act data; U.S. Census Bureau, Zip Code Business Patterns; BPDA Research Division analysis"
+        source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; U.S. Census Bureau, Zip Code Business Patterns; BPDA Research Division analysis"
       ),
       ### $ of sm. bus. loans ------
       "Volume ($) of Small Business Loans" = list(
@@ -1155,7 +1155,7 @@ APP_CONFIG <- list(
           )
         ),
         note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2022 inflation-adjusted dollars.",
-        source = "FFIEC, Community Reinvestment Act data; BPDA Research Division analysis"
+        source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; BPDA Research Division analysis"
       )
       )
     )
