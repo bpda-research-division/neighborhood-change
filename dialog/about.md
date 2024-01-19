@@ -2,7 +2,7 @@ The Boston Neighborhood Change Explorer was built by the BPDA Research Division.
 
 For summary tables by neighborhood and topic and for further analysis of demographic and housing trends in Boston, see our [Historical Trends in Boston's Neighborhoods](https://www.bostonplans.org/research/research-publications?search=historical+&amp;sortby=date&amp;sortdirection=DESC) reports, where most of the data on this website were originally published.
 
-The full source code for the Neighborhood Change explorer is available on [our Github page](https://github.com/bpda-research-division/neighborhood-change) along with documentation for developers.
+The full source code for the Neighborhood Change Explorer is available on [our Github page](https://github.com/bpda-research-division/neighborhood-change) along with documentation for developers.
 
 ### Data sources
 
