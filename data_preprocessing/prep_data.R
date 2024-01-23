@@ -79,11 +79,6 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ",.0f", tickformat = ""
         ),
-        # "Average population per occupied housing unit" = list(
-        #   summary_expression = rlang::expr((male + female) / occ_hu),
-        #   citywide_comparison = TRUE,
-        #   hoverformat = ".1f", tickformat = ""
-        # ),
         "Female share of population" = list(
           summary_expression = rlang::expr(female / (male + female)),
           citywide_comparison = TRUE,
@@ -392,6 +387,11 @@ APP_CONFIG <- list(
             ),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Total population under poverty line" = list(
+          summary_expression = rlang::expr(c20aa + c20ab + c20ac),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
         ),
         "Share of population under 200% of poverty line" = list(
           summary_expression = rlang::expr(
