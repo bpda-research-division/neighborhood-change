@@ -985,12 +985,12 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE, disable_multiselection = TRUE,
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
         ),
-        "Median condo unit price (2022 inflation-adjusted dollars)" = list(
+        "Median condo unit price (2023 inflation-adjusted dollars)" = list(
           summary_expression = rlang::expr(median_adj_102),
           citywide_comparison = TRUE, disable_multiselection = TRUE,
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
         ),
-        "Median single-family unit price (2022 inflation-adjusted dollars)" = list(
+        "Median single-family unit price (2023 inflation-adjusted dollars)" = list(
           summary_expression = rlang::expr(median_adj_101),
           citywide_comparison = TRUE, disable_multiselection = TRUE,
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
@@ -1169,7 +1169,7 @@ APP_CONFIG <- list(
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Ratio of Income to Poverty']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Ratio of Income to Poverty']])
-# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
 
