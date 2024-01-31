@@ -1166,10 +1166,10 @@ APP_CONFIG <- list(
 # # You can either prep data for individual topics...
 # prep_data(APP_CONFIG[['zip code areas']]$topics[['Numbers of Small Business Loans']])
 # prep_data(APP_CONFIG[['zip code areas']]$topics[['Volume ($) of Small Business Loans']])
-# prep_data(APP_CONFIG[['census tracts']]$topics[['Population']])
-# prep_data(APP_CONFIG[['census tracts']]$topics[['Ratio of Income to Poverty']])
-# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Ratio of Income to Poverty']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Race and Ethnicity']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
+# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
 

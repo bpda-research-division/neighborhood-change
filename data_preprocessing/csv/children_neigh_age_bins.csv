@@ -1,102 +1,102 @@
 YEAR,GEOID,under5,fiveto17,NAME
 1980,Allston,600,1764,Allston
 1980,Back Bay,197,436,Back Bay
-1980,Beacon Hill,205,472,Beacon Hill
+1980,Beacon Hill,205,471,Beacon Hill
 1980,Brighton,1318,3625,Brighton
 1980,Charlestown,703,2437,Charlestown
 1980,Chinatown,153,430,Chinatown
 1980,Dorchester,8492,26230,Dorchester
-1980,Downtown,145,346,Downtown
+1980,Downtown,145,345,Downtown
 1980,East Boston,1641,5530,East Boston
 1980,Fenway,288,676,Fenway
 1980,Harbor Islands,1,8,Harbor Islands
 1980,Hyde Park,1881,5586,Hyde Park
-1980,Jamaica Plain,2537,7021,Jamaica Plain
+1980,Jamaica Plain,2537,7020,Jamaica Plain
 1980,Longwood,91,277,Longwood
 1980,Mattapan,1672,5579,Mattapan
-1980,Mission Hill,747,1986,Mission Hill
+1980,Mission Hill,746,1987,Mission Hill
 1980,North End,171,809,North End
-1980,Roslindale,1676,4908,Roslindale
+1980,Roslindale,1676,4909,Roslindale
 1980,Roxbury,3617,10717,Roxbury
-1980,South Boston,1582,5176,South Boston
+1980,South Boston,1582,5177,South Boston
 1980,South Boston Waterfront,13,26,South Boston Waterfront
-1980,South End,989,2882,South End
-1980,West End,79,171,West End
+1980,South End,989,2881,South End
+1980,West End,80,172,West End
 1980,West Roxbury,1319,4447,West Roxbury
 1980,_Crews on Ships,1,26,_Crews on Ships
-1990,Allston,958,1493,Allston
+1990,Allston,959,1494,Allston
 1990,Back Bay,296,304,Back Bay
 1990,Beacon Hill,217,318,Beacon Hill
-1990,Brighton,1730,2785,Brighton
+1990,Brighton,1729,2784,Brighton
 1990,Charlestown,861,1541,Charlestown
-1990,Chinatown,145,344,Chinatown
-1990,Dorchester,10052,21641,Dorchester
+1990,Chinatown,145,343,Chinatown
+1990,Dorchester,10052,21642,Dorchester
 1990,Downtown,166,295,Downtown
 1990,East Boston,2287,4376,East Boston
 1990,Fenway,460,570,Fenway
 1990,Harbor Islands,1,7,Harbor Islands
 1990,Hyde Park,2335,4626,Hyde Park
 1990,Jamaica Plain,2886,5757,Jamaica Plain
-1990,Longwood,64,166,Longwood
-1990,Mattapan,1970,4809,Mattapan
-1990,Mission Hill,1021,1920,Mission Hill
-1990,North End,188,269,North End
+1990,Longwood,65,166,Longwood
+1990,Mattapan,1970,4808,Mattapan
+1990,Mission Hill,1020,1920,Mission Hill
+1990,North End,187,268,North End
 1990,Roslindale,2215,3721,Roslindale
-1990,Roxbury,4194,9180,Roxbury
-1990,South Boston,1683,3628,South Boston
-1990,South Boston Waterfront,16,21,South Boston Waterfront
-1990,South End,1065,2356,South End
-1990,West End,106,70,West End
+1990,Roxbury,4195,9180,Roxbury
+1990,South Boston,1684,3627,South Boston
+1990,South Boston Waterfront,15,22,South Boston Waterfront
+1990,South End,1065,2357,South End
+1990,West End,106,71,West End
 1990,West Roxbury,1685,3035,West Roxbury
 1990,_Crews on Ships,0,0,_Crews on Ships
-2000,Allston,706,1473,Allston
-2000,Back Bay,309,368,Back Bay
-2000,Beacon Hill,222,340,Beacon Hill
-2000,Brighton,1376,2686,Brighton
-2000,Charlestown,805,1872,Charlestown
-2000,Chinatown,78,225,Chinatown
-2000,Dorchester,8618,26122,Dorchester
-2000,Downtown,174,372,Downtown
-2000,East Boston,2637,6057,East Boston
-2000,Fenway,235,424,Fenway
+2000,Allston,717,1505,Allston
+2000,Back Bay,324,388,Back Bay
+2000,Beacon Hill,235,345,Beacon Hill
+2000,Brighton,1435,2828,Brighton
+2000,Charlestown,842,1982,Charlestown
+2000,Chinatown,86,244,Chinatown
+2000,Dorchester,8833,26798,Dorchester
+2000,Downtown,181,391,Downtown
+2000,East Boston,2734,6315,East Boston
+2000,Fenway,242,429,Fenway
 2000,Harbor Islands,5,4,Harbor Islands
-2000,Hyde Park,2169,6010,Hyde Park
-2000,Jamaica Plain,1952,5379,Jamaica Plain
-2000,Longwood,116,267,Longwood
-2000,Mattapan,1801,5222,Mattapan
-2000,Mission Hill,450,1388,Mission Hill
-2000,North End,179,207,North End
-2000,Roslindale,1840,4871,Roslindale
-2000,Roxbury,3060,9046,Roxbury
-2000,South Boston,1399,3709,South Boston
-2000,South Boston Waterfront,12,26,South Boston Waterfront
-2000,South End,811,2008,South End
-2000,West End,161,184,West End
-2000,West Roxbury,1853,3628,West Roxbury
-2010,Allston,657,1029,Allston
-2010,Back Bay,495,401,Back Bay
-2010,Beacon Hill,273,359,Beacon Hill
-2010,Brighton,1379,2105,Brighton
-2010,Charlestown,1023,1489,Charlestown
-2010,Chinatown,106,221,Chinatown
-2010,Dorchester,7686,20347,Dorchester
-2010,Downtown,297,385,Downtown
-2010,East Boston,2927,5631,East Boston
-2010,Fenway,295,354,Fenway
-2010,Harbor Islands,4,0,Harbor Islands
-2010,Hyde Park,1810,5442,Hyde Park
-2010,Jamaica Plain,2069,3902,Jamaica Plain
+2000,Hyde Park,2217,6154,Hyde Park
+2000,Jamaica Plain,2052,5566,Jamaica Plain
+2000,Longwood,115,266,Longwood
+2000,Mattapan,1837,5316,Mattapan
+2000,Mission Hill,467,1413,Mission Hill
+2000,North End,200,235,North End
+2000,Roslindale,1911,5029,Roslindale
+2000,Roxbury,3178,9357,Roxbury
+2000,South Boston,1485,3894,South Boston
+2000,South Boston Waterfront,16,31,South Boston Waterfront
+2000,South End,854,2077,South End
+2000,West End,162,185,West End
+2000,West Roxbury,1918,3761,West Roxbury
+2010,Allston,678,1040,Allston
+2010,Back Bay,524,426,Back Bay
+2010,Beacon Hill,292,384,Beacon Hill
+2010,Brighton,1480,2232,Brighton
+2010,Charlestown,1094,1591,Charlestown
+2010,Chinatown,106,225,Chinatown
+2010,Dorchester,7918,20912,Dorchester
+2010,Downtown,304,394,Downtown
+2010,East Boston,3091,5934,East Boston
+2010,Fenway,316,368,Fenway
+2010,Harbor Islands,4,1,Harbor Islands
+2010,Hyde Park,1912,5678,Hyde Park
+2010,Jamaica Plain,2197,4121,Jamaica Plain
 2010,Longwood,35,99,Longwood
-2010,Mattapan,1400,3965,Mattapan
-2010,Mission Hill,511,1337,Mission Hill
-2010,North End,178,203,North End
-2010,Roslindale,1698,3960,Roslindale
-2010,Roxbury,3156,8122,Roxbury
-2010,South Boston,1337,2792,South Boston
-2010,South Boston Waterfront,43,46,South Boston Waterfront
-2010,South End,1198,1951,South End
-2010,West End,164,139,West End
-2010,West Roxbury,2059,4078,West Roxbury
+2010,Mattapan,1433,4092,Mattapan
+2010,Mission Hill,523,1372,Mission Hill
+2010,North End,194,239,North End
+2010,Roslindale,1861,4226,Roslindale
+2010,Roxbury,3320,8541,Roxbury
+2010,South Boston,1444,2969,South Boston
+2010,South Boston Waterfront,50,52,South Boston Waterfront
+2010,South End,1317,2050,South End
+2010,West End,189,156,West End
+2010,West Roxbury,2138,4188,West Roxbury
 2020,Allston,694,1070,Allston
 2020,Back Bay,462,686,Back Bay
 2020,Beacon Hill,261,472,Beacon Hill
