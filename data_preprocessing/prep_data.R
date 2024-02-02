@@ -971,32 +971,32 @@ APP_CONFIG <- list(
       barTitle = "Number of sales transactions by unit type", barhoverformat = ",.0f",
       null_description = "few or no sales",
       barCats = list(
-        "Single-family" = 'count_101',
-        "Condominium" = 'count_102'
+        "Single-family" = 'count_R1F',
+        "Condominium" = 'count_RCD'
       ),
       summary_indicators = list(
         "Median condo unit price (nominal dollars)" = list(
-          summary_expression = rlang::expr(median_nom_102),
+          summary_expression = rlang::expr(median_nom_RCD),
           citywide_comparison = TRUE, disable_multiselection = TRUE,
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
         ),
         "Median single-family unit price (nominal dollars)" = list(
-          summary_expression = rlang::expr(median_nom_101),
+          summary_expression = rlang::expr(median_nom_R1F),
           citywide_comparison = TRUE, disable_multiselection = TRUE,
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
         ),
         "Median condo unit price (2023 inflation-adjusted dollars)" = list(
-          summary_expression = rlang::expr(median_adj_102),
+          summary_expression = rlang::expr(median_adj_RCD),
           citywide_comparison = TRUE, disable_multiselection = TRUE,
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
         ),
         "Median single-family unit price (2023 inflation-adjusted dollars)" = list(
-          summary_expression = rlang::expr(median_adj_101),
+          summary_expression = rlang::expr(median_adj_R1F),
           citywide_comparison = TRUE, disable_multiselection = TRUE,
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
         ),
         "Total sales transactions" = list(
-          summary_expression = rlang::expr(count_101 + count_102),
+          summary_expression = rlang::expr(count_R1F + count_RCD),
           citywide_comparison = FALSE,
           hoverformat = ",.0f", tickformat = ""
         )
@@ -1166,10 +1166,10 @@ APP_CONFIG <- list(
 # # You can either prep data for individual topics...
 # prep_data(APP_CONFIG[['zip code areas']]$topics[['Numbers of Small Business Loans']])
 # prep_data(APP_CONFIG[['zip code areas']]$topics[['Volume ($) of Small Business Loans']])
-prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
+# prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Race and Ethnicity']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
-# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
 
