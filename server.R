@@ -230,7 +230,7 @@ tabPanelServer <- function(geo_type) {
             options = pathOptions(pane = "layer1"), # place these polygons on the upper pane
             label = ~lapply(labelText, htmltools::HTML), # custom label text displayed in a tooltip on hover 
             labelOptions = labelOptions( 
-              style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2), "font-family"=APP_FONT)
+              style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2))
             ) # set font size for the tooltips a bit smaller than in the rest of app
           ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) %>% # hide these polygons initially
           
