@@ -184,7 +184,13 @@ tabPanelServer <- function(geo_type) {
             actionButton(session$ns("downloadButton"), "Download selected data", icon = icon("download"),
                          style=sprintf("font-size:%spx", APP_FONT_SIZE)),
             position="bottomright", className = "fieldset {border: 0;}" # remove default button border
-          )
+          )%>% ## CECILIA'S EDITS ##
+          # Goal: add leaflet spinner functionality using the leaflet.extras2 package which incorporates the Leaflet Spinner plugin.
+          #       to use, simply addSpinner() startSpinner() * do the adding/rendering * stopSpinner()
+          ##########################
+          leaflet.extras2::addSpinner()%>%
+          leaflet.extras2::startSpinner(options=list("lines"=8, "length"=0, "width"=38, "radius"=67, "scale"=0.9, "color"="#2186bb", "animation"="spinner-line-shrink")) # This starts the spinner off
+                                                                                                                                                        # Note that this animation must be defined in a css file (see test_theme.css)
         
         for (yr in names(yrdfs)) { # Draw and add one layer of polygons for each year
           leafletProxy("map") %>% 
@@ -242,7 +248,10 @@ tabPanelServer <- function(geo_type) {
                  identity  # ...otherwise, display the data values as they are
                  )
                )
-            ) %>% 
+            ) %>%
+          ## CECILIA'S EDITS ##
+          stopSpinner()%>% # stops the spinner before the groups are displayed
+          #####################
           showGroup(group = yr) %>% # The initial map display for a new topic is the most recent year of data...
           showGroup(selectedPolygons$groups) # ...with any previously selected geographies still selected.
       })

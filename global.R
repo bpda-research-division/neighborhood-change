@@ -11,7 +11,10 @@ library(leaflet)
 library(htmltools)
 
 # Define global formatting parameters #######
-APP_FONT <- "Helvetica"
+# APP_FONT <- "Helvetica" 
+# CECILIA'S EDITS #
+APP_FONT <- "Open Sans" 
+###################
 APP_FONT_SIZE <- 17
 MAP_PALETTE <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
 BAR_COLOR <- '#60809f' # previously, we set the map palette as Purples with bar/line color 7f76b7

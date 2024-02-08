@@ -74,9 +74,16 @@ geoTabPanelUI <- function(geo_type) {
          htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
     ),
     mainPanel(width=6, # the right-hand side of the screen displays the charts, any notes, and source citations
-       plotlyOutput(ns("bar_chart")), # default background color for plotly charts is white, so our note matches that
+       # plotlyOutput(ns("bar_chart")), # default background color for plotly charts is white, so our note matches that
+       ## MY EDITS ##
+       # goal: use the shinycssloaders package to add loading animations to the output while it's recalculating
+       shinycssloaders::withSpinner(plotlyOutput(ns("bar_chart")), color="#2186bb", size=1.5, type=5),
+       ##############
        htmlOutput(align="center", style="font-size:9pt; background-color: #ffffff; padding-bottom:5px;", ns("note")),
-       plotlyOutput(ns("line_chart")),
+       ## CECILIA'S EDITS ##
+       shinycssloaders::withSpinner(plotlyOutput(ns("line_chart")), color="#2186bb", size=1.5, type=5),
+       # plotlyOutput(ns("line_chart")),
+       ###############
        htmlOutput(style=sprintf('padding:10px; font-size:%spx', APP_FONT_SIZE - 4), ns("sourceText")) # citation at bottom
        )
   )
@@ -94,6 +101,9 @@ styling_commands = c(
 ui <- fluidPage(title = "Neighborhood Change Explorer",
   # set the browser icon for the page to be the BPDA logo
   tags$head(tags$link(rel="shortcut icon", href="bpda_logo.ico")),
+  ## CECILIA'S EDITS ##
+  tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "test_theme.css")),
+  #####################
   tags$head(tags$style(HTML(paste(styling_commands)))), # apply other style commands
   tags$head(tags$style( # increase the size of the the play button on the slider
     type='text/css', ".slider-animate-button { font-size: 20pt !important; }"
