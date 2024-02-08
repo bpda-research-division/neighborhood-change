@@ -177,12 +177,12 @@ tabPanelServer <- function(geo_type) {
           clearShapes() %>% clearControls() %>% # clear existing stuff before redrawing...
           addControl( # ...but make sure each map has a button for users to clear their map selections...
             actionButton(session$ns("clearSelections"), "Clear all selections",
-                         style=sprintf("font-size:%spx", APP_FONT_SIZE)),
+                         style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE, APP_FONT)),
             position="topright", className = "fieldset {border: 0;}" # remove default button border
           ) %>%
           addControl( # ...as well as a data download button.
             actionButton(session$ns("downloadButton"), "Download selected data", icon = icon("download"),
-                         style=sprintf("font-size:%spx", APP_FONT_SIZE)),
+                         style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE, APP_FONT)),
             position="bottomright", className = "fieldset {border: 0;}" # remove default button border
           )%>% ## CECILIA'S EDITS ##
           # Goal: add leaflet spinner functionality using the leaflet.extras2 package which incorporates the Leaflet Spinner plugin.
@@ -202,7 +202,7 @@ tabPanelServer <- function(geo_type) {
               options = pathOptions(pane = "layer2"), # place these layers on the lower pane
               label = ~lapply(labelText, htmltools::HTML), # custom label text displayed in a tooltip on hover 
               labelOptions = labelOptions( 
-                style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2))
+                style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2), "font-family" = APP_FONT)
                 ), # set font size for the tooltips a bit smaller than in the rest of app
               highlight = highlightOptions( # when you hover over these polygons...
                 weight = 3,
@@ -230,7 +230,7 @@ tabPanelServer <- function(geo_type) {
             options = pathOptions(pane = "layer1"), # place these polygons on the upper pane
             label = ~lapply(labelText, htmltools::HTML), # custom label text displayed in a tooltip on hover 
             labelOptions = labelOptions( 
-              style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2))
+              style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2), "font-family" = APP_FONT)
             ) # set font size for the tooltips a bit smaller than in the rest of app
           ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) %>% # hide these polygons initially
           

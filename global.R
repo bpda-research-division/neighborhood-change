@@ -8,6 +8,7 @@ library(shiny)
 library(shinyWidgets)
 library(plotly)
 library(leaflet)
+library(leaflet.extras2)
 library(htmltools)
 
 # Define global formatting parameters #######
