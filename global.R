@@ -66,6 +66,30 @@ pivot_summarise <- function(df, cats, summary_expr, id_columns) {
   df
 }
 
+#' helps update labels on pre-existing polygons
+#' Source: https://github.com/rstudio/leaflet/issues/496#issuecomment-871405207
+#' Author: Matt Harris (https://github.com/mrecos)
+setShapeLabel <- function( map, data = getMapData(map), layerId,
+                           label = NULL,
+                           options = NULL
+){
+  cat("in setShapeLabel","\n")
+  options <- c(list(layerId = layerId),
+               options,
+               filterNULL(list(label = label
+               )))
+  # evaluate all options
+  options <- evalFormula(options, data = data)
+  # make them the same length (by building a data.frame)
+  options <- do.call(data.frame, c(options, list(stringsAsFactors=FALSE)))
+  
+  layerId <- options[[1]]
+  label <- options[-1] # drop layer column
+  
+  # typo fixed in this line
+  leaflet::invokeMethod(map, data, "setLabel", "shape", layerId, label);
+}
+
 #' Implements https://en.wikipedia.org/wiki/Pareto_interpolation, returning the
 #' estimated median income of a population given that lower_pct of the individuals
 #' in a sample have incomes below lower_income and upper_pct of the individuals in

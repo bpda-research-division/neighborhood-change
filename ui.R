@@ -101,6 +101,7 @@ styling_commands = c(
 ui <- fluidPage(title = "Neighborhood Change Explorer",
   # set the browser icon for the page to be the BPDA logo
   tags$head(tags$link(rel="shortcut icon", href="bpda_logo.ico")),
+  tags$head(tags$script(src='setLeafletLabel.js')), # function for updating leaflet labels
   ## CECILIA'S EDITS ##
   tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "test_theme.css")),
   #####################
