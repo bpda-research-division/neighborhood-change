@@ -55,3 +55,22 @@
 body{
   font-family:"Open Sans";
 }
+
+/* Leaflet Font Changes */
+/* Legend */
+.info.legend.leaflet-control{
+    font-family: "Open Sans";
+}
+/* Tooltips */
+.leaflet-tooltip {
+   font-family:"Open Sans";
+}
+button{
+  font-family:"Open Sans";
+}
+span{
+  font-family:"Open Sans";
+}
+
+
+
