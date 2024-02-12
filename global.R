@@ -68,12 +68,11 @@ pivot_summarise <- function(df, cats, summary_expr, id_columns) {
 
 #' helps update labels on pre-existing polygons
 #' Source: https://github.com/rstudio/leaflet/issues/496#issuecomment-871405207
-#' Author: Matt Harris (https://github.com/mrecos)
+#' Authors: Github users timelyportfolio, martinzuba, and mrecos
 setShapeLabel <- function( map, data = getMapData(map), layerId,
                            label = NULL,
                            options = NULL
 ){
-  cat("in setShapeLabel","\n")
   options <- c(list(layerId = layerId),
                options,
                filterNULL(list(label = label

@@ -69,6 +69,8 @@ tabPanelServer <- function(geo_type) {
       
       # this df has one summary value for each year and geography
       areas_summary_df <- reactive({
+        # extract the number of digits to which summary values should be rounded when displayed
+        label_format_digits <- as.numeric(gsub(".*?([0-9]+).*", "\\1", indicator_params()$hoverformat))
         
         pivot_summarise(
           df = areas_categories_df(), 
@@ -78,7 +80,22 @@ tabPanelServer <- function(geo_type) {
         ) %>% # add geometries to the subcity summary data so we can map them
           mutate(GEOID = as.character(GEOID)) %>%
           merge(y=geo_shapes, by.y = "GEOID", by.x = "GEOID") %>%
-          st_as_sf()
+          st_as_sf() %>% mutate(
+          labelText = paste0( # then, we add a column with the tooltip label formatted how we want
+            "<center>", NAME, # the name of the geographic area always appears on the tooltip
+            case_when( # If the summary value is not null, we add a second line to the tooltip...
+              !is.na(SUMMARY_VALUE) ~ paste0(
+                "<br>", 
+                indicator_params()$tickprefix, # ...containing the summary value formatted according to our parameters
+                case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ as.character(round(SUMMARY_VALUE*100, digits = label_format_digits)), 
+                          .default = format(round(SUMMARY_VALUE, digits = label_format_digits), big.mark=",", trim=TRUE)
+                ),
+                case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ "%", .default = "")
+              ), 
+              .default = "" # If the summary value is null, the tooltip just displays the geographic area name
+            )
+          )
+        )
       })
       
       # this df has one summary value for each year for the entire place
@@ -127,26 +144,7 @@ tabPanelServer <- function(geo_type) {
       
       # Redraw all the map polygons when a new variable or indicator is selected
       observeEvent(input$indicatorSelect, { 
-        # extract the number of digits to which summary values should be rounded when displayed
-        label_format_digits <- as.numeric(gsub(".*?([0-9]+).*", "\\1", indicator_params()$hoverformat))
-        
-        # for each variable, areas_summary_df is the simple features dataframe that gets mapped
-        ss <- areas_summary_df() %>% mutate(
-          labelText = paste0( # we add a column to ss with the tooltip label formatted how we want
-            "<center>", NAME, # the name of the geographic area always appears on the tooltip
-            case_when( # If the summary value is not null, we add a second line to the tooltip...
-              !is.na(SUMMARY_VALUE) ~ paste0(
-                "<br>", 
-                indicator_params()$tickprefix, # ...containing the summary value formatted according to our parameters
-                case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ as.character(round(SUMMARY_VALUE*100, digits = label_format_digits)), 
-                          .default = format(round(SUMMARY_VALUE, digits = label_format_digits), big.mark=",", trim=TRUE)
-                          ),
-                case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ "%", .default = "")
-                ), 
-              .default = "" # If the summary value is null, the tooltip just displays the geographic area name
-              )
-          )
-        )
+        ss <- areas_summary_df()
         
         # for any area with a null value in any of the years...
         areas_with_nulls <- c(
@@ -225,7 +223,8 @@ tabPanelServer <- function(geo_type) {
         # polygons that will be displayed when they're clicked on by users
         leafletProxy("map") %>%
           addPolygons(data=yrdfs[[yr]], 
-            group=~GEOID, # for these polygons, we'll use the GEOID as the group name
+            group = ~GEOID, # for these polygons, we'll use the GEOID as the group name
+            layerId = ~GEOID,
             weight = 3, color = "red", fillOpacity=0, # no fill but red border
             options = pathOptions(pane = "layer1"), # place these polygons on the upper pane
             label = ~lapply(labelText, htmltools::HTML), # custom label text displayed in a tooltip on hover 
@@ -261,11 +260,17 @@ tabPanelServer <- function(geo_type) {
         unique(APP_DATA[[geo_unit]][[topic_name()]]$areas_categories_df$YEAR) %>% sort()
       })
       
+      asdf_selectedYear <- reactive({
+        areas_summary_df() %>% filter(YEAR == input$yearSelect)
+      })
+      
       # Update the map When the user moves the time slider or picks a new variable
       observeEvent(input$yearSelect, {
         leafletProxy("map") %>% 
-          hideGroup(group = var_years()) %>% # hide whatever year is currently selected
-          showGroup(input$yearSelect) # then show the layer for the selected year
+          hideGroup(group = var_years()) %>% # hide whatever year is currently selected...
+          showGroup(input$yearSelect) %>% # ...then show the layer for the selected year...
+          # ...while updating the labels of all selected polygons to reflect data for the given year
+          setShapeLabel(layerId = asdf_selectedYear()$GEOID, label = asdf_selectedYear()$labelText)
       })
       
       # This vector holds the IDs of all currently selected polygons. The line and
