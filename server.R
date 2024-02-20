@@ -67,11 +67,13 @@ tabPanelServer <- function(geo_type) {
         }
       })
       
+      label_format_digits <- reactive({
+        # extract the number of digits to which summary values should be rounded when displayed
+        as.numeric(gsub(".*?([0-9]+).*", "\\1", indicator_params()$hoverformat))
+      })
+      
       # this df has one summary value for each year and geography
       areas_summary_df <- reactive({
-        # extract the number of digits to which summary values should be rounded when displayed
-        label_format_digits <- as.numeric(gsub(".*?([0-9]+).*", "\\1", indicator_params()$hoverformat))
-        
         pivot_summarise(
           df = areas_categories_df(), 
           cats = var_params()$barCats, 
@@ -87,8 +89,8 @@ tabPanelServer <- function(geo_type) {
               !is.na(SUMMARY_VALUE) ~ paste0(
                 "<br>", 
                 indicator_params()$tickprefix, # ...containing the summary value formatted according to our parameters
-                case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ as.character(round(SUMMARY_VALUE*100, digits = label_format_digits)), 
-                          .default = format(round(SUMMARY_VALUE, digits = label_format_digits), big.mark=",", trim=TRUE)
+                case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ as.character(round(SUMMARY_VALUE*100, digits = label_format_digits())), 
+                          .default = format(round(SUMMARY_VALUE, digits = label_format_digits()), big.mark=",", trim=TRUE)
                 ),
                 case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ "%", .default = "")
               ), 
@@ -122,7 +124,7 @@ tabPanelServer <- function(geo_type) {
           setView(initial_lon, initial_lat, zoom = initial_zoom_level)
       })
       
-      # The label for map polygons with null values is a function of the geography type and topic
+      # The legend label for map polygons with null values is a function of the geography type and topic
       null_label <- reactive({
         
         if ("null_description" %in% names(var_params())) {
@@ -165,7 +167,7 @@ tabPanelServer <- function(geo_type) {
             bins = c(
               indicator_params()$map_legend_bins, # the user-defined bins will be equal intervals...
               max(ss$SUMMARY_VALUE, na.rm = TRUE) + 0.01 # ...but with a single category at the top which captures outliers
-              ) %>% round(label_format_digits)
+              ) %>% round(label_format_digits())
             )
         } else { # By default, polygons are shaded using a continuous (rather than binned) linear scale
           pal <- colorNumeric(MAP_PALETTE, domain = ss$SUMMARY_VALUE)
