@@ -74,7 +74,7 @@ tabPanelServer <- function(geo_type) {
       
       # this df has one summary value for each year and geography
       areas_summary_df <- reactive({
-        pivot_summarise(
+        ss <- pivot_summarise(
           df = areas_categories_df(), 
           cats = var_params()$barCats, 
           summary_expr = indicator_params()$summary_expression, 
@@ -82,22 +82,31 @@ tabPanelServer <- function(geo_type) {
         ) %>% # add geometries to the subcity summary data so we can map them
           mutate(GEOID = as.character(GEOID)) %>%
           merge(y=geo_shapes, by.y = "GEOID", by.x = "GEOID") %>%
-          st_as_sf() %>% mutate(
-          labelText = paste0( # then, we add a column with the tooltip label formatted how we want
-            "<center>", NAME, # the name of the geographic area always appears on the tooltip
-            case_when( # If the summary value is not null, we add a second line to the tooltip...
-              !is.na(SUMMARY_VALUE) ~ paste0(
-                "<br>", 
-                indicator_params()$tickprefix, # ...containing the summary value formatted according to our parameters
-                case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ as.character(round(SUMMARY_VALUE*100, digits = label_format_digits())), 
-                          .default = format(round(SUMMARY_VALUE, digits = label_format_digits()), big.mark=",", trim=TRUE)
-                ),
-                case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ "%", .default = "")
-              ), 
-              .default = "" # If the summary value is null, the tooltip just displays the geographic area name
+          st_as_sf() 
+        
+        # identify any area that should be grayed out: areas with null summary values for any of the years...
+        areas_to_gray <- c(
+          unique(ss[is.na(ss$SUMMARY_VALUE),]$GEOID),
+          var_params()$additional_null_geoms # ...and areas which have been specified as additional null geoms
+        )
+        
+        ss %>% mutate(
+            grayOut = GEOID %in% areas_to_gray, # add a column indicating whether each feature will be grayed out
+            labelText = paste0( # add a column with the tooltip label formatted how we want
+              "<center>", NAME, # the name of the geographic area always appears on the tooltip
+              case_when( # If we aren't graying out the polygon, we add a second line to the tooltip...
+                !grayOut ~ paste0(
+                  "<br>", 
+                  indicator_params()$tickprefix, # ...containing the summary value formatted according to our parameters
+                  case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ as.character(round(SUMMARY_VALUE*100, digits = label_format_digits())), 
+                            .default = format(round(SUMMARY_VALUE, digits = label_format_digits()), big.mark=",", trim=TRUE)
+                  ),
+                  case_when(grepl("%", indicator_params()$tickformat, fixed=TRUE) ~ "%", .default = "")
+                ), 
+                .default = "" # If the polygon is grayed out, its tooltip just displays the geographic area name
+              )
             )
           )
-        )
       })
       
       # this df has one summary value for each year for the entire place
@@ -126,7 +135,6 @@ tabPanelServer <- function(geo_type) {
       
       # The legend label for map polygons with null values is a function of the geography type and topic
       null_label <- reactive({
-        
         if ("null_description" %in% names(var_params())) {
           null_description <- var_params()$null_description
         } else {
@@ -148,14 +156,8 @@ tabPanelServer <- function(geo_type) {
       observeEvent(input$indicatorSelect, { 
         ss <- areas_summary_df()
         
-        # for any area with a null value in any of the years...
-        areas_with_nulls <- c(
-          unique(ss[is.na(ss$SUMMARY_VALUE),]$GEOID),
-          var_params()$additional_null_geoms # ...or areas which have been specified as additional null geoms...
-        )
-        if (length(areas_with_nulls) > 0) {
-          ss$SUMMARY_VALUE[which(ss$GEOID %in% areas_with_nulls)] <- NA
-        } # ...temporarily replace the value with a NA for the purposes of mapping (to gray the polygon out)
+        # temporarily replace any value with a NA for polygons that we want to gray out
+        ss$SUMMARY_VALUE[which(ss$grayOut)] <- NA
         
         yrdfs <- split(ss, ss$YEAR) # split the data on YEAR to create separate map layers for each year
         
@@ -184,12 +186,14 @@ tabPanelServer <- function(geo_type) {
             actionButton(session$ns("downloadButton"), "Download selected data", icon = icon("download"),
                          style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE, APP_FONT)),
             position="bottomright", className = "fieldset {border: 0;}" # remove default button border
-          )%>% ## CECILIA'S EDITS ##
-          # Goal: add leaflet spinner functionality using the leaflet.extras2 package which incorporates the Leaflet Spinner plugin.
-          #       to use, simply addSpinner() startSpinner() * do the adding/rendering * stopSpinner()
-          ##########################
-          leaflet.extras2::addSpinner()%>%
-          leaflet.extras2::startSpinner(options=list("lines"=8, "length"=0, "width"=38, "radius"=67, "scale"=0.9, "color"="#2186bb", "animation"="spinner-line-shrink")) # This starts the spinner off
+          ) %>% 
+          leaflet.extras2::addSpinner() %>% # add a loading spinner to be displayed while the map renders
+          leaflet.extras2::startSpinner(
+            options=list(
+              "lines"=8, "length"=0, "width"=38, "radius"=67, "scale"=0.9, 
+              "color"="#2186bb", "animation"="spinner-line-shrink"
+              )
+            ) # This starts the spinner off
                                                                                                                                                         # Note that this animation must be defined in a css file (see test_theme.css)
         
         for (yr in names(yrdfs)) { # Draw and add one layer of polygons for each year
@@ -219,7 +223,7 @@ tabPanelServer <- function(geo_type) {
         }
         
         # prevent topic-switching from inadvertently selecting an area that has null data for the destination topic
-        selectedPolygons$groups <- setdiff(selectedPolygons$groups, areas_with_nulls)
+        selectedPolygons$groups <- setdiff(selectedPolygons$groups, unique(ss[ss$grayOut,]$GEOID))
         
         # on top of the layers of polygons for each year, add a hidden layer of 
         # polygons that will be displayed when they're clicked on by users
@@ -250,9 +254,7 @@ tabPanelServer <- function(geo_type) {
                  )
                )
             ) %>%
-          ## CECILIA'S EDITS ##
-          stopSpinner()%>% # stops the spinner before the groups are displayed
-          #####################
+          stopSpinner() %>% # now that the layers are all added, stop the loading spinner
           showGroup(group = yr) %>% # The initial map display for a new topic is the most recent year of data...
           showGroup(selectedPolygons$groups) # ...with any previously selected geographies still selected.
       })
@@ -262,6 +264,7 @@ tabPanelServer <- function(geo_type) {
         unique(APP_DATA[[geo_unit]][[topic_name()]]$areas_categories_df$YEAR) %>% sort()
       })
       
+      # Keep track of the subset of the summary indicators dataframe for the currently selected year
       asdf_selectedYear <- reactive({
         areas_summary_df() %>% filter(YEAR == input$yearSelect)
       })
@@ -287,20 +290,20 @@ tabPanelServer <- function(geo_type) {
         if(input$map_shape_click$group %in% var_years()){
           # The ID of each unselected polygon is a string concatenation of its GEOID 
           # and its YEAR. This gsub expression removes the last space-delimited word 
-          # from the unselected polygon ID to extract the GEOID of the polygon.
+          # from the unselected polygon ID in order to extract the GEOID of the polygon.
           this_selection_id <- gsub("\\s*\\w*$", "", input$map_shape_click$id)
           
           # if the data for the clicked-upon polygon is all non-null values...
           if (!any(is.na(subset(areas_summary_df(), GEOID == this_selection_id)$SUMMARY_VALUE))) {
-            # ...depending on the indicator parameters, we can either do multiselection...
+            # ...depending on the indicator parameters, we either do multiselection...
             if (!"disable_multiselection" %in% names(indicator_params())) {
               leafletProxy("map") %>% showGroup(group = this_selection_id) 
-              # ...displaying that polygon as selected and appending thepolygon's ID to selectedPolygons$groups
+              # ...displaying that polygon as selected and appending thepolygon's ID to selectedPolygons$groups...
               selectedPolygons$groups <- c(selectedPolygons$groups, this_selection_id)
             } else { # ...or we can do single selection...
               leafletProxy("map") %>% hideGroup(group = selectedPolygons$groups) # ...hiding the previous selection...
               leafletProxy("map") %>% showGroup(group = this_selection_id) # ...and showing the current one...
-              selectedPolygons$groups <- c(this_selection_id) # ...and updating selectedPolygons$groups accordingly.
+              selectedPolygons$groups <- c(this_selection_id) # ...while updating selectedPolygons$groups accordingly.
             }
           }
           
@@ -311,11 +314,12 @@ tabPanelServer <- function(geo_type) {
         }
       })
       
-      # In response to the user clearing all selections or choosing a new variable...
+      # In response to the user clearing all selections...
       observeEvent(session$input$clearSelections, {
         leafletProxy("map") %>% hideGroup(group = selectedPolygons$groups)
         selectedPolygons$groups <- vector() # ...unselect all polygons and hide them on the map.
       })
+      
       # To update the specific topic selection menu each time the user selects a different general topic...
       observeEvent(input$generalTopicSelect, {
 
@@ -343,7 +347,7 @@ tabPanelServer <- function(geo_type) {
           )
       })
       
-      # Describes the geographic scope of the current map selection (e.g. "2 selected tracts" or "Citywide")
+      # Display label for the geographic scope of the current map selection (e.g. "2 selected tracts" or "Citywide")
       selectionName <- reactive({ # this is used for the legends on the bar and line charts
         geo_type <- geo_unit
         num_selected <- length(selectedPolygons$groups)
@@ -370,7 +374,7 @@ tabPanelServer <- function(geo_type) {
             summarise(VALUE = sum(VALUE), .groups='drop')
         }
         
-        return( # only return the categories that have been named in the barCats parameter
+        return( # only return the columns that have been named in the barCats parameter
           data %>% filter(CATEGORY %in% names(var_params()$barCats))
         )
       })
@@ -393,6 +397,7 @@ tabPanelServer <- function(geo_type) {
         data
       })
       
+      # The font size of the bar chart labels can be smaller than the default if the smallbarfont parameter is included
       bar_font_size <- reactive({
         if ("smallbarfont" %in% names(var_params())) {
           return(APP_FONT_SIZE - 6)
@@ -415,8 +420,7 @@ tabPanelServer <- function(geo_type) {
                 ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
           add_bars(color=I(BAR_COLOR), # set the fill color for the bars
-                   marker = list(line = list(color=BAR_COLOR)) #, # set bar outline color
-                   # hoverinfo = 'y' # display y-values when hovering over bars
+                   marker = list(line = list(color=BAR_COLOR)) # set bar outline color
                    ) %>% 
           layout(title = list(
                     text = paste0(var_params()$barTitle, " in ", input$yearSelect), # dynamic title
@@ -433,14 +437,9 @@ tabPanelServer <- function(geo_type) {
                               # set the order in which categories appear on the x axis
                               categoryorder = 'array', categoryarray = names(var_params()$barCats)
                               ),
-                 yaxis = list(title = '' , fixedrange = TRUE, range = barRange(), 
-                              # hoverformat = var_params()$barhoverformat,
-                              # tickprefix = var_params()$bartickprefix, 
+                 yaxis = list(title = '' , fixedrange = TRUE, range = barRange(),
                               showticklabels = FALSE, showgrid = FALSE
-                              ), 
-                 # hoverlabel = list(bordercolor = 'white', # hover text formatting options
-                 #                   font = list(color="white", size=APP_FONT_SIZE-2)
-                 #                   ),
+                              ),
                  showlegend=T, # always show the legend (even with just 1 series) 
                  legend = list(orientation = 'h', # place legend items side by side
                                x=0.01, y=1.05, # position legend near the top left
