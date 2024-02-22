@@ -74,16 +74,15 @@ geoTabPanelUI <- function(geo_type) {
          htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
     ),
     mainPanel(width=6, # the right-hand side of the screen displays the charts, any notes, and source citations
-       # plotlyOutput(ns("bar_chart")), # default background color for plotly charts is white, so our note matches that
-       ## MY EDITS ##
-       # goal: use the shinycssloaders package to add loading animations to the output while it's recalculating
-       shinycssloaders::withSpinner(plotlyOutput(ns("bar_chart")), color="#2186bb", size=1.5, type=5),
-       ##############
+       # bar chart with loading spinner enabled. hide.ui = TRUE ensures that the chart UI isn't redrawn each time a year changes
+       shinycssloaders::withSpinner(plotlyOutput(ns("bar_chart")), color="#2186bb", size=1.5, type=5, hide.ui = FALSE),
+
+       # default background color for plotly charts is white, so our note area matches that
        htmlOutput(align="center", style="font-size:9pt; background-color: #ffffff; padding-bottom:5px;", ns("note")),
-       ## CECILIA'S EDITS ##
-       shinycssloaders::withSpinner(plotlyOutput(ns("line_chart")), color="#2186bb", size=1.5, type=5),
-       # plotlyOutput(ns("line_chart")),
-       ###############
+       
+       # line chart with loading spinner enabled. hide.ui = TRUE ensures that the chart UI isn't redrawn each time a year changes
+       shinycssloaders::withSpinner(plotlyOutput(ns("line_chart")), color="#2186bb", size=1.5, type=5, hide.ui = FALSE),
+
        htmlOutput(style=sprintf('padding:10px; font-size:%spx', APP_FONT_SIZE - 4), ns("sourceText")) # citation at bottom
        )
   )
