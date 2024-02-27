@@ -255,7 +255,7 @@ tabPanelServer <- function(geo_type) {
                )
             ) %>%
           stopSpinner() %>% # now that the layers are all added, stop the loading spinner
-          showGroup(group = yr) %>% # The initial map display for a new topic is the most recent year of data...
+          showGroup(group = input$yearSelect) %>% # The initial map display for a new topic is the most recent year of data...
           showGroup(selectedPolygons$groups) # ...with any previously selected geographies still selected.
       })
       
