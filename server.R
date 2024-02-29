@@ -590,6 +590,12 @@ tabPanelServer <- function(geo_type) {
         paste("Source:", var_params()$source)
       })
       
+      # this records whether the aggregation options panel on the download window should be shown
+      output$showAggPanel <- reactive({
+        length(selectedPolygons$groups) != 1 # the only case where we don't show the panel is when a single area is selected
+      })
+      outputOptions(output, "showAggPanel", suspendWhenHidden = FALSE) # this ensures that showAggPanel is continuously calculated
+      
       # Displays a modal (pop up window) in response to user clicking download button
       observeEvent(input$downloadButton, {
         showModal(modalDialog(
@@ -597,7 +603,17 @@ tabPanelServer <- function(geo_type) {
             paste(
               "<b>Topic:</b>", topic_name(), "<br>", 
               "<b>Geographic extent:</b>", selectionName(), selectedAreas(), "<br>",
-              "<b>Variable:</b>", input$indicatorSelect
+              "<b>Variable:</b>", input$indicatorSelect, "<br><br>",
+              conditionalPanel(
+                condition = 'output.showAggPanel == true', ns = session$ns,
+                radioButtons(
+                  session$ns("downloadType"), "Choose a download type:",
+                  choiceNames = c("Download a single, aggregated data series for this extent", "Download disaggregated data for each area within this extent"),
+                  choiceValues = c("single-area / aggregated", "geographically disaggregated"),
+                  width = "100%",
+                  selected = "single-area / aggregated"
+                )
+              )
               )
           ), # the modal displays download details, and then the user can either cancel or proceed downloading
           title=h2("Confirm download details", align='center'),
@@ -624,26 +640,58 @@ tabPanelServer <- function(geo_type) {
         },
         content = function(out_file) {
           removeModal() # close confirmation window
-          output <- selectionData() %>% 
-            pivot_wider(id_cols = "YEAR", names_from='CATEGORY', values_from='VALUE') %>%
-            subset(select = c("YEAR", names(var_params()$barCats))) %>%
-            # downloaded data includes bar chart categories + the selected indicator for each year
-            merge(selectedLine() %>% select(YEAR, SUMMARY_VALUE) %>% st_drop_geometry(), by='YEAR') %>%
-            # rename the SUMMARY_VALUE column to the name of the selected indicator
-            mutate(YEAR = as.character(YEAR), !!input$indicatorSelect := SUMMARY_VALUE, .keep='unused')
           
-          list_of_areas <- ifelse(
+          if (input$downloadType == "single-area / aggregated") {
+            output <- selectionData() %>% 
+              pivot_wider(id_cols = "YEAR", names_from='CATEGORY', values_from='VALUE') %>%
+              subset(select = c("YEAR", names(var_params()$barCats))) %>%
+              # downloaded data includes bar chart categories + the selected indicator for each year
+              merge(selectedLine() %>% select(YEAR, SUMMARY_VALUE) %>% st_drop_geometry(), by='YEAR') %>%
+              # rename the SUMMARY_VALUE column to the name of the selected indicator
+              mutate(YEAR = as.character(YEAR), !!input$indicatorSelect := SUMMARY_VALUE, .keep='unused')
+          } else if (length(selectedPolygons$groups) == 0) { # i.e. if the user wants disaggregated citywide data
+            output <- areas_categories_df() %>% 
+              pivot_wider(id_cols = c("GEOID", "YEAR"), names_from='CATEGORY', values_from='VALUE') %>%
+              subset(select = c("GEOID", "YEAR", names(var_params()$barCats))) %>%
+              # downloaded data includes bar chart categories + the selected indicator for each year
+              merge(
+                areas_summary_df() %>% 
+                  select(GEOID, YEAR, SUMMARY_VALUE) %>% 
+                  st_drop_geometry(), 
+                by=c('GEOID', 'YEAR')
+              ) %>%
+              # rename the SUMMARY_VALUE column to the name of the selected indicator
+              mutate(YEAR = as.character(YEAR), !!input$indicatorSelect := SUMMARY_VALUE, .keep='unused')
+          } else { # i.e. if the user wants disaggregated data for a multiselection
+            output <- areas_categories_df() %>% 
+              subset(GEOID %in% selectedPolygons$groups) %>% 
+              pivot_wider(id_cols = c("GEOID", "YEAR"), names_from='CATEGORY', values_from='VALUE') %>%
+              subset(select = c("GEOID", "YEAR", names(var_params()$barCats))) %>%
+              # downloaded data includes bar chart categories + the selected indicator for each year
+              merge(
+                areas_summary_df() %>% 
+                  subset(GEOID %in% selectedPolygons$groups) %>% 
+                  select(GEOID, YEAR, SUMMARY_VALUE) %>% 
+                  st_drop_geometry(), 
+                by=c('GEOID', 'YEAR')
+              ) %>%
+              # rename the SUMMARY_VALUE column to the name of the selected indicator
+              mutate(YEAR = as.character(YEAR), !!input$indicatorSelect := SUMMARY_VALUE, .keep='unused')
+          }
+          
+          list_of_areas <- ifelse( # format any multiselections with commas and parentheses
             length(selectedPolygons$groups) > 0, 
             paste0("(", toString(selectedPolygons$groups), ")"),
             "")
-            
+          
           o <- as.data.frame(
             rbind( # paste a description and citation of the data on the first few lines of the output csv file
               c(paste("Topic:", topic_name()),rep(NA,ncol(output)-1)),
               c(paste("Geographic Extent:", selectionName(), list_of_areas),rep(NA,ncol(output)-1)),
               c(paste("Source:", gsub("\\s+", " ", gsub("[\r\n]", "", var_params()$source))),rep(NA,ncol(output)-1)),
+              c(paste("Download type:", input$downloadType),rep(NA,ncol(output)-1)),
               c(rep(NA,ncol(output))), # blank line
-              colnames(output), # headers)
+              colnames(output), # headers
               matrix(unlist(output, use.names=FALSE), # data rows
                      nrow = nrow(output),
               )
@@ -655,7 +703,8 @@ tabPanelServer <- function(geo_type) {
             out_file, 
             sep = ",", # use comma separation since the output is a csv
             col.names = FALSE, 
-            row.names = FALSE)
+            row.names = FALSE
+          )
         }
       )
     }
