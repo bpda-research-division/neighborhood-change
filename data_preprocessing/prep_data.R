@@ -510,6 +510,32 @@ APP_CONFIG <- list(
       ),
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American
       Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    ### commute mode ----
+    "Commute Mode" = list(
+      data_code = "commute_mode_tracts", generalTopic = 'Transportation',
+      areas_categories_csv = 'csv/commutemode_tract_bins.csv',
+      barTitle = "Workers Aged 16+ By Primary Commute Mode", barhoverformat = ",.0f",
+      null_description = "little to no population",
+      additional_null_geoms = c(25025981300, 25025981100, 25025981800),
+      barCats = list(
+        "Car Truck Van" = "car_truck_van",
+        "Public Transportation" = "public_transportation",
+        "Motorcycle" = "motorcycle",
+        "Bicycle" = "bicycle",
+        "Walked"="walked",
+        "Other means"="other_means",
+        "Worked From Home" = "worked_from_home"
+      ),
+      summary_indicators = list(
+        "Share Workers Commuting by Car/Truck/Van" = list(
+          summary_expression = rlang::expr(car_truck_van / (total_workers_16_and_over)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     )
     )
   ),
@@ -1169,7 +1195,8 @@ APP_CONFIG <- list(
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Race and Ethnicity']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
+# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Commute Mode']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
 

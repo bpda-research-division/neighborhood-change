@@ -10,6 +10,7 @@ library(plotly)
 library(leaflet)
 library(leaflet.extras2)
 library(htmltools)
+library(shinycssloaders)
 
 # Define global formatting parameters #######
 # APP_FONT <- "Helvetica" 
