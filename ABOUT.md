@@ -189,7 +189,7 @@ Below are lists of the required and optional parameters for geographic units, to
 
 | parameter | required? | description | example value(s) |
 | ------ | ---- | ------ | ----- |
-| `data_code` | required | a short string of characters unique to the topic, which will also be the name for the corresponding .RDS file in the `data/` folder | `"hbicttp"` |
+| `data_code` | required | a short string of characters unique to the topic and geographic unit, which will also be the name for the corresponding .RDS file in the `data/` folder | `"hbicttp"` |
 | `areas_categories_csv` | required | see the [Preparing tabular data](#preparing-tabular-data) section of this document | `"csv/hbic_tract_totpop_sex_bins.csv"` |
 | `totalarea_categories_csv` | optional | see the section on [overriding default calculations](#overriding-default-calculations) | `"csv/hbictpop_cb.csv"` |
 | `generalTopic` | required | the topic filter category to which this topic belongs | `"Demographics"` |

@@ -22,8 +22,29 @@ pivot_long_and_rename_categories <- function(df, bin_col_names) {
 }
 
 prep_data <- function(topic) {
-  sb <- read.csv(topic$areas_categories_csv) 
+  sb_raw <- read.csv(topic$areas_categories_csv) 
   bc <- topic$barCats
+  topicCode <- topic$data_code
+  
+  # first, some validations of the data and parameters
+  if (!all(c("YEAR", "NAME", "GEOID") %in% names(sb_raw))) {
+    stop(paste("Error: areas_categories_csv for topic", topic$data_code, "must have columns YEAR, NAME, and GEOID. 
+         More information: https://github.com/bpda-research-division/neighborhood-change/blob/main/ABOUT.md#preparing-tabular-data"))
+  }
+  
+  sb <- sb_raw %>% distinct(GEOID, NAME, YEAR, .keep_all = TRUE)
+  
+  if (length(sb) != length(sb_raw)) {
+    print(paste("Warning: areas_categories_csv for topic", topic$data_code, "has duplicate values. 
+                There should be exactly one observation for each combination of GEOID, NAME, and YEAR.
+                The first observation of each duplicate was kept."))
+  }
+  
+  if (!all(bc %in% names(sb))) {
+    stop(paste("Error: one or more columns in barCats for topic", topic$data_code, "are not present in areas_categories_csv. 
+         More information: https://github.com/bpda-research-division/neighborhood-change/blob/main/ABOUT.md#topic-parameters"))
+  }
+  
   for (c in names(sb)) {
     if (!(c %in% c("YEAR", "NAME", "GEOID")) & !(c %in% bc)) {
       bc[[c]] <- c
@@ -1188,6 +1209,25 @@ APP_CONFIG <- list(
 )
 
 # Prep data #######
+
+# first, some validations of APP_CONFIG
+
+for (geo_name in names(APP_CONFIG)) {
+  if (
+    !("GEOID" %in% APP_CONFIG[[geo_name]]$geoms) 
+    | # if the geoms do not have a GEOID attribute, or if that attribute is not unique, throw the error
+    length(APP_CONFIG[[geo_name]]$geoms$GEOID) != length(unique(APP_CONFIG[[geo_name]]$geoms))
+    ) {
+    stop(paste("Error: the specified geoms for", geo_name, "must have a GEOID attribute that uniquely identifies each feature. 
+         More information: https://github.com/bpda-research-division/neighborhood-change/blob/main/ABOUT.md#preparing-geographic-features"))
+  }
+}
+
+topic_codes <- APP_CONFIG %>% lapply(function(geo_type) geo_type$topics %>% lapply(function(topic) topic$data_code))
+if (length(topic_codes) != length(unique(topic_codes))) {
+  stop("Error: Duplicate data_code values detected - each data_code must be unique to a given topic and geographic unit.
+       More information: https://github.com/bpda-research-division/neighborhood-change/blob/main/ABOUT.md#topic-parameters")
+}
 
 # # You can either prep data for individual topics...
 # prep_data(APP_CONFIG[['zip code areas']]$topics[['Numbers of Small Business Loans']])
