@@ -1132,21 +1132,21 @@ APP_CONFIG <- list(
         ),
         "Share of commuters (16+) walking, biking, or taking transit" = list(
           summary_expression = rlang::expr((bicycle + walked + public_transportation) /
-            (total_workers_16_and_over - worked_from_home)),
-        citywide_comparison = TRUE,
-        hoverformat = ".0%", tickformat = ".0%"
-      ),
-      "Share of commuters (16+) taking a private vehicle" = list(
+                                             (total_workers_16_and_over - worked_from_home)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of commuters (16+) taking a private vehicle" = list(
         summary_expression = rlang::expr(car_truck_van_motorcycle /
-                                           (total_workers_16_and_over - worked_from_home)),
-        citywide_comparison = TRUE,
-        hoverformat = ".0%", tickformat = ".0%"
-      ),
-      "Share of workers (16+) working from home" = list(
-        summary_expression = rlang::expr(worked_from_home / (total_workers_16_and_over)),
-        citywide_comparison = TRUE,
-        hoverformat = ".0%", tickformat = ".0%"
-      )
+                                             (total_workers_16_and_over - worked_from_home)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of workers (16+) working from home" = list(
+          summary_expression = rlang::expr(worked_from_home / (total_workers_16_and_over)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        )
       ),
       note = "Note: Workers who commute by taxicab are included in the 'public transit' category.",
       source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
