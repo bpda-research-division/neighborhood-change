@@ -536,29 +536,81 @@ APP_CONFIG <- list(
     "Commute Mode" = list(
       data_code = "commute_mode_tracts", generalTopic = 'Transportation',
       areas_categories_csv = 'csv/commutemode_tract_bins.csv',
-      barTitle = "Workers Aged 16+ By Primary Commute Mode", barhoverformat = ",.0f",
+      barTitle = "Workers (16+) by primary commute mode", barhoverformat = ",.0f",
       null_description = "little to no population",
-      additional_null_geoms = c(25025981300, 25025981100, 25025981800),
+      additional_null_geoms = c(25025981100),
       barCats = list(
-        "Car Truck Van" = "car_truck_van",
-        "Public Transportation" = "public_transportation",
-        "Motorcycle" = "motorcycle",
+        "Private vehicle" = "car_truck_van_motorcycle",
+        "Public transit" = "public_transportation",
         "Bicycle" = "bicycle",
-        "Walked"="walked",
-        "Other means"="other_means",
-        "Worked From Home" = "worked_from_home"
+        "Walked" = "walked",
+        "Other means" = "other_means",
+        "Worked from home" = "worked_from_home"
       ),
       summary_indicators = list(
-        "Share Workers Commuting by Car/Truck/Van" = list(
-          summary_expression = rlang::expr(car_truck_van / (total_workers_16_and_over)),
+        "Share of commuters (16+) walking or biking" = list(
+          summary_expression = rlang::expr((bicycle + walked) /
+                                             (total_workers_16_and_over - worked_from_home)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of commuters (16+) taking public transit" = list(
+          summary_expression = rlang::expr(public_transportation /
+                                             (total_workers_16_and_over - worked_from_home)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of commuters (16+) walking, biking, or taking transit" = list(
+          summary_expression = rlang::expr((bicycle + walked + public_transportation) /
+                                             (total_workers_16_and_over - worked_from_home)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of commuters (16+) taking a private vehicle" = list(
+          summary_expression = rlang::expr(car_truck_van_motorcycle /
+                                             (total_workers_16_and_over - worked_from_home)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of workers (16+) working from home" = list(
+          summary_expression = rlang::expr(worked_from_home / (total_workers_16_and_over)),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
         )
       ),
+      note = "Note: Workers who commute by taxicab are included in the 'public transit' category.",
       source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
       Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    ### vehicles available ----
+    "Vehicles Available" = list(
+      data_code = "vehicles_available_tracts", generalTopic = 'Transportation',
+      areas_categories_csv = 'csv/vehiclesavailable_tract_bins.csv',
+      barTitle = "Households by vehicles available", barhoverformat = ",.0f",
+      null_description = "little to no households",
+      additional_null_geoms = c(25025981100),
+      barCats = list(
+        "0 vehicles" = "no_vehicles",
+        "1 vehicle" = "one_vehicle",
+        "2 vehicles" = "two_vehicles",
+        "3+ vehicles" = "three_or_more_vehicles"
+      ),
+      summary_indicators = list(
+        "Share of households with no vehicles available" = list(
+          summary_expression = rlang::expr(no_vehicles / total_occupied_units),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of households with two or more vehicles available" = list(
+          summary_expression = rlang::expr((two_vehicles + three_or_more_vehicles) / total_occupied_units),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
     )
-    )
+  )
   ),
   ## neighborhoods -----
   "neighborhoods" = list(geoms = neigh2020_geoms, center_lat = 42.318, center_lon = -71.075, zoom_level = 12, topics = list(
@@ -1050,9 +1102,85 @@ APP_CONFIG <- list(
       ),
       source = "Mayor's Office of Housing, The Warren Group, BPDA Research Division analysis",
       note = "Note: Only one neighborhood at a time can be selected for median price variables."
-    )
-    )
     ),
+    ### commute mode ----
+    "Commute Mode" = list(
+      data_code = "commute_mode_neighs", generalTopic = 'Transportation',
+      areas_categories_csv = 'csv/commutemode_neigh_bins.csv',
+      barTitle = "Workers (16+) by primary commute mode", barhoverformat = ",.0f",
+      null_description = "little to no population",
+      barCats = list(
+        "Private vehicle" = "car_truck_van_motorcycle",
+        "Public transit" = "public_transportation",
+        "Bicycle" = "bicycle",
+        "Walked" = "walked",
+        "Other means" = "other_means",
+        "Worked from home" = "worked_from_home"
+      ),
+      summary_indicators = list(
+        "Share of commuters (16+) walking or biking" = list(
+          summary_expression = rlang::expr((bicycle + walked) /
+                                             (total_workers_16_and_over - worked_from_home)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of commuters (16+) taking public transit" = list(
+          summary_expression = rlang::expr(public_transportation /
+                                             (total_workers_16_and_over - worked_from_home)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of commuters (16+) walking, biking, or taking transit" = list(
+          summary_expression = rlang::expr((bicycle + walked + public_transportation) /
+            (total_workers_16_and_over - worked_from_home)),
+        citywide_comparison = TRUE,
+        hoverformat = ".0%", tickformat = ".0%"
+      ),
+      "Share of commuters (16+) taking a private vehicle" = list(
+        summary_expression = rlang::expr(car_truck_van_motorcycle /
+                                           (total_workers_16_and_over - worked_from_home)),
+        citywide_comparison = TRUE,
+        hoverformat = ".0%", tickformat = ".0%"
+      ),
+      "Share of workers (16+) working from home" = list(
+        summary_expression = rlang::expr(worked_from_home / (total_workers_16_and_over)),
+        citywide_comparison = TRUE,
+        hoverformat = ".0%", tickformat = ".0%"
+      )
+      ),
+      note = "Note: Workers who commute by taxicab are included in the 'public transit' category.",
+      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    ### vehicles available ----
+    "Vehicles Available" = list(
+      data_code = "vehicles_available_neighs", generalTopic = 'Transportation',
+      areas_categories_csv = 'csv/vehiclesavailable_neigh_bins.csv',
+      barTitle = "Households by vehicles available", barhoverformat = ",.0f",
+      null_description = "little to no households",
+      barCats = list(
+        "0 vehicles" = "no_vehicles",
+        "1 vehicle" = "one_vehicle",
+        "2 vehicles" = "two_vehicles",
+        "3+ vehicles" = "three_or_more_vehicles"
+      ),
+      summary_indicators = list(
+        "Share of households with no vehicles available" = list(
+          summary_expression = rlang::expr(no_vehicles / total_occupied_units),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Share of households with two or more vehicles available" = list(
+          summary_expression = rlang::expr((two_vehicles + three_or_more_vehicles) / total_occupied_units),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
+      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    )
+  )
+  ),
     ## Zip code areas ------
     "zip code areas" = list(geoms = zca_geoms, center_lat = 42.318, center_lon = -71.075, zoom_level = 12, topics = list(
       ### businesses by industry -----
@@ -1214,9 +1342,9 @@ APP_CONFIG <- list(
 
 for (geo_name in names(APP_CONFIG)) {
   if (
-    !("GEOID" %in% APP_CONFIG[[geo_name]]$geoms) 
+    !("GEOID" %in% names(APP_CONFIG[[geo_name]]$geoms)) 
     | # if the geoms do not have a GEOID attribute, or if that attribute is not unique, throw the error
-    length(APP_CONFIG[[geo_name]]$geoms$GEOID) != length(unique(APP_CONFIG[[geo_name]]$geoms))
+    length(APP_CONFIG[[geo_name]]$geoms$GEOID) != length(unique(APP_CONFIG[[geo_name]]$geoms$GEOID))
     ) {
     stop(paste("Error: the specified geoms for", geo_name, "must have a GEOID attribute that uniquely identifies each feature. 
          More information: https://github.com/bpda-research-division/neighborhood-change/blob/main/ABOUT.md#preparing-geographic-features"))
@@ -1237,6 +1365,9 @@ if (length(topic_codes) != length(unique(topic_codes))) {
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
 prep_data(APP_CONFIG[['census tracts']]$topics[['Commute Mode']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Commute Mode']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Vehicles Available']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Vehicles Available']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
 
