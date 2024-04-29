@@ -540,7 +540,7 @@ APP_CONFIG <- list(
       null_description = "little to no population",
       additional_null_geoms = c(25025981100),
       barCats = list(
-        "Private vehicle" = "car_truck_van_motorcycle",
+        "Car, truck, or van" = "car_truck_van",
         "Public transit" = "public_transportation",
         "Bicycle" = "bicycle",
         "Walked" = "walked",
@@ -566,8 +566,8 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
         ),
-        "Share of commuters (16+) taking a private vehicle" = list(
-          summary_expression = rlang::expr(car_truck_van_motorcycle /
+        "Share of commuters (16+) taking a car, truck, or van" = list(
+          summary_expression = rlang::expr(car_truck_van /
                                              (total_workers_16_and_over - worked_from_home)),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
@@ -609,6 +609,156 @@ APP_CONFIG <- list(
       ),
       source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
       Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    ### num of home loans ----
+    "Number of Home Loans" = list(
+      data_code = "numholoanstract", generalTopic = 'Loans',
+      areas_categories_csv = 'csv/home_loans_tract_bins.csv',
+      barTitle = "Number of home loans by type", barhoverformat = ",.0f",
+      null_description = "little to no loans",
+      additional_null_geoms = c(25025981202, 25025981800, 25025981300, 25025981700),
+      barCats = list(
+        "Home purchase" = "num_home_purchase",
+        "Home improvement" = "num_home_improv",
+        "Refinancing" = "num_home_refi"
+      ),
+      summary_indicators = list(
+        "Total home purchase loans" = list(
+          summary_expression = rlang::expr(num_home_purchase),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        ),
+        "Total home improvement loans" = list(
+          summary_expression = rlang::expr(num_home_improv),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        ),
+        "Total home loans" = list(
+          summary_expression = rlang::expr(num_home_purchase + num_home_improv + num_home_refi),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        )
+      ),
+      note = "Note: All originated loans for single- and multi-family properties are included.",
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; BPDA Research Division Analysis"
+    ),
+    ### $ of home loans ----
+    "Volume ($) of Home Loans" = list(
+      data_code = "volholoanstract", generalTopic = 'Loans',
+      areas_categories_csv = 'csv/home_loans_tract_bins.csv',
+      barTitle = "Volume ($) of home loans by type", barhoverformat = ",.0f", bartickprefix = "$",
+      null_description = "little to no loans",
+      additional_null_geoms = c(25025981202, 25025981800, 25025981300, 25025981700),
+      barCats = list(
+        "Home purchase" = "vol_home_purchase",
+        "Home improvement" = "vol_home_improv",
+        "Refinancing" = "vol_home_refi"
+      ),
+      summary_indicators = list(
+        "Total home purchase loan volume ($)" = list(
+          summary_expression = rlang::expr(vol_home_purchase),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Total home improvement loan volume ($)" = list(
+          summary_expression = rlang::expr(vol_home_improv),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Total home loan volume ($)" = list(
+          summary_expression = rlang::expr(vol_home_purchase + vol_home_improv + vol_home_refi),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Average dollar value of home purchase loans" = list(
+          summary_expression = rlang::expr(vol_home_purchase / num_home_purchase),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Average dollar value of home improvement loans" = list(
+          summary_expression = rlang::expr(vol_home_improv / num_home_improv),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        )
+      ),
+      note = "Note: All originated loans for single- and multi-family properties are included. All monetary values are in 2022 inflation-adjusted dollars.",
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; BPDA Research Division Analysis"
+    ),
+    ### num of sm. bus. loans ----
+    "Number of Small Business Loans" = list(
+      data_code = "numbuloanstract", generalTopic = 'Loans',
+      areas_categories_csv = 'csv/bus_loans_tract_bins.csv',
+      barTitle = 'Number of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f",
+      barCats = list("Loans to small businesses" = "num_sml_sbus", "Loans to large businesses" = "num_sml_bbus"),
+      null_description = "little to no loans",
+      additional_null_geoms = c(25025981100),
+      summary_indicators = list(
+         "Share of small loans going to small businesses" = list(
+          summary_expression = rlang::expr(num_sml_sbus/(num_sml_sbus + num_sml_bbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Total small loans" = list(
+          summary_expression = rlang::expr(num_sml_sbus + num_sml_bbus),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        ),
+        "Total small loans going to small businesses" = list(
+          summary_expression = rlang::expr(num_sml_sbus),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        )
+      ),
+      note = "Note: A business is considered small if it has <$1M in annual revenue.",
+      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; BPDA Research Division analysis"
+    ),
+    ### $ of sm. bus. loans ----
+    "Volume ($) of Small Business Loans" = list(
+      data_code = 'volbuloanstract', generalTopic = 'Loans',
+      areas_categories_csv = 'csv/bus_loans_tract_bins.csv',
+      barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f", bartickprefix = "$",
+      barCats = list("Loans to small businesses" = "vol_sml_sbus", "Loans to large businesses" = "vol_sml_bbus"),
+      null_description = "little to no loans",
+      additional_null_geoms = c(25025981100),
+      summary_indicators = list(
+        "Average dollar value of all small loans" = list(
+          summary_expression = rlang::expr((vol_sml_sbus + vol_sml_bbus)/(num_sml_sbus + num_sml_bbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Average dollar value of small loans to small businesses" = list(
+          summary_expression = rlang::expr((vol_sml_sbus)/(num_sml_sbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Average dollar value of small loans to large businesses" = list(
+          summary_expression = rlang::expr((vol_sml_bbus)/(num_sml_bbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Total small loan volume ($)" = list(
+          summary_expression = rlang::expr(vol_sml_sbus + vol_sml_bbus),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Total small loan volume ($) going to small businesses" = list(
+          summary_expression = rlang::expr(vol_sml_sbus),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Total small loan volume ($) going to large businesses" = list(
+          summary_expression = rlang::expr(vol_sml_bbus),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Share of small loan volume ($) going to small businesses" = list(
+          summary_expression = rlang::expr(vol_sml_sbus/(vol_sml_sbus + vol_sml_bbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        )
+      ),
+      note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2022 inflation-adjusted dollars.",
+      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; BPDA Research Division analysis"
     )
   )
   ),
@@ -1110,7 +1260,7 @@ APP_CONFIG <- list(
       barTitle = "Workers (16+) by primary commute mode", barhoverformat = ",.0f",
       null_description = "little to no population",
       barCats = list(
-        "Private vehicle" = "car_truck_van_motorcycle",
+        "Car, truck, or van" = "car_truck_van",
         "Public transit" = "public_transportation",
         "Bicycle" = "bicycle",
         "Walked" = "walked",
@@ -1136,8 +1286,8 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
         ),
-        "Share of commuters (16+) taking a private vehicle" = list(
-        summary_expression = rlang::expr(car_truck_van_motorcycle /
+        "Share of commuters (16+) taking a car, truck, or van" = list(
+        summary_expression = rlang::expr(car_truck_van /
                                              (total_workers_16_and_over - worked_from_home)),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
@@ -1178,6 +1328,152 @@ APP_CONFIG <- list(
       ),
       source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
       Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+    ),
+    ### num of home loans ----
+    "Number of Home Loans" = list(
+      data_code = "numholoansnbhd", generalTopic = 'Loans',
+      areas_categories_csv = 'csv/home_loans_nbhd_bins.csv',
+      barTitle = "Number of home loans by type", barhoverformat = ",.0f",
+      null_description = "little to no loans",
+      barCats = list(
+        "Home purchase" = "num_home_purchase",
+        "Home improvement" = "num_home_improv",
+        "Refinancing" = "num_home_refi"
+      ),
+      summary_indicators = list(
+        "Total home purchase loans" = list(
+          summary_expression = rlang::expr(num_home_purchase),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        ),
+        "Total home improvement loans" = list(
+          summary_expression = rlang::expr(num_home_improv),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        ),
+        "Total home loans" = list(
+          summary_expression = rlang::expr(num_home_purchase + num_home_improv + num_home_refi),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        )
+      ),
+      note = "Note: All originated loans for single- and multi-family properties are included.",
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; BPDA Research Division Analysis"
+    ),
+    ### $ of home loans ----
+    "Volume ($) of Home Loans" = list(
+      data_code = "volholoansnbhd", generalTopic = 'Loans',
+      areas_categories_csv = 'csv/home_loans_nbhd_bins.csv',
+      barTitle = "Volume ($) of home loans by type", barhoverformat = ",.0f", bartickprefix = "$",
+      null_description = "little to no loans",
+      barCats = list(
+        "Home purchase" = "vol_home_purchase",
+        "Home improvement" = "vol_home_improv",
+        "Refinancing" = "vol_home_refi"
+      ),
+      summary_indicators = list(
+        "Total home purchase loan volume ($)" = list(
+          summary_expression = rlang::expr(vol_home_purchase),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Total home improvement loan volume ($)" = list(
+          summary_expression = rlang::expr(vol_home_improv),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Total home loan volume ($)" = list(
+          summary_expression = rlang::expr(vol_home_purchase + vol_home_improv + vol_home_refi),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Average dollar value of home purchase loans" = list(
+          summary_expression = rlang::expr(vol_home_purchase / num_home_purchase),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Average dollar value of home improvement loans" = list(
+          summary_expression = rlang::expr(vol_home_improv / num_home_improv),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        )
+      ),
+      note = "Note: All originated loans for single- and multi-family properties are included. All monetary values are in 2022 inflation-adjusted dollars.",
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; BPDA Research Division Analysis"
+    ),
+    ### num of sm. bus. loans ----
+    "Number of Small Business Loans" = list(
+      data_code = "numbuloansnbhd", generalTopic = 'Loans',
+      areas_categories_csv = 'csv/bus_loans_nbhd_bins.csv',
+      barTitle = 'Number of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f",
+      barCats = list("Loans to small businesses" = "num_sml_sbus", "Loans to large businesses" = "num_sml_bbus"),
+      null_description = "little to no loans",
+      summary_indicators = list(
+        "Share of small loans going to small businesses" = list(
+          summary_expression = rlang::expr(num_sml_sbus/(num_sml_sbus + num_sml_bbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Total small loans" = list(
+          summary_expression = rlang::expr(num_sml_sbus + num_sml_bbus),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        ),
+        "Total small loans going to small businesses" = list(
+          summary_expression = rlang::expr(num_sml_sbus),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        )
+      ),
+      note = "Note: A business is considered small if it has <$1M in annual revenue.",
+      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; BPDA Research Division analysis"
+    ),
+    ### $ of sm. bus. loans ----
+    "Volume ($) of Small Business Loans" = list(
+      data_code = 'volbuloansnbhd', generalTopic = 'Loans',
+      areas_categories_csv = 'csv/bus_loans_nbhd_bins.csv',
+      barTitle = 'Volume ($) of Small (<$1M) Loans by Business Size', barhoverformat = ",.0f", bartickprefix = "$",
+      barCats = list("Loans to small businesses" = "vol_sml_sbus", "Loans to large businesses" = "vol_sml_bbus"),
+      null_description = "little to no loans",
+      summary_indicators = list(
+        "Average dollar value of all small loans" = list(
+          summary_expression = rlang::expr((vol_sml_sbus + vol_sml_bbus)/(num_sml_sbus + num_sml_bbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Average dollar value of small loans to small businesses" = list(
+          summary_expression = rlang::expr((vol_sml_sbus)/(num_sml_sbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Average dollar value of small loans to large businesses" = list(
+          summary_expression = rlang::expr((vol_sml_bbus)/(num_sml_bbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Total small loan volume ($)" = list(
+          summary_expression = rlang::expr(vol_sml_sbus + vol_sml_bbus),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Total small loan volume ($) going to small businesses" = list(
+          summary_expression = rlang::expr(vol_sml_sbus),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Total small loan volume ($) going to large businesses" = list(
+          summary_expression = rlang::expr(vol_sml_bbus),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Share of small loan volume ($) going to small businesses" = list(
+          summary_expression = rlang::expr(vol_sml_sbus/(vol_sml_sbus + vol_sml_bbus)),
+          citywide_comparison = TRUE,
+          hoverformat = ".0%", tickformat = ".0%"
+        )
+      ),
+      note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2022 inflation-adjusted dollars.",
+      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; BPDA Research Division analysis"
     )
   )
   ),
@@ -1364,10 +1660,21 @@ if (length(topic_codes) != length(unique(topic_codes))) {
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Race and Ethnicity']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
-prep_data(APP_CONFIG[['census tracts']]$topics[['Commute Mode']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Commute Mode']])
-prep_data(APP_CONFIG[['census tracts']]$topics[['Vehicles Available']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Vehicles Available']])
+#prep_data(APP_CONFIG[['census tracts']]$topics[['Commute Mode']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Commute Mode']])
+
+prep_data(APP_CONFIG[['census tracts']]$topics[['Number of Home Loans']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Volume ($) of Home Loans']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Number of Small Business Loans']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Volume ($) of Small Business Loans']])
+
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Number of Home Loans']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Volume ($) of Home Loans']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Number of Small Business Loans']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Volume ($) of Small Business Loans']])
+
+#prep_data(APP_CONFIG[['census tracts']]$topics[['Vehicles Available']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Vehicles Available']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
 

@@ -1,0 +1,626 @@
+"YEAR","GEOID","NAME","num_sml_sbus","num_sml_bbus","vol_sml_sbus","vol_sml_bbus"
+1996,"Allston","Allston",90,158,6158004,23423856
+1996,"Back Bay","Back Bay",171,385,21871350,66867681
+1996,"Beacon Hill","Beacon Hill",57,97,5248454,11737333
+1996,"Brighton","Brighton",101,136,6242104,11942662
+1996,"Charlestown","Charlestown",50,94,2684483,17039655
+1996,"Chinatown","Chinatown",153,272,15877141,43345150
+1996,"Dorchester","Dorchester",156,219,8810848,15796304
+1996,"Downtown","Downtown",345,590,29162955,112609429
+1996,"East Boston","East Boston",85,125,9135449,18782050
+1996,"Fenway","Fenway",61,128,3287045,17756014
+1996,"Harbor Islands","Harbor Islands",1,2,3731,16790
+1996,"Hyde Park","Hyde Park",63,75,2516417,9025267
+1996,"Jamaica Plain","Jamaica Plain",77,131,3857820,15591136
+1996,"Longwood","Longwood",3,4,72288,679756
+1996,"Mattapan","Mattapan",46,39,2527779,2756287
+1996,"Mission Hill","Mission Hill",19,53,1008977,3655824
+1996,"North End","North End",151,193,10212859,38369124
+1996,"Roslindale","Roslindale",38,62,1832650,4570457
+1996,"Roxbury","Roxbury",63,142,4763841,18915275
+1996,"South Boston","South Boston",165,309,11419657,52933642
+1996,"South Boston Waterfront","South Boston Waterfront",24,46,1586744,9031452
+1996,"South End","South End",126,217,9757633,30829744
+1996,"West End","West End",51,73,2120348,12309211
+1996,"West Roxbury","West Roxbury",53,93,2505393,4729092
+1996,"_Crews on Ships","_Crews on Ships",0,0,0,0
+1997,"Allston","Allston",85,130,8803377,12672967
+1997,"Back Bay","Back Bay",239,348,27132653,62763632
+1997,"Beacon Hill","Beacon Hill",74,81,4780347,8119166
+1997,"Brighton","Brighton",110,138,8731267,13925347
+1997,"Charlestown","Charlestown",42,78,2545852,21597795
+1997,"Chinatown","Chinatown",135,296,13081852,53944052
+1997,"Dorchester","Dorchester",172,250,11902972,20485585
+1997,"Downtown","Downtown",350,619,33686714,127611789
+1997,"East Boston","East Boston",59,113,4245518,10703155
+1997,"Fenway","Fenway",98,107,10962116,10398601
+1997,"Harbor Islands","Harbor Islands",0,0,0,0
+1997,"Hyde Park","Hyde Park",54,83,4345225,8455472
+1997,"Jamaica Plain","Jamaica Plain",69,100,3999333,7275262
+1997,"Longwood","Longwood",2,8,52070,177285
+1997,"Mattapan","Mattapan",32,33,2899806,698235
+1997,"Mission Hill","Mission Hill",21,47,1248390,2392554
+1997,"North End","North End",153,218,17171338,41326543
+1997,"Roslindale","Roslindale",59,66,1543876,2387281
+1997,"Roxbury","Roxbury",73,134,8060295,23127488
+1997,"South Boston","South Boston",152,303,15330701,57209687
+1997,"South Boston Waterfront","South Boston Waterfront",17,44,2123703,8592194
+1997,"South End","South End",122,250,16522216,35251954
+1997,"West End","West End",54,87,4186668,11025785
+1997,"West Roxbury","West Roxbury",87,81,4267402,1923978
+1997,"_Crews on Ships","_Crews on Ships",0,0,0,0
+1998,"Allston","Allston",103,111,6453510,18196744
+1998,"Back Bay","Back Bay",216,298,19025500,36278640
+1998,"Beacon Hill","Beacon Hill",73,73,8484656,6041811
+1998,"Brighton","Brighton",141,114,9485172,18758876
+1998,"Charlestown","Charlestown",68,66,5098008,11365020
+1998,"Chinatown","Chinatown",152,235,12604265,44914914
+1998,"Dorchester","Dorchester",219,255,11304688,17791850
+1998,"Downtown","Downtown",329,465,32706914,89555052
+1998,"East Boston","East Boston",75,95,6302926,4334833
+1998,"Fenway","Fenway",88,104,2582225,4106779
+1998,"Hyde Park","Hyde Park",98,65,3654645,4085055
+1998,"Jamaica Plain","Jamaica Plain",110,95,5962432,4950154
+1998,"Longwood","Longwood",7,5,109867,107425
+1998,"Mattapan","Mattapan",41,42,3100462,2136890
+1998,"Mission Hill","Mission Hill",29,50,704950,2727863
+1998,"North End","North End",138,172,14911398,23650883
+1998,"Roslindale","Roslindale",93,56,3961390,2119285
+1998,"Roxbury","Roxbury",73,133,6204260,17827886
+1998,"South Boston","South Boston",179,232,11636741,29975273
+1998,"South Boston Waterfront","South Boston Waterfront",22,36,1683803,4861416
+1998,"South End","South End",166,197,12567339,19104949
+1998,"West End","West End",51,79,3954196,12145095
+1998,"West Roxbury","West Roxbury",114,77,7453974,6502250
+1999,"Allston","Allston",119,115,6087685,14972401
+1999,"Back Bay","Back Bay",230,225,22003450,31727907
+1999,"Beacon Hill","Beacon Hill",102,53,6508855,4338234
+1999,"Brighton","Brighton",148,162,7790090,8269666
+1999,"Charlestown","Charlestown",71,66,8208250,7554682
+1999,"Chinatown","Chinatown",183,163,13745128,36215316
+1999,"Dorchester","Dorchester",223,364,15034540,18744396
+1999,"Downtown","Downtown",377,337,36642413,69217206
+1999,"East Boston","East Boston",122,145,6029690,7240196
+1999,"Fenway","Fenway",96,77,8647475,3993440
+1999,"Hyde Park","Hyde Park",79,105,3423851,5884574
+1999,"Jamaica Plain","Jamaica Plain",156,133,10674512,7220706
+1999,"Longwood","Longwood",3,10,638984,568517
+1999,"Mattapan","Mattapan",54,49,5069698,1293080
+1999,"Mission Hill","Mission Hill",33,49,2286184,4939349
+1999,"North End","North End",148,126,14080248,16410440
+1999,"Roslindale","Roslindale",77,123,1863924,3319437
+1999,"Roxbury","Roxbury",91,134,7306330,11584481
+1999,"South Boston","South Boston",192,231,15375288,32558913
+1999,"South Boston Waterfront","South Boston Waterfront",19,30,1770326,5985776
+1999,"South End","South End",180,206,18213688,16097870
+1999,"West End","West End",52,47,6109220,8365930
+1999,"West Roxbury","West Roxbury",122,137,4819184,5755613
+2000,"Allston","Allston",160,240,7419801,9742134
+2000,"Back Bay","Back Bay",272,443,21123013,38339961
+2000,"Beacon Hill","Beacon Hill",68,159,6861339,3185135
+2000,"Brighton","Brighton",188,289,9300814,9820493
+2000,"Charlestown","Charlestown",85,184,6790572,13875204
+2000,"Chinatown","Chinatown",184,358,11931797,51663196
+2000,"Dorchester","Dorchester",284,529,21855496,20227486
+2000,"Downtown","Downtown",416,687,33113993,97664988
+2000,"East Boston","East Boston",131,243,6061372,3844875
+2000,"Fenway","Fenway",122,211,6486314,7994008
+2000,"Hyde Park","Hyde Park",97,210,1429147,2909288
+2000,"Jamaica Plain","Jamaica Plain",189,257,12409841,4923155
+2000,"Longwood","Longwood",5,7,128263,1332317
+2000,"Mattapan","Mattapan",56,85,2665352,1065504
+2000,"Mission Hill","Mission Hill",52,73,2373278,1969566
+2000,"North End","North End",180,229,16912442,23101350
+2000,"Roslindale","Roslindale",115,205,2804408,5410957
+2000,"Roxbury","Roxbury",100,256,6711446,12169757
+2000,"South Boston","South Boston",192,450,17147368,26524006
+2000,"South Boston Waterfront","South Boston Waterfront",19,56,1626566,3991924
+2000,"South End","South End",200,377,14134052,13865841
+2000,"West End","West End",54,128,5705044,2952727
+2000,"West Roxbury","West Roxbury",120,235,4574075,3656200
+2001,"Allston","Allston",219,270,13823604,18064406
+2001,"Back Bay","Back Bay",394,510,29888125,49572242
+2001,"Beacon Hill","Beacon Hill",102,124,5106093,9314608
+2001,"Brighton","Brighton",244,318,12402052,11678277
+2001,"Charlestown","Charlestown",99,335,4429339,16487719
+2001,"Chinatown","Chinatown",281,456,12212354,91806422
+2001,"Dorchester","Dorchester",364,692,16186565,20623261
+2001,"Downtown","Downtown",613,973,31907200,160984274
+2001,"East Boston","East Boston",165,275,8473591,11990618
+2001,"Fenway","Fenway",148,270,7268745,10931213
+2001,"Hyde Park","Hyde Park",105,265,5272557,10032169
+2001,"Jamaica Plain","Jamaica Plain",214,309,10175372,11042158
+2001,"Longwood","Longwood",11,16,91008,112355
+2001,"Mattapan","Mattapan",55,130,2110904,5207390
+2001,"Mission Hill","Mission Hill",73,80,2016696,1963077
+2001,"North End","North End",236,352,15587280,36162536
+2001,"Roslindale","Roslindale",153,207,4376002,5103441
+2001,"Roxbury","Roxbury",192,331,10749876,29469640
+2001,"South Boston","South Boston",292,564,14430824,73343469
+2001,"South Boston Waterfront","South Boston Waterfront",31,62,1415634,9847126
+2001,"South End","South End",299,508,14603339,31192840
+2001,"West End","West End",91,123,6327552,13270065
+2001,"West Roxbury","West Roxbury",148,282,4353313,12139364
+2002,"Allston","Allston",134,397,6193376,20568214
+2002,"Back Bay","Back Bay",323,973,24886822,60398052
+2002,"Beacon Hill","Beacon Hill",94,169,4720036,9188622
+2002,"Brighton","Brighton",213,473,10769883,14157167
+2002,"Charlestown","Charlestown",92,321,7838958,13426128
+2002,"Chinatown","Chinatown",225,483,16798702,36694480
+2002,"Dorchester","Dorchester",282,1060,20841903,39625983
+2002,"Downtown","Downtown",469,1027,38309778,86432059
+2002,"East Boston","East Boston",105,373,6563379,13043779
+2002,"Fenway","Fenway",130,282,8870486,17822322
+2002,"Hyde Park","Hyde Park",123,344,10953113,12436772
+2002,"Jamaica Plain","Jamaica Plain",171,412,10869692,9932289
+2002,"Longwood","Longwood",6,13,317440,925776
+2002,"Mattapan","Mattapan",60,168,2881603,3701427
+2002,"Mission Hill","Mission Hill",56,114,1814194,3379421
+2002,"North End","North End",173,391,17314839,33616835
+2002,"Roslindale","Roslindale",113,295,6351234,7490377
+2002,"Roxbury","Roxbury",117,457,5866790,24070929
+2002,"South Boston","South Boston",235,684,12094820,55492400
+2002,"South Boston Waterfront","South Boston Waterfront",24,75,1316665,8179206
+2002,"South End","South End",268,597,17047198,33088787
+2002,"West End","West End",77,162,4859829,15476925
+2002,"West Roxbury","West Roxbury",142,361,7018943,7293908
+2003,"Allston","Allston",181,383,11911130,20653870
+2003,"Back Bay","Back Bay",320,703,16297345,48822042
+2003,"Beacon Hill","Beacon Hill",123,171,11770498,8295789
+2003,"Brighton","Brighton",279,456,11640085,11994906
+2003,"Charlestown","Charlestown",123,277,7115473,15831253
+2003,"Chinatown","Chinatown",167,350,10366008,20648990
+2003,"Dorchester","Dorchester",412,998,21653437,32273356
+2003,"Downtown","Downtown",607,1272,39235294,83499101
+2003,"East Boston","East Boston",178,352,10527655,11924344
+2003,"Fenway","Fenway",156,293,11666640,10693095
+2003,"Hyde Park","Hyde Park",151,358,5962844,16465198
+2003,"Jamaica Plain","Jamaica Plain",250,478,11322597,12319404
+2003,"Longwood","Longwood",6,15,100848,1039851
+2003,"Mattapan","Mattapan",71,158,1836844,2461653
+2003,"Mission Hill","Mission Hill",60,109,2010514,3395520
+2003,"North End","North End",207,401,14452275,25214172
+2003,"Roslindale","Roslindale",135,283,5081700,5790956
+2003,"Roxbury","Roxbury",174,399,8625756,16964375
+2003,"South Boston","South Boston",285,681,11955960,41867662
+2003,"South Boston Waterfront","South Boston Waterfront",30,88,1493923,6911428
+2003,"South End","South End",298,595,11639559,32295272
+2003,"West End","West End",90,155,4390041,8407200
+2003,"West Roxbury","West Roxbury",184,327,7328635,5863545
+2004,"Allston","Allston",194,397,10924013,18425446
+2004,"Back Bay","Back Bay",310,702,20465757,60275438
+2004,"Beacon Hill","Beacon Hill",97,182,6842155,6975548
+2004,"Brighton","Brighton",258,514,14879762,16064810
+2004,"Charlestown","Charlestown",151,276,8770154,17792875
+2004,"Chinatown","Chinatown",147,366,8786478,29912104
+2004,"Dorchester","Dorchester",395,1014,18045443,37248360
+2004,"Downtown","Downtown",554,1354,37230253,110555901
+2004,"East Boston","East Boston",168,366,12169750,11684758
+2004,"Fenway","Fenway",113,323,4471849,13104097
+2004,"Hyde Park","Hyde Park",152,381,8845135,15258474
+2004,"Jamaica Plain","Jamaica Plain",241,453,8463450,16134230
+2004,"Longwood","Longwood",3,13,427853,182274
+2004,"Mattapan","Mattapan",75,137,3354092,2442939
+2004,"Mission Hill","Mission Hill",57,117,2724353,2403884
+2004,"North End","North End",199,428,15448717,30413629
+2004,"Roslindale","Roslindale",140,336,6581458,6085151
+2004,"Roxbury","Roxbury",146,403,9267924,19504822
+2004,"South Boston","South Boston",261,680,10640383,59631323
+2004,"South Boston Waterfront","South Boston Waterfront",25,85,1148191,10641466
+2004,"South End","South End",300,698,13286697,39240114
+2004,"West End","West End",72,175,4112790,9043152
+2004,"West Roxbury","West Roxbury",192,371,9385304,11920281
+2005,"Allston","Allston",269,322,10579804,14813150
+2005,"Back Bay","Back Bay",402,462,25212966,31611000
+2005,"Beacon Hill","Beacon Hill",127,142,3268667,6567749
+2005,"Brighton","Brighton",406,421,11169619,15215202
+2005,"Charlestown","Charlestown",165,190,9905040,13540935
+2005,"Chinatown","Chinatown",174,248,8004076,19445053
+2005,"Dorchester","Dorchester",611,849,24949191,30076311
+2005,"Downtown","Downtown",652,862,30696257,79904982
+2005,"East Boston","East Boston",224,273,5973898,7429155
+2005,"Fenway","Fenway",211,193,6095294,7567037
+2005,"Hyde Park","Hyde Park",236,271,6778698,10337579
+2005,"Jamaica Plain","Jamaica Plain",343,330,8629803,10605684
+2005,"Longwood","Longwood",8,10,68620,494065
+2005,"Mattapan","Mattapan",109,129,3009786,2519186
+2005,"Mission Hill","Mission Hill",95,73,1868148,1768034
+2005,"North End","North End",238,284,10890809,30386652
+2005,"Roslindale","Roslindale",253,257,5204809,5338862
+2005,"Roxbury","Roxbury",200,332,7094785,18560945
+2005,"South Boston","South Boston",325,491,12658178,46885893
+2005,"South Boston Waterfront","South Boston Waterfront",29,60,1563175,7712472
+2005,"South End","South End",372,427,14616476,26347255
+2005,"West End","West End",90,137,3333194,9005450
+2005,"West Roxbury","West Roxbury",291,305,7399180,7830812
+2006,"Allston","Allston",333,635,8252841,18465923
+2006,"Back Bay","Back Bay",570,1482,23704925,70444006
+2006,"Beacon Hill","Beacon Hill",175,419,7341327,13135221
+2006,"Brighton","Brighton",517,926,16134470,16637750
+2006,"Charlestown","Charlestown",221,555,5676870,16435337
+2006,"Chinatown","Chinatown",200,651,9790061,30852972
+2006,"Dorchester","Dorchester",837,1744,20851971,46509681
+2006,"Downtown","Downtown",760,2422,38224342,118191668
+2006,"East Boston","East Boston",274,604,8567573,14142811
+2006,"Fenway","Fenway",285,491,9017657,12616880
+2006,"Hyde Park","Hyde Park",279,595,8198971,15368844
+2006,"Jamaica Plain","Jamaica Plain",471,821,15784541,16867737
+2006,"Longwood","Longwood",8,27,139088,486808
+2006,"Mattapan","Mattapan",171,285,3882263,4688112
+2006,"Mission Hill","Mission Hill",105,239,2210441,5898205
+2006,"North End","North End",319,826,14319371,30780016
+2006,"Roslindale","Roslindale",280,589,7600030,5996236
+2006,"Roxbury","Roxbury",331,681,9547036,30849938
+2006,"South Boston","South Boston",481,1157,19841062,52136251
+2006,"South Boston Waterfront","South Boston Waterfront",44,144,3542996,11649407
+2006,"South End","South End",511,1235,17025823,34361544
+2006,"West End","West End",113,356,4270849,11989646
+2006,"West Roxbury","West Roxbury",379,714,12261168,11741393
+2007,"Allston","Allston",396,660,7773944,19048043
+2007,"Back Bay","Back Bay",555,1537,23321399,73533638
+2007,"Beacon Hill","Beacon Hill",213,408,8415803,10404236
+2007,"Brighton","Brighton",621,968,15366723,14505853
+2007,"Charlestown","Charlestown",270,557,7273023,23262096
+2007,"Chinatown","Chinatown",227,652,7961044,32615568
+2007,"Dorchester","Dorchester",845,1566,20496060,34392603
+2007,"Downtown","Downtown",786,2387,32759756,124277390
+2007,"East Boston","East Boston",352,563,7514469,13103020
+2007,"Fenway","Fenway",308,558,10671619,17611418
+2007,"Hyde Park","Hyde Park",265,565,4513338,14183944
+2007,"Jamaica Plain","Jamaica Plain",524,851,15592559,13030386
+2007,"Longwood","Longwood",11,16,125318,358050
+2007,"Mattapan","Mattapan",183,269,6002575,4014028
+2007,"Mission Hill","Mission Hill",108,211,1940267,5529077
+2007,"North End","North End",298,768,14132564,32701244
+2007,"Roslindale","Roslindale",333,577,8867016,6355783
+2007,"Roxbury","Roxbury",329,626,11720835,20268865
+2007,"South Boston","South Boston",528,1180,15435726,54808563
+2007,"South Boston Waterfront","South Boston Waterfront",47,138,1835410,9685684
+2007,"South End","South End",553,1276,22542241,44108452
+2007,"West End","West End",131,341,5866206,14252880
+2007,"West Roxbury","West Roxbury",415,825,8518375,13303519
+2008,"Allston","Allston",227,556,6379709,19639419
+2008,"Back Bay","Back Bay",325,1372,16636181,55270406
+2008,"Beacon Hill","Beacon Hill",132,341,5398666,7308054
+2008,"Brighton","Brighton",357,819,7779466,16109950
+2008,"Charlestown","Charlestown",129,475,5452948,14789983
+2008,"Chinatown","Chinatown",117,529,6332461,28563558
+2008,"Dorchester","Dorchester",451,1321,10283246,31430243
+2008,"Downtown","Downtown",428,2025,22532747,114741715
+2008,"East Boston","East Boston",203,507,6129978,9066495
+2008,"Fenway","Fenway",164,482,5916537,11209064
+2008,"Hyde Park","Hyde Park",147,485,3018717,10702208
+2008,"Jamaica Plain","Jamaica Plain",248,711,4647903,11165463
+2008,"Longwood","Longwood",5,21,86187,1420162
+2008,"Mattapan","Mattapan",89,228,2249947,2546467
+2008,"Mission Hill","Mission Hill",62,197,3423646,4116559
+2008,"North End","North End",190,726,7633244,33778905
+2008,"Roslindale","Roslindale",207,459,4513827,7572261
+2008,"Roxbury","Roxbury",135,505,5439656,17502708
+2008,"South Boston","South Boston",293,1021,9922985,41565405
+2008,"South Boston Waterfront","South Boston Waterfront",21,130,1677615,8169121
+2008,"South End","South End",313,1107,9955018,33031600
+2008,"West End","West End",69,255,1927671,10877955
+2008,"West Roxbury","West Roxbury",241,665,7444613,9573588
+2009,"Allston","Allston",82,241,5453788,12108337
+2009,"Back Bay","Back Bay",124,624,9360942,36398507
+2009,"Beacon Hill","Beacon Hill",55,135,2824359,5829091
+2009,"Brighton","Brighton",134,355,5535084,10778209
+2009,"Charlestown","Charlestown",58,192,3560160,7782135
+2009,"Chinatown","Chinatown",50,263,4567912,26417975
+2009,"Dorchester","Dorchester",208,664,11757124,20221544
+2009,"Downtown","Downtown",178,1053,19507858,102108015
+2009,"East Boston","East Boston",80,185,5274058,4058227
+2009,"Fenway","Fenway",64,203,3551973,8128736
+2009,"Hyde Park","Hyde Park",60,242,2064711,3685334
+2009,"Jamaica Plain","Jamaica Plain",88,299,2282922,8484196
+2009,"Longwood","Longwood",0,13,0,329691
+2009,"Mattapan","Mattapan",25,105,972376,4356678
+2009,"Mission Hill","Mission Hill",18,66,330730,1495822
+2009,"North End","North End",66,376,7399373,25703024
+2009,"Roslindale","Roslindale",72,211,3821601,2153382
+2009,"Roxbury","Roxbury",51,236,4451459,13376108
+2009,"South Boston","South Boston",108,472,6225246,37170332
+2009,"South Boston Waterfront","South Boston Waterfront",10,58,544380,7524752
+2009,"South End","South End",131,523,6730313,24935798
+2009,"West End","West End",23,116,1560001,10237342
+2009,"West Roxbury","West Roxbury",88,326,4717314,6633169
+2010,"Allston","Allston",94,231,4765091,8669570
+2010,"Back Bay","Back Bay",135,588,13698253,24077628
+2010,"Beacon Hill","Beacon Hill",45,141,1648937,4054443
+2010,"Brighton","Brighton",138,344,10978438,13997568
+2010,"Charlestown","Charlestown",38,206,2882713,12780294
+2010,"Chinatown","Chinatown",55,234,3203871,16999405
+2010,"Dorchester","Dorchester",175,546,10159280,16500442
+2010,"Downtown","Downtown",204,905,14874236,59930984
+2010,"East Boston","East Boston",81,231,5101113,5354759
+2010,"Fenway","Fenway",64,186,4666290,4685079
+2010,"Hyde Park","Hyde Park",62,213,2074298,6473925
+2010,"Jamaica Plain","Jamaica Plain",103,256,6117315,6331259
+2010,"Longwood","Longwood",0,3,0,19852
+2010,"Mattapan","Mattapan",22,94,865318,5777166
+2010,"Mission Hill","Mission Hill",23,65,535205,1327004
+2010,"North End","North End",89,310,8475594,13402655
+2010,"Roslindale","Roslindale",55,179,919919,2443889
+2010,"Roxbury","Roxbury",64,243,3628795,13705880
+2010,"South Boston","South Boston",112,471,8760188,30996043
+2010,"South Boston Waterfront","South Boston Waterfront",12,61,1263545,5354585
+2010,"South End","South End",146,535,9021503,17239128
+2010,"West End","West End",25,107,1082124,7071109
+2010,"West Roxbury","West Roxbury",93,243,6020413,6508918
+2011,"Allston","Allston",167,228,2992790,11213007
+2011,"Back Bay","Back Bay",325,514,9184455,34892339
+2011,"Beacon Hill","Beacon Hill",86,140,7807710,5038687
+2011,"Brighton","Brighton",209,313,6707046,7837872
+2011,"Charlestown","Charlestown",112,174,3334359,9433035
+2011,"Chinatown","Chinatown",114,232,5012043,20161866
+2011,"Dorchester","Dorchester",325,578,11350097,19894229
+2011,"Downtown","Downtown",432,940,18533308,76463926
+2011,"East Boston","East Boston",121,191,2834596,6503432
+2011,"Fenway","Fenway",102,174,3644109,3290109
+2011,"Hyde Park","Hyde Park",105,231,3035974,10017437
+2011,"Jamaica Plain","Jamaica Plain",170,246,8012483,7040670
+2011,"Longwood","Longwood",10,7,674729,84341
+2011,"Mattapan","Mattapan",55,126,1359331,4955453
+2011,"Mission Hill","Mission Hill",37,58,1726858,1541467
+2011,"North End","North End",178,326,8110238,20364405
+2011,"Roslindale","Roslindale",114,182,1969725,2043793
+2011,"Roxbury","Roxbury",132,263,6850654,14819518
+2011,"South Boston","South Boston",247,475,9625746,44442434
+2011,"South Boston Waterfront","South Boston Waterfront",24,67,1756887,8027523
+2011,"South End","South End",337,398,14578724,21327432
+2011,"West End","West End",62,92,2313801,6109682
+2011,"West Roxbury","West Roxbury",133,234,3226337,4116541
+2012,"Allston","Allston",176,219,6273773,15636537
+2012,"Back Bay","Back Bay",388,545,14066427,35237460
+2012,"Beacon Hill","Beacon Hill",96,112,5597760,2724303
+2012,"Brighton","Brighton",290,299,9562112,12108771
+2012,"Charlestown","Charlestown",148,206,4484837,9004095
+2012,"Chinatown","Chinatown",133,208,5790672,19161742
+2012,"Dorchester","Dorchester",419,595,16761409,23807372
+2012,"Downtown","Downtown",583,950,32811848,76958248
+2012,"East Boston","East Boston",159,170,5356818,5892245
+2012,"Fenway","Fenway",125,185,4718130,4255368
+2012,"Hyde Park","Hyde Park",130,251,6346083,12124868
+2012,"Jamaica Plain","Jamaica Plain",217,272,12191381,9988255
+2012,"Longwood","Longwood",1,5,6374,68841
+2012,"Mattapan","Mattapan",65,145,1782206,4975645
+2012,"Mission Hill","Mission Hill",40,74,2491079,4178453
+2012,"North End","North End",210,315,10438753,17460617
+2012,"Roslindale","Roslindale",163,224,3410555,4013462
+2012,"Roxbury","Roxbury",156,276,9395145,16429741
+2012,"South Boston","South Boston",241,339,7507295,27325843
+2012,"South Boston Waterfront","South Boston Waterfront",49,104,1616634,11470931
+2012,"South End","South End",349,453,12301701,24345681
+2012,"West End","West End",91,152,2640164,10885737
+2012,"West Roxbury","West Roxbury",186,258,5483026,21113665
+2013,"Allston","Allston",216,219,7920022,17782123
+2013,"Back Bay","Back Bay",410,495,12097429,35466949
+2013,"Beacon Hill","Beacon Hill",112,100,4420649,6331365
+2013,"Brighton","Brighton",298,270,11086635,13291813
+2013,"Charlestown","Charlestown",148,169,4837715,10954266
+2013,"Chinatown","Chinatown",134,196,4751817,18924020
+2013,"Dorchester","Dorchester",427,446,13117483,24204909
+2013,"Downtown","Downtown",578,875,21511166,81773124
+2013,"East Boston","East Boston",143,152,5881637,4204579
+2013,"Fenway","Fenway",175,172,6760993,8531012
+2013,"Hyde Park","Hyde Park",142,161,7556183,10782163
+2013,"Jamaica Plain","Jamaica Plain",207,217,9209837,8488534
+2013,"Longwood","Longwood",2,12,26381,410785
+2013,"Mattapan","Mattapan",72,85,4798773,7700648
+2013,"Mission Hill","Mission Hill",68,45,4011565,2836899
+2013,"North End","North End",211,248,6911360,19161623
+2013,"Roslindale","Roslindale",168,146,5411456,4067856
+2013,"Roxbury","Roxbury",164,215,11384281,19165525
+2013,"South Boston","South Boston",283,359,14054211,34483384
+2013,"South Boston Waterfront","South Boston Waterfront",61,100,2893495,12236812
+2013,"South End","South End",412,359,18787132,26672015
+2013,"West End","West End",90,140,1267529,9770904
+2013,"West Roxbury","West Roxbury",207,204,6146700,8069978
+2014,"Allston","Allston",266,305,8098690,12011396
+2014,"Back Bay","Back Bay",428,553,13625946,41802804
+2014,"Beacon Hill","Beacon Hill",100,116,2244404,3545293
+2014,"Brighton","Brighton",294,330,10150852,11502294
+2014,"Charlestown","Charlestown",160,220,3874225,18741703
+2014,"Chinatown","Chinatown",167,228,7197352,20435315
+2014,"Dorchester","Dorchester",428,567,19132465,19334028
+2014,"Downtown","Downtown",669,967,26980287,83534309
+2014,"East Boston","East Boston",157,182,9438864,7193223
+2014,"Fenway","Fenway",179,180,10167213,5897281
+2014,"Hyde Park","Hyde Park",157,165,9719569,9022134
+2014,"Jamaica Plain","Jamaica Plain",238,260,7302233,9160369
+2014,"Longwood","Longwood",4,10,1467828,431569
+2014,"Mattapan","Mattapan",70,74,3696157,4175952
+2014,"Mission Hill","Mission Hill",66,52,3542008,4060561
+2014,"North End","North End",216,283,11329978,21698470
+2014,"Roslindale","Roslindale",164,176,9625316,5558471
+2014,"Roxbury","Roxbury",157,244,10733214,14296413
+2014,"South Boston","South Boston",328,406,16927077,32393663
+2014,"South Boston Waterfront","South Boston Waterfront",52,115,2883037,13272237
+2014,"South End","South End",352,492,9898887,25835163
+2014,"West End","West End",100,138,1926602,10013877
+2014,"West Roxbury","West Roxbury",226,236,4435635,9571179
+2015,"Allston","Allston",213,241,4718280,17889671
+2015,"Back Bay","Back Bay",468,552,17000065,54578054
+2015,"Beacon Hill","Beacon Hill",112,107,3036917,6911178
+2015,"Brighton","Brighton",302,276,9100371,16026477
+2015,"Charlestown","Charlestown",166,223,5421743,13691444
+2015,"Chinatown","Chinatown",189,261,7006955,22272489
+2015,"Dorchester","Dorchester",576,510,19702291,23808737
+2015,"Downtown","Downtown",743,1082,28217910,93123894
+2015,"East Boston","East Boston",204,219,4431256,11133715
+2015,"Fenway","Fenway",203,185,9193497,6166460
+2015,"Hyde Park","Hyde Park",197,160,13181380,10569311
+2015,"Jamaica Plain","Jamaica Plain",296,262,8033356,10271878
+2015,"Longwood","Longwood",6,16,102507,1033713
+2015,"Mattapan","Mattapan",102,79,1474615,4023699
+2015,"Mission Hill","Mission Hill",59,55,1231347,1466754
+2015,"North End","North End",216,287,9484135,21690963
+2015,"Roslindale","Roslindale",183,151,4915792,6583720
+2015,"Roxbury","Roxbury",212,236,5346192,11925597
+2015,"South Boston","South Boston",364,423,14093399,37542265
+2015,"South Boston Waterfront","South Boston Waterfront",70,120,3214187,17739749
+2015,"South End","South End",402,463,10464565,23781753
+2015,"West End","West End",99,112,1641343,10680463
+2015,"West Roxbury","West Roxbury",252,221,7811508,8529056
+2016,"Allston","Allston",277,303,13585609,13938326
+2016,"Back Bay","Back Bay",514,671,20696329,55536167
+2016,"Beacon Hill","Beacon Hill",133,157,3789245,7723621
+2016,"Brighton","Brighton",376,342,13768425,14401133
+2016,"Charlestown","Charlestown",173,288,4036821,18615720
+2016,"Chinatown","Chinatown",186,304,6126181,24779342
+2016,"Dorchester","Dorchester",692,635,25697840,25380749
+2016,"Downtown","Downtown",745,1236,29116467,104663463
+2016,"East Boston","East Boston",285,244,8259018,9772521
+2016,"Fenway","Fenway",190,202,5028342,7699230
+2016,"Hyde Park","Hyde Park",229,240,14266686,12864165
+2016,"Jamaica Plain","Jamaica Plain",339,278,12213053,13645859
+2016,"Longwood","Longwood",9,11,118300,356118
+2016,"Mattapan","Mattapan",108,92,3308730,4024625
+2016,"Mission Hill","Mission Hill",62,62,1953687,2733082
+2016,"North End","North End",269,334,14496841,23892967
+2016,"Roslindale","Roslindale",197,173,8617693,6604282
+2016,"Roxbury","Roxbury",235,275,11372528,17571797
+2016,"South Boston","South Boston",369,630,14696719,33973413
+2016,"South Boston Waterfront","South Boston Waterfront",66,142,2826254,14064755
+2016,"South End","South End",511,547,16621611,29653954
+2016,"West End","West End",102,138,2880656,10034731
+2016,"West Roxbury","West Roxbury",248,242,6827227,9277371
+2017,"Allston","Allston",273,313,6496554,13435829
+2017,"Back Bay","Back Bay",507,776,15482886,45659290
+2017,"Beacon Hill","Beacon Hill",149,163,3526492,5237790
+2017,"Brighton","Brighton",432,339,11170537,11573243
+2017,"Charlestown","Charlestown",235,295,6824890,15420788
+2017,"Chinatown","Chinatown",201,301,7769230,21606255
+2017,"Dorchester","Dorchester",694,656,22055799,24093115
+2017,"Downtown","Downtown",828,1292,30824946,100308687
+2017,"East Boston","East Boston",271,257,10214048,7192706
+2017,"Fenway","Fenway",202,245,6540669,12615596
+2017,"Hyde Park","Hyde Park",221,257,6625457,8453787
+2017,"Jamaica Plain","Jamaica Plain",315,293,8452947,8642163
+2017,"Longwood","Longwood",8,18,160024,681892
+2017,"Mattapan","Mattapan",123,102,5654568,4887887
+2017,"Mission Hill","Mission Hill",75,69,4595270,1406667
+2017,"North End","North End",247,357,15130782,26941699
+2017,"Roslindale","Roslindale",220,189,4423446,5649197
+2017,"Roxbury","Roxbury",307,353,16532520,18687343
+2017,"South Boston","South Boston",434,574,16966403,28085445
+2017,"South Boston Waterfront","South Boston Waterfront",75,136,2259126,12238130
+2017,"South End","South End",559,504,14767208,20459754
+2017,"West End","West End",104,156,2203311,10654710
+2017,"West Roxbury","West Roxbury",313,232,8828768,13474232
+2018,"Allston","Allston",278,365,5126979,13964554
+2018,"Back Bay","Back Bay",476,896,18191463,46288796
+2018,"Beacon Hill","Beacon Hill",124,190,3909661,6497450
+2018,"Brighton","Brighton",380,461,12348761,12933306
+2018,"Charlestown","Charlestown",202,323,3438730,12507650
+2018,"Chinatown","Chinatown",158,347,4951261,23240440
+2018,"Dorchester","Dorchester",615,782,15670116,27343146
+2018,"Downtown","Downtown",642,1425,21750695,97862157
+2018,"East Boston","East Boston",239,299,6896110,8925543
+2018,"Fenway","Fenway",207,303,6535918,13646511
+2018,"Hyde Park","Hyde Park",204,305,3952791,12530964
+2018,"Jamaica Plain","Jamaica Plain",315,369,7746398,9910358
+2018,"Longwood","Longwood",5,15,298412,581670
+2018,"Mattapan","Mattapan",85,133,3352470,5366750
+2018,"Mission Hill","Mission Hill",79,76,2102031,3070771
+2018,"North End","North End",205,385,9390717,23514055
+2018,"Roslindale","Roslindale",179,226,5575619,4092694
+2018,"Roxbury","Roxbury",236,356,6647370,14536937
+2018,"South Boston","South Boston",340,718,13006997,30250605
+2018,"South Boston Waterfront","South Boston Waterfront",71,150,2398512,12238106
+2018,"South End","South End",430,648,9513605,27906073
+2018,"West End","West End",118,218,3976104,11368790
+2018,"West Roxbury","West Roxbury",289,290,8458109,8174851
+2019,"Allston","Allston",302,346,4937354,13183280
+2019,"Back Bay","Back Bay",500,864,15503828,50234052
+2019,"Beacon Hill","Beacon Hill",133,178,5944431,4317812
+2019,"Brighton","Brighton",436,447,9996413,15372427
+2019,"Charlestown","Charlestown",241,311,5427027,10794529
+2019,"Chinatown","Chinatown",191,354,5797596,21107818
+2019,"Dorchester","Dorchester",731,897,15531301,28042881
+2019,"Downtown","Downtown",707,1499,22807676,95927106
+2019,"East Boston","East Boston",271,346,9133568,12802334
+2019,"Fenway","Fenway",240,271,3454707,10198140
+2019,"Hyde Park","Hyde Park",221,325,8688279,16989650
+2019,"Jamaica Plain","Jamaica Plain",360,344,9364573,11491346
+2019,"Longwood","Longwood",8,28,89287,2134867
+2019,"Mattapan","Mattapan",131,127,5114523,3548573
+2019,"Mission Hill","Mission Hill",65,86,935031,2985881
+2019,"North End","North End",223,445,8413209,29413521
+2019,"Roslindale","Roslindale",219,223,4326626,5274707
+2019,"Roxbury","Roxbury",319,398,8969551,17472790
+2019,"South Boston","South Boston",394,683,10172018,32449838
+2019,"South Boston Waterfront","South Boston Waterfront",63,164,1871379,13980372
+2019,"South End","South End",454,657,9269725,24497544
+2019,"West End","West End",140,222,5019513,13219005
+2019,"West Roxbury","West Roxbury",348,301,7092566,9172488
+2020,"Allston","Allston",311,475,9829941,36780955
+2020,"Back Bay","Back Bay",602,1309,30244913,141760447
+2020,"Beacon Hill","Beacon Hill",124,263,3120399,14398624
+2020,"Brighton","Brighton",407,587,13258072,37478662
+2020,"Charlestown","Charlestown",214,430,8961958,39852666
+2020,"Chinatown","Chinatown",211,521,12230490,77088092
+2020,"Dorchester","Dorchester",791,1162,25873639,67918162
+2020,"Downtown","Downtown",873,2157,53198512,319401750
+2020,"East Boston","East Boston",300,465,11603949,27734117
+2020,"Fenway","Fenway",189,315,11850504,29923712
+2020,"Hyde Park","Hyde Park",217,413,5515834,31668828
+2020,"Jamaica Plain","Jamaica Plain",340,539,10046864,27207190
+2020,"Longwood","Longwood",10,10,433169,1757557
+2020,"Mattapan","Mattapan",100,183,2485914,8687128
+2020,"Mission Hill","Mission Hill",89,103,3788107,4124574
+2020,"North End","North End",281,601,18405572,73241659
+2020,"Roslindale","Roslindale",211,319,7016187,11521332
+2020,"Roxbury","Roxbury",276,538,11672540,49544465
+2020,"South Boston","South Boston",381,963,18523063,91795782
+2020,"South Boston Waterfront","South Boston Waterfront",88,243,5156458,39946360
+2020,"South End","South End",530,926,20571720,95304797
+2020,"West End","West End",140,327,7647749,41030022
+2020,"West Roxbury","West Roxbury",344,431,9115773,23966791
+2021,"Allston","Allston",340,446,8466695,25034246
+2021,"Back Bay","Back Bay",651,1073,20747137,93291373
+2021,"Beacon Hill","Beacon Hill",174,243,3274784,14400624
+2021,"Brighton","Brighton",436,560,10660333,27503784
+2021,"Charlestown","Charlestown",283,409,6456681,25345012
+2021,"Chinatown","Chinatown",220,405,7643227,47397996
+2021,"Dorchester","Dorchester",1115,1323,20912389,55246855
+2021,"Downtown","Downtown",906,1720,34073346,199228334
+2021,"East Boston","East Boston",377,478,8567145,18310491
+2021,"Fenway","Fenway",234,332,6994558,26500690
+2021,"Hyde Park","Hyde Park",374,468,7631801,21958981
+2021,"Jamaica Plain","Jamaica Plain",472,489,15441292,20011183
+2021,"Longwood","Longwood",6,9,30242,1297169
+2021,"Mattapan","Mattapan",192,253,2824393,11373177
+2021,"Mission Hill","Mission Hill",109,119,2363269,4419953
+2021,"North End","North End",318,545,12674864,59120961
+2021,"Roslindale","Roslindale",302,297,5331387,9876701
+2021,"Roxbury","Roxbury",397,557,7596238,30460545
+2021,"South Boston","South Boston",498,820,16182605,56934533
+2021,"South Boston Waterfront","South Boston Waterfront",102,214,2532914,25826124
+2021,"South End","South End",628,843,17425065,72454995
+2021,"West End","West End",149,282,4184206,28549591
+2021,"West Roxbury","West Roxbury",433,403,12357124,20828144
+2022,"Allston","Allston",257,307,5739000,8566000
+2022,"Back Bay","Back Bay",601,915,17071000,50212000
+2022,"Beacon Hill","Beacon Hill",159,168,3527000,4657000
+2022,"Brighton","Brighton",405,452,6817000,13408000
+2022,"Charlestown","Charlestown",244,329,6375000,13079000
+2022,"Chinatown","Chinatown",79,125,1070000,4547000
+2022,"Dorchester","Dorchester",1023,911,19812000,22825000
+2022,"Downtown","Downtown",791,1868,18670000,116087000
+2022,"East Boston","East Boston",404,396,5680000,10539000
+2022,"Fenway","Fenway",187,216,2880000,8971000
+2022,"Hyde Park","Hyde Park",378,312,6864000,10415000
+2022,"Jamaica Plain","Jamaica Plain",439,370,9309000,9358000
+2022,"Longwood","Longwood",8,10,49000,362000
+2022,"Mattapan","Mattapan",198,154,3837000,1925000
+2022,"Mission Hill","Mission Hill",80,80,1265000,2351000
+2022,"North End","North End",166,262,2606000,6296000
+2022,"Roslindale","Roslindale",278,245,7889000,5141000
+2022,"Roxbury","Roxbury",377,414,8538000,14300000
+2022,"South Boston","South Boston",350,458,9807000,13661000
+2022,"South Boston Waterfront","South Boston Waterfront",153,370,2968000,25747000
+2022,"South End","South End",469,651,10291000,27659000
+2022,"West End","West End",144,227,1668000,13201000
+2022,"West Roxbury","West Roxbury",352,289,7549000,9869000
