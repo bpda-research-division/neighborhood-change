@@ -15,11 +15,13 @@ library(shinycssloaders)
 # Define global formatting parameters #######
 # APP_FONT <- "Helvetica" 
 # CECILIA'S EDITS #
-APP_FONT <- "Open Sans" 
+APP_HEADER_FONT <- "Montserrat"
+APP_FONT <- "Lora"
 ###################
 APP_FONT_SIZE <- 17
+APP_FONT_COLOR <- "#091F2F"
 MAP_PALETTE <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
-BAR_COLOR <- '#60809f' # previously, we set the map palette as Purples with bar/line color 7f76b7
+BAR_COLOR <- '#288BE4' # previously, we set the map palette as Purples with bar/line color 7f76b7
 LINE_COLOR <- BAR_COLOR # could also change line to a separate hex code if desired
 
 # Miscellaneous functions ###########

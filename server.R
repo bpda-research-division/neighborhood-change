@@ -179,12 +179,12 @@ tabPanelServer <- function(geo_type) {
           clearShapes() %>% clearControls() %>% # clear existing stuff before redrawing...
           addControl( # ...but make sure each map has a button for users to clear their map selections...
             actionButton(session$ns("clearSelections"), "Clear all selections",
-                         style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE, APP_FONT)),
+                         style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE-2, APP_FONT)),
             position="topright", className = "fieldset {border: 0;}" # remove default button border
           ) %>%
           addControl( # ...as well as a data download button.
             actionButton(session$ns("downloadButton"), "Download selected data", icon = icon("download"),
-                         style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE, APP_FONT)),
+                         style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE-2, APP_FONT)),
             position="bottomright", className = "fieldset {border: 0;}" # remove default button border
           ) %>% 
           leaflet.extras2::addSpinner() %>% # add a loading spinner to be displayed while the map renders
@@ -415,7 +415,7 @@ tabPanelServer <- function(geo_type) {
                 text = ~VALUE, # data label for each bar, formatted according to our topic parameters
                 texttemplate=paste0(var_params()$bartickprefix, '%', sprintf('{y:%s}', var_params()$barhoverformat)),
                 textposition = 'outside', # for a bar chart, "text" is the labeling directly above each bar
-                textfont=list(color="black", family = APP_FONT, size=APP_FONT_SIZE - 2),
+                textfont=list(color= APP_FONT_COLOR, family = APP_FONT, size=APP_FONT_SIZE - 2),
                 hoverinfo = 'skip' # to enable values to be displayed on hover, use 'y' here and uncomment stuff below
                 ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
@@ -423,14 +423,14 @@ tabPanelServer <- function(geo_type) {
                    marker = list(line = list(color=BAR_COLOR)) # set bar outline color
                    ) %>% 
           layout(title = list(
-                    text = paste0(var_params()$barTitle, " in ", input$yearSelect), # dynamic title
+                    text = toupper(paste0(var_params()$barTitle, " in ", input$yearSelect)), # dynamic title
                     font=list( # for the chart title
-                      color="black", family = APP_FONT, 
+                      color= APP_FONT_COLOR, family = APP_HEADER_FONT, 
                       size=APP_FONT_SIZE + 4
                     )
                   ),
                  font=list( # for the labels underneath each bar
-                   color="black", family = APP_FONT, 
+                   color= APP_FONT_COLOR, family = APP_FONT, 
                    size=bar_font_size()
                    ),
                  xaxis = list(title = '', fixedrange = TRUE,
@@ -444,7 +444,7 @@ tabPanelServer <- function(geo_type) {
                  legend = list(orientation = 'h', # place legend items side by side
                                x=0.01, y=1.05, # position legend near the top left
                                font=list(
-                                 color="black", family = APP_FONT, 
+                                 color=APP_FONT_COLOR, family = APP_FONT, 
                                  size=APP_FONT_SIZE - 2
                                ),
                                itemclick = FALSE, itemdoubleclick = FALSE # disable default plotly clicking options
@@ -525,8 +525,8 @@ tabPanelServer <- function(geo_type) {
                     hoverinfo = "y", # display y-values when hovering over line chart
                     name=selectionName() # set the series name for the line (appears in legend)
                     ) %>%
-          layout(title = input$indicatorSelect,
-                 font=list(color="black", family = APP_FONT, size = APP_FONT_SIZE-2),
+          layout(title = list(text = toupper(input$indicatorSelect), font = list(family = APP_HEADER_FONT, color = APP_FONT_COLOR)),
+                 font=list(color=APP_FONT_COLOR, family = APP_FONT, size = APP_FONT_SIZE-2),
                  xaxis = list(title = '', fixedrange = TRUE,
                               range = c( # set x axis range a little wider than the data so as to not cut off text
                                 as.numeric(var_years()[1]) - line_xrange_bookend(),
