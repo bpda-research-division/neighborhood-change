@@ -45,7 +45,7 @@ geoTabPanelUI <- function(geo_type) {
         fluidRow( # The third row of controls is for choosing a specific indicator / variable within a topic
           column(width=4, 
                  HTML("<b>Choose a variable:</b>")
-          ),
+                 ),
           column(width=8, style="z-index:1010;",
                  selectInput(ns("indicatorSelect"), label = NULL, 
                              choices = NULL # again, these choices will be populated by the server
@@ -56,7 +56,7 @@ geoTabPanelUI <- function(geo_type) {
            column(width=4, 
                   HTML(
                     "<b>Drag the slider or click &#9658; to move through time:</b>"
-                    ), # the above jumble of characters is the HTML code for a play button symbol
+                    ) # the above jumble of characters is the HTML code for a play button symbol
                   ),
            column(width=8,
                   sliderTextInput(inputId = ns("yearSelect"), 
@@ -81,7 +81,7 @@ geoTabPanelUI <- function(geo_type) {
        htmlOutput(align="center", style="font-size:9pt; background-color: #ffffff; padding-bottom:5px;", ns("note")),
        
        # line chart with loading spinner enabled. hide.ui = TRUE ensures that the chart UI isn't redrawn each time a year changes
-       shinycssloaders::withSpinner(plotlyOutput(ns("line_chart")), color="#2186bb", size=1.5,type=5, hide.ui = FALSE),
+       shinycssloaders::withSpinner(plotlyOutput(ns("line_chart")), color="#2186bb", size=1.5, type=5, hide.ui = FALSE),
 
        htmlOutput(style=sprintf('padding:10px; font-size:%spx', APP_FONT_SIZE - 4), ns("sourceText")) # citation at bottom
        )
@@ -99,7 +99,7 @@ styling_commands = c(
 
 ui <- fluidPage(title = "Neighborhood Change Explorer",
   # set the browser icon for the page to be the BPDA logo
-  tags$head(tags$link(rel="shortcut icon", href="bpda_logo.ico")),
+  tags$head(tags$link(rel="shortcut icon", href="cob_favicon.ico")),
   tags$head(tags$script(src='setLeafletLabel.js')), # function for updating leaflet labels
   ## CECILIA'S EDITS ##
   tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "test_theme.css")),
@@ -112,9 +112,9 @@ ui <- fluidPage(title = "Neighborhood Change Explorer",
   
   fluidRow( # this is the top of the page / title area
     column(10, # title
-      h3("Boston Neighborhood Change Explorer", 
+      h3("BOSTON NEIGHBORHOOD CHANGE EXPLORER", 
          align = "left", 
-         style = sprintf('font-size:32px; font-family: "%s"; padding: 0px;', APP_FONT)
+         style = sprintf('font-size:32px; font-family: "%s"; padding: 0px; font-weight: 800; color: #091F2F', APP_HEADER_FONT)
         ) 
     ),
     column(2, align='right', # about button goes at the top right
