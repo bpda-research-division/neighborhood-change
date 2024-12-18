@@ -1,28 +1,18 @@
-The Boston Neighborhood Change Explorer was built by the BPDA Research Division. For any questions or feedback regarding this tool, please submit a Research Inquiry on [our website](https://www.bostonplans.org/research/).
-
-For summary tables by neighborhood and topic and for further analysis of demographic and housing trends in Boston, see our [Historical Trends in Boston's Neighborhoods](https://www.bostonplans.org/research/research-publications?search=historical+&amp;sortby=date&amp;sortdirection=DESC) reports, where most of the data on this website were originally published.
-
-The full source code for the Neighborhood Change Explorer is available on [our Github page](https://github.com/bpda-research-division/neighborhood-change) along with documentation for developers.
+The Boston Neighborhood Change Explorer was built by the City of Boston Planning Department Research Division. For any questions or feedback regarding this tool, please submit a Research Inquiry on [our website](https://www.bostonplans.org/research/).
 
 ### Data sources
 
-Most of the data on this website are drawn from 1950-2020 Decennial Censuses and the 2006-2010 and 2016-2020 American Community Surveys.
+Most of the data on this website are drawn from 1950-2020 Decennial Censuses and the Research Division’s 2020 and 2024 population estimates. The Research Division creates annual population estimates for Boston to provide alternate estimates to those produced by the U.S. Census Bureau, which continue to underestimate Boston’s population following the disrupted 2020 Census. A presentation overview of the undercount of Boston's population can be found [here](https://bpda.app.box.com/file/1728773149467?s=58u0erzho3hzezg10zez198r5xa3db3g), and a detailed explanation of the evidence for the need for revised population estimates can be found [here](https://bpda.box.com/s/428jr2rsdvij3qdllckhja376hvy2cri).
 
-Housing unit counts beyond 2020 are calculated by combining 2020 decennial data with Mayor's Office of Housing data on net new units (based on City of Boston building permits) between April 1, 2020 (the date of the 2020 decennial census) and the present. We apportioned the net new units in each tract to the occupied and vacant categories using 2020 vacancy rates. The Mayor's Office of Housing is also the source of the data on housing sales presented here, using data originally compiled and processed by the Warren Group.
+The Research Division analyzed administrative data from a variety of sources including college and preK-12 school enrollment, housing construction and vacancy data, and births and deaths to create age-specific population estimates at the city, neighborhood, and tract levels for 2020 and 2024. The Research Division further breaks these estimates down by demographic characteristics using 2018-2022 American Community Survey population shares. A detailed explanation of the population estimate methodology can be found [here](https://bpda.box.com/s/326yx0ktp3xd1crn6hhgbruuwo0yavsl).
+
+Housing unit counts beyond 2020 are calculated by combining 2020 decennial Census data with Mayor's Office of Housing data on net new units (based on City of Boston building permits) between April 1, 2020 (the date of the 2020 decennial census) and the present. We apportioned the net new units in each tract to the occupied and vacant categories using an average of 2010 and 2020 Census vacancy rates. The Mayor’s Office of Housing is also the source of the data on housing sales presented here, using data originally compiled and processed by the Warren Group.
 
 For the Children by Race and Ethnicity topic, some values from 1980 and 1990 were imputed (estimated) in order to have more consistent race & ethnicity categories over time. See the "Imputation Methodology" section below for a description of this process.
 
 The topics on business establishments and business loans are reported for "zip code areas", a set of geographic boundaries based on Zip Code Tabulation Areas (ZCTAs) that we designed to allow for better correspondence between tract-level FFIEC Community Reinvestment Act (CRA) data on business loans and zipcode-level business establishment data from the Census. See the "Businesses and Loans Methodology" section below for a description of this correspondence.
 
-### A note on Boston's total population
-
-The City of Boston, working with the BPDA Research Division, successfully challenged the 2020 Decennial Census' count of Boston's total population, which was disrupted by the onset of the COVID-19 pandemic. The Census has acknowledged that Boston's 2020 group quarters population was underestimated by 6,290 people. Those additional people will be reflected in the Census' yearly population estimates for Boston starting in FY2023. 
-
-On this website, "Total Population" data for 2020 are adjusted in order to include the additional people from the group quarters challenge, putting Boston's total 2020 population at 681,937 people. 
-
-To adjust Boston's 2020 decennial population to account for the successful group quarters challenge, the BPDA Research Division allocated the city's net group quarters population to tracts and neighborhoods using the locations of dormitories and correctional facilities where those populations were mis-estimated in the 2020 decennial census. These allocations were apportioned by sex based on citywide male-to-female ratios for students in dormitories and people in correctional facilities. 
-
-However, the data on Boston's additional group quarters population do not include detailed demographic information, so the data on race/ethnicity and age presented here reflect unadjusted 2020 decennial census counts. Additionally, the population categories for other demographic variables on this website may add up to different estimated totals of Boston's 2020 population because their data come from the American Community Survey's 2016-2020 5-Year estimates rather than from the 2020 decennial census.
+The full source code for the Neighborhood Change Explorer is available on [our Github page](https://github.com/bpda-research-division/neighborhood-change) along with documentation for developers.
 
 ### Crosswalk Methodology 
 

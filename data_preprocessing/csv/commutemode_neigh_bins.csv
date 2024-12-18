@@ -1,99 +1,99 @@
-"YEAR","GEOID","NAME","total_workers_16_and_over","car_truck_van","public_transportation","bicycle","walked","other_means","worked_from_home"
-1990,"Allston","Allston",12402,5070,5129,305,1659,108,131
-1990,"Back Bay","Back Bay",11059,3080,2850,206,4218,65,640
-1990,"Beacon Hill","Beacon Hill",6438,1388,1336,65,3283,78,288
-1990,"Brighton","Brighton",28455,14943,10870,261,1847,103,431
-1990,"Charlestown","Charlestown",8237,4096,2571,41,1213,70,246
-1990,"Chinatown","Chinatown",1109,327,242,0,437,54,49
-1990,"Dorchester","Dorchester",47434,29392,14999,100,1900,504,539
-1990,"Downtown","Downtown",2473,652,489,0,1148,92,92
-1990,"East Boston","East Boston",14380,7264,5713,13,1099,129,162
-1990,"Fenway","Fenway",16297,2993,5547,535,6768,115,339
-1990,"Harbor Islands","Harbor Islands",76,7,33,0,21,0,15
-1990,"Hyde Park","Hyde Park",14714,10582,3190,27,547,92,276
-1990,"Jamaica Plain","Jamaica Plain",19320,10520,6514,353,1262,59,612
-1990,"Longwood","Longwood",1174,150,316,31,603,18,56
-1990,"Mattapan","Mattapan",11261,7172,3503,0,309,90,187
-1990,"Mission Hill","Mission Hill",6499,2022,2686,68,1542,28,153
-1990,"North End","North End",6051,1373,1614,22,2867,57,118
-1990,"Roslindale","Roslindale",14400,10060,3669,19,405,59,188
-1990,"Roxbury","Roxbury",15138,7495,6269,47,941,180,206
-1990,"South Boston","South Boston",13309,7077,4373,90,1522,95,152
-1990,"South Boston Waterfront","South Boston Waterfront",204,106,49,3,32,6,8
-1990,"South End","South End",14017,4805,4215,214,4228,106,449
-1990,"West End","West End",2300,473,504,15,1210,52,46
-1990,"West Roxbury","West Roxbury",15181,11999,2415,41,389,65,272
-1990,"_Crews on Ships","_Crews on Ships",600,0,0,0,0,0,600
-2000,"Allston","Allston",11855,4598,5177,245,1500,59,276
-2000,"Back Bay","Back Bay",10526,3438,2774,155,3426,136,597
-2000,"Beacon Hill","Beacon Hill",6169,1391,1371,14,3061,50,282
-2000,"Brighton","Brighton",27667,15441,9965,366,1247,100,548
-2000,"Charlestown","Charlestown",8191,4392,2454,39,992,31,283
-2000,"Chinatown","Chinatown",1293,328,361,3,525,35,41
-2000,"Dorchester","Dorchester",45740,27791,15046,207,1565,363,768
-2000,"Downtown","Downtown",3341,832,758,3,1607,47,94
-2000,"East Boston","East Boston",16020,7538,7122,11,1193,57,99
-2000,"Fenway","Fenway",16473,2841,6098,496,6645,116,277
-2000,"Harbor Islands","Harbor Islands",137,11,66,0,44,0,16
-2000,"Hyde Park","Hyde Park",13935,10383,2831,7,372,30,312
-2000,"Jamaica Plain","Jamaica Plain",18273,9482,6523,406,1021,93,748
-2000,"Longwood","Longwood",1834,337,477,13,974,0,33
-2000,"Mattapan","Mattapan",9612,6172,3073,7,157,67,136
-2000,"Mission Hill","Mission Hill",6537,1999,2829,142,1384,34,149
-2000,"North End","North End",6752,1502,1769,49,3235,28,169
-2000,"Roslindale","Roslindale",14494,10325,3478,60,280,65,286
-2000,"Roxbury","Roxbury",14627,7769,5387,131,907,144,289
-2000,"South Boston","South Boston",14595,8132,4883,102,1235,60,183
-2000,"South Boston Waterfront","South Boston Waterfront",262,123,77,0,46,7,9
-2000,"South End","South End",13672,4787,4517,241,3456,83,588
-2000,"West End","West End",2412,662,545,0,1126,1,78
-2000,"West Roxbury","West Roxbury",14046,11006,2325,8,325,50,332
-2010,"Allston","Allston",13142,3876,5896,619,2219,43,489
-2010,"Back Bay","Back Bay",10790,3136,2618,230,3967,149,690
-2010,"Beacon Hill","Beacon Hill",6106,950,1294,18,3480,37,327
-2010,"Brighton","Brighton",28083,13829,10196,539,2202,179,1138
-2010,"Charlestown","Charlestown",9213,5150,2515,76,1044,25,403
-2010,"Chinatown","Chinatown",1583,276,432,13,765,5,92
-2010,"Dorchester","Dorchester",48423,27696,17256,128,1971,514,858
-2010,"Downtown","Downtown",4670,871,982,49,2420,58,290
-2010,"East Boston","East Boston",21327,8953,10478,35,1480,100,281
-2010,"Fenway","Fenway",14907,2345,4247,379,7135,30,771
-2010,"Harbor Islands","Harbor Islands",119,22,61,0,10,0,26
-2010,"Hyde Park","Hyde Park",16245,11455,3882,33,297,97,481
-2010,"Jamaica Plain","Jamaica Plain",21297,9649,8407,941,1455,70,775
-2010,"Longwood","Longwood",2685,317,683,4,1402,0,279
-2010,"Mattapan","Mattapan",10735,6355,3783,8,283,130,176
-2010,"Mission Hill","Mission Hill",7063,1883,2608,545,1941,17,69
-2010,"North End","North End",7184,1196,1746,47,3874,43,278
-2010,"Roslindale","Roslindale",14754,9478,4239,136,308,129,464
-2010,"Roxbury","Roxbury",17163,7932,6758,174,1717,197,385
-2010,"South Boston","South Boston",18064,9589,5987,120,1638,111,619
-2010,"South Boston Waterfront","South Boston Waterfront",998,413,312,35,155,20,63
-2010,"South End","South End",15821,4695,5058,278,4859,211,720
-2010,"West End","West End",2683,561,696,40,1321,0,65
-2010,"West Roxbury","West Roxbury",15338,12297,2242,10,124,127,538
-2020,"Allston","Allston",13128,3838,4507,886,2816,156,925
-2020,"Back Bay","Back Bay",10944,2530,2503,224,4420,166,1101
-2020,"Beacon Hill","Beacon Hill",6546,993,1151,216,3371,60,755
-2020,"Brighton","Brighton",33229,15856,11007,759,2396,241,2970
-2020,"Charlestown","Charlestown",12179,5400,3207,431,1993,85,1063
-2020,"Chinatown","Chinatown",1870,308,248,3,928,110,273
-2020,"Dorchester","Dorchester",64311,33976,22294,708,2612,1197,3524
-2020,"Downtown","Downtown",5958,1093,1203,140,2897,64,561
-2020,"East Boston","East Boston",27511,9846,14110,79,1364,227,1885
-2020,"Fenway","Fenway",16161,2254,4050,656,7844,184,1173
-2020,"Harbor Islands","Harbor Islands",86,15,54,0,16,0,1
-2020,"Hyde Park","Hyde Park",19365,13323,4548,98,390,240,766
-2020,"Jamaica Plain","Jamaica Plain",25141,9942,9498,1502,1394,114,2691
-2020,"Longwood","Longwood",2365,340,297,29,1528,0,171
-2020,"Mattapan","Mattapan",12508,7483,3755,34,409,144,683
-2020,"Mission Hill","Mission Hill",7819,1911,2645,118,2664,23,458
-2020,"North End","North End",8004,1536,1793,113,3635,25,902
-2020,"Roslindale","Roslindale",18007,10907,4905,325,489,157,1224
-2020,"Roxbury","Roxbury",22969,10375,8740,581,2426,227,620
-2020,"South Boston","South Boston",24913,10765,8990,337,2601,512,1708
-2020,"South Boston Waterfront","South Boston Waterfront",3459,1211,366,93,1484,20,285
-2020,"South End","South End",17120,4874,4253,662,5607,373,1351
-2020,"West End","West End",3836,825,810,82,1449,137,533
-2020,"West Roxbury","West Roxbury",18483,13087,2919,126,246,164,1941
-2020,"_Boston Harbor","_Boston Harbor",0,0,0,0,0,0,0
+"YEAR","GEOID","NAME","total_workers_16_and_over","car_truck_van_alone","car_truck_van_carpool","public_transportation","taxicab","motorcycle","bicycle","walked","other_means","worked_from_home"
+1990,"Allston","Allston",12403,4011,1059,5105,25,42,305,1659,66,131
+1990,"Back Bay","Back Bay",11059,2648,432,2753,97,0,206,4218,65,640
+1990,"Beacon Hill","Beacon Hill",6437,1231,156,1304,32,5,65,3283,73,288
+1990,"Brighton","Brighton",28455,12161,2782,10836,33,57,261,1847,47,431
+1990,"Charlestown","Charlestown",8237,3430,666,2527,44,0,41,1213,70,246
+1990,"Chinatown","Chinatown",1108,155,172,237,4,0,0,437,54,49
+1990,"Dorchester","Dorchester",47434,22719,6673,14760,239,13,100,1900,491,539
+1990,"Downtown","Downtown",2473,478,174,484,6,0,0,1148,91,92
+1990,"East Boston","East Boston",14380,5551,1713,5682,31,45,13,1099,84,162
+1990,"Fenway","Fenway",16297,2459,534,5452,95,21,535,6768,94,339
+1990,"Harbor Islands","Harbor Islands",76,0,7,33,0,0,0,21,0,15
+1990,"Hyde Park","Hyde Park",14714,8777,1805,3175,15,14,27,547,78,276
+1990,"Jamaica Plain","Jamaica Plain",19320,8080,2440,6495,19,0,353,1262,59,612
+1990,"Longwood","Longwood",1174,119,31,309,7,0,31,603,18,56
+1990,"Mattapan","Mattapan",11261,5387,1785,3466,37,13,0,309,77,187
+1990,"Mission Hill","Mission Hill",6497,1501,520,2678,7,0,68,1542,28,153
+1990,"North End","North End",6051,1150,223,1560,54,0,22,2867,57,118
+1990,"Roslindale","Roslindale",14400,8257,1803,3638,31,8,19,405,51,188
+1990,"Roxbury","Roxbury",15138,5482,2013,6146,123,0,47,941,180,206
+1990,"South Boston","South Boston",13309,5482,1595,4289,84,0,90,1522,95,152
+1990,"South Boston Waterfront","South Boston Waterfront",204,85,21,48,1,0,3,32,6,8
+1990,"South End","South End",14018,3417,1389,4104,111,12,214,4228,94,449
+1990,"West End","West End",2302,427,47,474,31,15,15,1210,37,46
+1990,"West Roxbury","West Roxbury",15181,10393,1606,2401,14,7,41,389,58,272
+1990,"_Crews on Ships","_Crews on Ships",600,0,0,0,0,0,0,0,0,600
+2000,"Allston","Allston",11855,3782,816,5164,13,0,245,1500,59,276
+2000,"Back Bay","Back Bay",10526,3131,307,2586,188,9,155,3426,127,597
+2000,"Beacon Hill","Beacon Hill",6167,1259,131,1302,68,0,14,3061,50,282
+2000,"Brighton","Brighton",27667,13145,2296,9933,32,3,366,1247,97,548
+2000,"Charlestown","Charlestown",8191,3855,537,2427,27,0,39,992,31,283
+2000,"Chinatown","Chinatown",1293,150,178,358,3,0,3,525,35,41
+2000,"Dorchester","Dorchester",45740,21545,6246,14832,214,22,207,1565,341,768
+2000,"Downtown","Downtown",3340,570,261,744,14,0,3,1607,47,94
+2000,"East Boston","East Boston",16020,5751,1787,7085,37,0,11,1193,57,99
+2000,"Fenway","Fenway",16473,2342,499,6007,91,16,496,6645,100,277
+2000,"Harbor Islands","Harbor Islands",137,0,11,66,0,0,0,44,0,16
+2000,"Hyde Park","Hyde Park",13935,8689,1694,2793,38,0,7,372,30,312
+2000,"Jamaica Plain","Jamaica Plain",18272,7787,1694,6494,29,42,406,1021,51,748
+2000,"Longwood","Longwood",1834,209,128,469,8,0,13,974,0,33
+2000,"Mattapan","Mattapan",9612,5062,1111,3040,33,17,7,157,49,136
+2000,"Mission Hill","Mission Hill",6536,1546,453,2816,12,7,142,1384,27,149
+2000,"North End","North End",6754,1304,199,1700,70,0,49,3235,28,169
+2000,"Roslindale","Roslindale",14495,8519,1806,3466,12,3,60,280,63,286
+2000,"Roxbury","Roxbury",14627,5660,2109,5311,76,10,131,907,134,289
+2000,"South Boston","South Boston",14595,6863,1269,4784,99,16,102,1235,44,183
+2000,"South Boston Waterfront","South Boston Waterfront",262,92,31,63,14,0,0,46,7,9
+2000,"South End","South End",13672,4220,567,4443,74,0,241,3456,83,588
+2000,"West End","West End",2414,570,93,517,29,0,0,1126,1,78
+2000,"West Roxbury","West Roxbury",14046,9567,1439,2313,12,0,8,325,50,332
+2010,"Allston","Allston",13142,3135,741,5855,41,27,619,2219,16,489
+2010,"Back Bay","Back Bay",10790,2696,440,2597,21,23,230,3967,126,690
+2010,"Beacon Hill","Beacon Hill",6106,858,92,1127,167,0,18,3480,37,327
+2010,"Brighton","Brighton",28083,11970,1859,10167,29,5,539,2202,174,1138
+2010,"Charlestown","Charlestown",9213,4307,843,2494,21,0,76,1044,25,403
+2010,"Chinatown","Chinatown",1583,214,62,421,11,0,13,765,5,92
+2010,"Dorchester","Dorchester",48423,22274,5422,17171,85,24,128,1971,490,858
+2010,"Downtown","Downtown",4670,775,96,917,65,0,49,2420,58,290
+2010,"East Boston","East Boston",21327,6334,2619,10383,95,0,35,1480,100,281
+2010,"Fenway","Fenway",14907,2067,278,4202,45,30,379,7135,0,771
+2010,"Harbor Islands","Harbor Islands",119,0,22,61,0,0,0,10,0,26
+2010,"Hyde Park","Hyde Park",16245,10109,1346,3882,0,16,33,297,81,481
+2010,"Jamaica Plain","Jamaica Plain",21297,8112,1537,8397,10,10,941,1455,60,775
+2010,"Longwood","Longwood",2685,73,244,669,14,0,4,1402,0,279
+2010,"Mattapan","Mattapan",10735,4863,1492,3741,42,51,8,283,79,176
+2010,"Mission Hill","Mission Hill",7062,1582,300,2608,0,0,545,1941,17,69
+2010,"North End","North End",7184,1101,95,1711,35,0,47,3874,43,278
+2010,"Roslindale","Roslindale",14754,7911,1567,4239,0,0,136,308,129,464
+2010,"Roxbury","Roxbury",17163,6324,1608,6732,26,31,174,1717,166,385
+2010,"South Boston","South Boston",18065,8841,748,5933,55,0,120,1638,111,619
+2010,"South Boston Waterfront","South Boston Waterfront",998,352,61,308,4,0,35,155,20,63
+2010,"South End","South End",15821,4095,601,5007,50,0,278,4859,211,720
+2010,"West End","West End",2683,452,109,644,52,0,40,1321,0,65
+2010,"West Roxbury","West Roxbury",15338,10903,1394,2242,0,0,10,124,127,538
+2020,"Allston","Allston",13169,3543,295,4360,147,41,886,2816,156,925
+2020,"Back Bay","Back Bay",10944,2329,201,2370,133,0,224,4420,166,1101
+2020,"Beacon Hill","Beacon Hill",6546,837,156,1092,59,0,216,3371,60,755
+2020,"Brighton","Brighton",33229,13831,2025,10820,187,0,759,2396,241,2970
+2020,"Charlestown","Charlestown",12179,4846,554,3142,65,0,431,1993,85,1063
+2020,"Chinatown","Chinatown",1889,263,45,224,24,19,3,928,110,273
+2020,"Dorchester","Dorchester",64311,28428,5548,21947,347,0,708,2612,1197,3524
+2020,"Downtown","Downtown",5958,965,128,1169,34,0,140,2897,64,561
+2020,"East Boston","East Boston",27511,8205,1641,13986,124,0,79,1364,227,1885
+2020,"Fenway","Fenway",16161,1823,431,3909,141,0,656,7844,184,1173
+2020,"Harbor Islands","Harbor Islands",86,15,0,54,0,0,0,16,0,1
+2020,"Hyde Park","Hyde Park",19388,11588,1735,4531,17,23,98,390,240,766
+2020,"Jamaica Plain","Jamaica Plain",25141,8884,1058,9436,62,0,1502,1394,114,2691
+2020,"Longwood","Longwood",2365,256,84,293,4,0,29,1528,0,171
+2020,"Mattapan","Mattapan",12508,6158,1325,3720,35,0,34,409,144,683
+2020,"Mission Hill","Mission Hill",7819,1567,344,2638,7,0,118,2664,23,458
+2020,"North End","North End",8004,1479,57,1749,44,0,113,3635,25,902
+2020,"Roslindale","Roslindale",18019,9791,1116,4844,61,12,325,489,157,1224
+2020,"Roxbury","Roxbury",22969,8600,1775,8628,112,0,581,2426,227,620
+2020,"South Boston","South Boston",25022,9742,1023,8609,381,109,337,2601,512,1708
+2020,"South Boston Waterfront","South Boston Waterfront",3459,972,239,366,0,0,93,1484,20,285
+2020,"South End","South End",17165,4149,725,4016,237,45,662,5607,373,1351
+2020,"West End","West End",3836,803,22,782,28,0,82,1449,137,533
+2020,"West Roxbury","West Roxbury",18483,12005,1082,2876,43,0,126,246,164,1941
+2020,"_Boston Harbor","_Boston Harbor",0,0,0,0,0,0,0,0,0,0

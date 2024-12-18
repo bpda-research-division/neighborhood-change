@@ -85,7 +85,8 @@ APP_CONFIG <- list(
     ### pop by sex -----
     "Population" = list(
       data_code = 'hbicttp', generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_tract_totpop_sex_bins.csv', totalarea_categories_csv = 'csv/hbictpop_cb.csv',
+      areas_categories_csv = 'csv/pop_by_sex_tract_rev.csv',# 'csv/hbic_tract_totpop_sex_bins.csv',
+      totalarea_categories_csv =  'csv/tot_pop_rev.csv', #'csv/hbictpop_cb.csv',
       barTitle = "Population by sex", barhoverformat = ",.0f", 
       null_description = "little to no population",
       barCats = list("Male" = "male", "Female" = "female"),
@@ -106,14 +107,13 @@ APP_CONFIG <- list(
           hoverformat = ".0%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted
-        to reflect Boston's successful group quarters challenge); IPUMS-NHGIS,
-        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
     ### age -----
     "Age" = list(
       data_code = "hbicta", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_tract_age_year_bins.csv',
+      areas_categories_csv = 'csv/pop_by_age_tract_rev.csv',   #'csv/hbic_tract_age_year_bins.csv',
       barTitle = "Population by age", barhoverformat = ",.0f",
       null_description = "little to no population",
       barCats = list(
@@ -168,13 +168,13 @@ APP_CONFIG <- list(
          hoverformat = ",.0f", tickformat = ""
        )
      ),
-     source = "U.S. Census Bureau, 1950-2020 Decennial Censuses,
-      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+     source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
     ### children by age ------
     "Children by Age" = list(
       data_code = "chilta", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/children_tract_age_bins.csv',
+      areas_categories_csv =  'csv/chi_by_age_tract_rev.csv', # 'csv/children_tract_age_bins.csv',
       barTitle = "Children by age", barhoverformat = ",.0f",
       null_description = "little to no population",
       barCats = list(
@@ -199,15 +199,15 @@ APP_CONFIG <- list(
         )
       ),
       additional_null_geoms = c("25025981100"),
-      source = "U.S. Census Bureau, 1980-2020 Decennial Censuses,
-      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1980-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
     ### race & ethnicity -----
     "Race and Ethnicity" = list(
       data_code = "hbictre", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_tract_race_ethn_bins.csv',
+      areas_categories_csv =  'csv/pop_by_race_tract_rev.csv', # 'csv/hbic_tract_race_ethn_bins.csv',
       barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
-      null_description = "little to no population",
+      null_description = "little to no population", smallbarfont = TRUE,
       barCats = list(
         "White" = "white",
         "Black/African American" = "black",
@@ -251,68 +251,68 @@ APP_CONFIG <- list(
           hoverformat = ".0%", tickformat = ".0%"
           )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS,
-        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates",
       note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
     ),
     ### children by race & ethnicity -----
-    "Children by Race and Ethnicity" = list(
-      data_code = "chiltre", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/children_tract_race_bins.csv',
-      barTitle = "Children by race/ethnicity", barhoverformat = ",.0f",
-      null_description = "little to no population",
-      barCats = list(
-        "White" = "white",
-        "Black/African American" = "black",
-        "Hispanic/Latino" = "hisp",
-        "Asian/Pacific Islander" = "aapi",
-        "American Indian" = "ainh",
-        "Two or More" = "twoplus",
-        "Other" = "other"
-      ),
-      summary_indicators = list(
-        "Non-white share of children" = list(
-          summary_expression = rlang::expr(
-            (black + hisp + aapi + ainh + twoplus + other) /
-              (white + black + hisp + aapi + ainh + twoplus + other)
-          ),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        ),
-        "Share of children, Black alone" = list(
-          summary_expression = rlang::expr(
-            (black) /
-              (white + black + hisp + aapi + ainh + twoplus + other)
-          ),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        ),
-        "Share of children, Hispanic of any race" = list(
-          summary_expression = rlang::expr(
-            (hisp) /
-              (white + black + hisp + aapi + ainh + twoplus + other)
-          ),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        ),
-        "Share of children, Asian alone" = list(
-          summary_expression = rlang::expr(
-            (aapi) /
-              (white + black + hisp + aapi + ainh + twoplus + other)
-          ),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        )
-      ),
-      additional_null_geoms = c("25025981100"),
-      source = "U.S. Census Bureau, 1980-2020 Decennial Censuses, IPUMS-NHGIS,
-        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
-      note = "Note: Two or More races did not become an option on the decennial census until 2000."
-    ),
+    #"Children by Race and Ethnicity" = list(
+    #  data_code = "chiltre", generalTopic = 'Demographics',
+    #  areas_categories_csv = 'csv/chi_by_race_tract_rev.csv', #'csv/children_tract_race_bins.csv',
+    #  barTitle = "Children by race/ethnicity", barhoverformat = ",.0f", smallbarfont = TRUE,
+    #  null_description = "little to no population",
+    #  barCats = list(
+    #    "White" = "white",
+    #    "Black/African American" = "black",
+    #    "Hispanic/Latino" = "hisp",
+    #    "Asian/Pacific Islander" = "aapi",
+    #    "American Indian" = "ainh",
+    #    "Two or More" = "twoplus",
+    #    "Other" = "other"
+    #  ),
+    #  summary_indicators = list(
+    #    "Non-white share of children" = list(
+    #      summary_expression = rlang::expr(
+    #        (black + hisp + aapi + ainh + twoplus + other) /
+    #          (white + black + hisp + aapi + ainh + twoplus + other)
+    #      ),
+    #      citywide_comparison = TRUE,
+    #      hoverformat = ".0%", tickformat = ".0%"
+    #    ),
+    #    "Share of children, Black alone" = list(
+    #      summary_expression = rlang::expr(
+    #        (black) /
+    #          (white + black + hisp + aapi + ainh + twoplus + other)
+    #      ),
+    #      citywide_comparison = TRUE,
+    #      hoverformat = ".0%", tickformat = ".0%"
+    #    ),
+    #    "Share of children, Hispanic of any race" = list(
+    #      summary_expression = rlang::expr(
+    #        (hisp) /
+    #          (white + black + hisp + aapi + ainh + twoplus + other)
+    #      ),
+    #      citywide_comparison = TRUE,
+    #      hoverformat = ".0%", tickformat = ".0%"
+    #    ),
+    #    "Share of children, Asian alone" = list(
+    #      summary_expression = rlang::expr(
+    #        (aapi) /
+    #          (white + black + hisp + aapi + ainh + twoplus + other)
+    #      ),
+    #      citywide_comparison = TRUE,
+    #      hoverformat = ".0%", tickformat = ".0%"
+    #    )
+    #  ),
+    #  additional_null_geoms = c("25025981100"),
+    #  source = "U.S. Census Bureau, 1980-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+    #  2020 and 2024 City of Boston Planning Department Research Division estimates",
+    #  note = "Note: Two or More races did not become an option on the decennial census until 2000."
+    #),
     ### nativity ------
     "Nativity" = list(
       data_code = "hbictnat", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_tract_nativity_bins.csv',
+      areas_categories_csv =  'csv/pop_by_nat_tract_rev.csv', # 'csv/hbic_tract_nativity_bins.csv',
       barTitle = "Population by nativity", barhoverformat = ",.0f",
       barCats = list("Native-born" = "native", "Foreign-born" = "foreign"),
       null_description = "little to no population",
@@ -328,15 +328,15 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
     ### educ attainment -----
     "Educational Attainment" = list(
       data_code = "hbictedu", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_tract_edu_attain_bins.csv',
+      areas_categories_csv = 'csv/pop_by_edu_tract_rev.csv',     # 'csv/hbic_tract_edu_attain_bins.csv',
       barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
-      null_description = "little to no population",
+      null_description = "little to no population", smallbarfont = TRUE,
       barCats = list(
         "Less than high school" = "lhs",
         "High school or some equivalent" = "he",
@@ -355,13 +355,13 @@ APP_CONFIG <- list(
           hoverformat = ".0%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
     ### labor force ----
     "Labor Force" = list(
       data_code = "hbictlf", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_tract_labor_force_bins.csv',
+      areas_categories_csv = 'csv/pop_by_lab_tract_rev.csv',   # 'csv/hbic_tract_labor_force_bins.csv',
       barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
       null_description = "little to no population",
       barCats = list(
@@ -382,54 +382,114 @@ APP_CONFIG <- list(
           hoverformat = ".0%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
-    ### ratio of income to poverty -----
-    "Ratio of Income to Poverty" = list(
-      data_code = "inc2povt", generalTopic = "Demographics",
-      areas_categories_csv = "csv/inc2pov_tract_bins.csv",
-      barTitle = "Population by Ratio of Income to Poverty", barhoverformat = ",.0f",
+    ### ratio of income to poverty - DEPRECATED -----
+    #"Ratio of Income to Poverty" = list(
+    #  data_code = "inc2povt", generalTopic = "Demographics",
+    #  areas_categories_csv = "csv/inc2pov_tract_bins.csv",
+    #  barTitle = "Population by Ratio of Income to Poverty", barhoverformat = ",.0f",
+    #  null_description = "little to no population",
+    #  additional_null_geoms = c(
+    #    paste0("25025", c("061202", "981201", "981202", "981501", "981502")), 
+    #    paste0("2502598", c("03", "07", "10", "11", "13", "16", "17", "18", "19"), "00")
+    #  ),
+    #  barCats = list(
+    #    "Under 0.5" = "c20aa", "0.5 to 0.74" = "c20ab", "0.75 to 0.99" = "c20ac",
+    #    "1.00 to 1.24" = "c20ad", "1.25 to 1.49" = "c20ae", "1.50 to 1.74" = "c20af",
+    #    "1.75 to 1.84" = "c20ag", "1.85 to 1.99" = "c20ah", "2.00 and over" = "c20ai"
+    #  ),
+    #  summary_indicators = list(
+    #    "Share of population under poverty line" = list(
+    #      summary_expression = rlang::expr(
+    #        (c20aa + c20ab + c20ac) / 
+    #          (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
+    #        ),
+    #      citywide_comparison = TRUE,
+    #      hoverformat = ".0%", tickformat = ".0%"
+    #    ),
+    #    "Total population under poverty line" = list(
+    #      summary_expression = rlang::expr(c20aa + c20ab + c20ac),
+    #      citywide_comparison = FALSE,
+    #      hoverformat = ",.0f", tickformat = ""
+    #    ),
+    #    "Share of population under 200% of poverty line" = list(
+    #      summary_expression = rlang::expr(
+    #        (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah) / 
+    #          (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
+    #      ),
+    #      citywide_comparison = TRUE,
+    #      hoverformat = ".0%", tickformat = ".0%"
+    #    )
+    #  ),
+    #  source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
+    #  Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; City of Boston Planning Department Research Division Analysis"
+    #),
+    ### poverty - NEW -----
+    "Poverty Status" = list(
+      data_code = "povt", generalTopic = "Demographics",
+      areas_categories_csv = 'csv/pop_by_pov_tract_rev.csv',
+      barTitle = "Population by poverty status", barhoverformat = ",.0f",
       null_description = "little to no population",
       additional_null_geoms = c(
         paste0("25025", c("061202", "981201", "981202", "981501", "981502")), 
         paste0("2502598", c("03", "07", "10", "11", "13", "16", "17", "18", "19"), "00")
       ),
       barCats = list(
-        "Under 0.5" = "c20aa", "0.5 to 0.74" = "c20ab", "0.75 to 0.99" = "c20ac",
-        "1.00 to 1.24" = "c20ad", "1.25 to 1.49" = "c20ae", "1.50 to 1.74" = "c20af",
-        "1.75 to 1.84" = "c20ag", "1.85 to 1.99" = "c20ah", "2.00 and over" = "c20ai"
+        "Below poverty line" = "tot_below_pov",
+        "Above poverty line" = "tot_above_pov"
       ),
       summary_indicators = list(
-        "Share of population under poverty line" = list(
-          summary_expression = rlang::expr(
-            (c20aa + c20ab + c20ac) / 
-              (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
-            ),
-          citywide_comparison = TRUE,
+        "Share of population below poverty line" = list(
+          summary_expression = rlang::expr(tot_below_pov / tot_pov_stat_det),
+          citywide_comparison = TRUE, 
           hoverformat = ".0%", tickformat = ".0%"
         ),
-        "Total population under poverty line" = list(
-          summary_expression = rlang::expr(c20aa + c20ab + c20ac),
+        "Total population below poverty line" = list(
+          summary_expression = rlang::expr(tot_below_pov),
           citywide_comparison = FALSE,
           hoverformat = ",.0f", tickformat = ""
-        ),
-        "Share of population under 200% of poverty line" = list(
-          summary_expression = rlang::expr(
-            (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah) / 
-              (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
-          ),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1980-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2024 City of Boston Planning Department 
+      Research Division estimates"
+    ),
+    ### children by poverty - NEW -----
+    "Children by Poverty Status" = list(
+      data_code = "chipovt", generalTopic = "Demographics",
+      areas_categories_csv = 'csv/chi_by_pov_tract_rev.csv',
+      barTitle = "Children by poverty status", barhoverformat = ",.0f",
+      null_description = "little to no population",
+      additional_null_geoms = c(
+        paste0("25025", c("061202", "981201", "981202", "981501", "981502")), 
+        paste0("2502598", c("03", "07", "10", "11", "13", "16", "17", "18", "19"), "00")
+      ),
+      barCats = list(
+        "Below poverty line" = "chi_below_pov",
+        "Above poverty line" = "chi_above_pov"
+      ),
+      summary_indicators = list(
+        "Share of children below poverty line" = list(
+          summary_expression = rlang::expr(chi_below_pov / chi_pov_stat_det),
+          citywide_comparison = TRUE, 
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Total children below poverty line" = list(
+          summary_expression = rlang::expr(chi_below_pov),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2024 City of Boston Planning Department 
+      Research Division estimates"
     ),
     ### living arrangements -------
     "Living Arrangements" = list(
       data_code = "hhgqt", generalTopic = "Demographics",
-      areas_categories_csv = 'csv/hh_gq_tract_bins.csv',
+      areas_categories_csv = 'csv/pop_by_livarr_tract_rev.csv', # 'csv/hh_gq_tract_bins.csv',
       barTitle = "Population by living arrangement type", barhoverformat = ",.0f",
       null_description = "little to no population",
       additional_null_geoms = c(
@@ -457,15 +517,14 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted
-        to reflect Boston's successful group quarters challenge), IPUMS-NHGIS, University of
-      Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
     ### housing units ----
     "Housing Units" = list(
       data_code = "hbicthou", generalTopic = 'Housing',
-      areas_categories_csv = 'csv/hbic_tract_housing_bins.csv',
-      totalarea_categories_csv = 'csv/hbicthou_cb.csv',
+      areas_categories_csv = 'csv/hu_tract_rev.csv', # 'csv/hbic_tract_housing_bins.csv',
+      totalarea_categories_csv = 'csv/tot_hu_rev.csv', # 'csv/hbicthou_cb.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
       null_description = "little to no housing",
       barCats = list(
@@ -484,15 +543,15 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of
-      Minnesota, www.nhgis.org; Mayor's Office of Housing; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; Mayor's Office of Housing;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
-    ### housing occupancy -----
-    "Housing Occupancy" = list(
+    ### housing vacancy -----
+    "Housing Vacancy" = list(
       data_code = "hbicthouvac", generalTopic = 'Housing',
-      areas_categories_csv = 'csv/hbic_tract_housing_vacancy_bins.csv',
-      totalarea_categories_csv = 'csv/hbicthouvac_cb.csv',
-      barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+      areas_categories_csv = 'csv/hu_by_vac_tract_rev.csv', # 'csv/hbic_tract_housing_vacancy_bins.csv',
+      totalarea_categories_csv = 'csv/tot_huvac_rev.csv',   # 'csv/hbicthouvac_cb.csv',
+      barTitle = "Housing units by vacancy", barhoverformat = ",.0f",
       null_description = "little to no housing",
       barCats = list(
         "Occupied" = "occ",
@@ -510,12 +569,13 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
-    ),
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
+      ),
     ### housing tenure ----
     "Housing Tenure" = list(
       data_code = "hbicthouten", generalTopic = 'Housing',
-      areas_categories_csv = 'csv/hbic_tract_housing_tenure_bins.csv',
+      areas_categories_csv = 'csv/hu_by_ten_tract_rev.csv', # 'csv/hbic_tract_housing_tenure_bins.csv',
       barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
       null_description = "little to no housing",
       barCats = list(
@@ -529,45 +589,42 @@ APP_CONFIG <- list(
           hoverformat = ".0%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
-    ),
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
+      ),
     ### commute mode ----
     "Commute Mode" = list(
       data_code = "commute_mode_tracts", generalTopic = 'Transportation',
-      areas_categories_csv = 'csv/commutemode_tract_bins.csv',
+      areas_categories_csv = 'csv/wrkrs_by_comm_tract_rev.csv',       # 'csv/commutemode_tract_bins.csv',
       barTitle = "Workers (16+) by primary commute mode", barhoverformat = ",.0f",
-      null_description = "little to no population",
+      null_description = "little to no population", smallbarfont = TRUE,
       additional_null_geoms = c(25025981100),
       barCats = list(
-        "Car, truck, or van" = "car_truck_van",
+        "Car, truck, or van - drove alone" = "car_truck_van_alone",
+        "Car, truck, or van - carpooled" = "car_truck_van_carpool",
         "Public transit" = "public_transportation",
-        "Bicycle" = "bicycle",
         "Walked" = "walked",
-        "Other means" = "other_means",
+        "Taxi, motorcycle, bike, other" = "taxi_moto_bike_other",
         "Worked from home" = "worked_from_home"
+        #       "Car, truck, or van" = "car_truck_van"
+        #       "Other means" = "other_means"
+        #       "Bicycle" = "bicycle"
       ),
       summary_indicators = list(
-        "Share of commuters (16+) walking or biking" = list(
-          summary_expression = rlang::expr((bicycle + walked) /
-                                             (total_workers_16_and_over - worked_from_home)),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        ),
         "Share of commuters (16+) taking public transit" = list(
           summary_expression = rlang::expr(public_transportation /
                                              (total_workers_16_and_over - worked_from_home)),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
         ),
-        "Share of commuters (16+) walking, biking, or taking transit" = list(
-          summary_expression = rlang::expr((bicycle + walked + public_transportation) /
+        "Share of commuters (16+) walking" = list(
+          summary_expression = rlang::expr(walked /
                                              (total_workers_16_and_over - worked_from_home)),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of commuters (16+) taking a car, truck, or van" = list(
-          summary_expression = rlang::expr(car_truck_van /
+          summary_expression = rlang::expr((car_truck_van_alone +  car_truck_van_carpool) /
                                              (total_workers_16_and_over - worked_from_home)),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
@@ -577,23 +634,30 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
         )
+        #       "Share of commuters (16+) walking or biking" = list(
+        #         summary_expression = rlang::expr((bicycle + walked) /
+        #                                            (total_workers_16_and_over - worked_from_home)),
+        #         citywide_comparison = TRUE,
+        #         hoverformat = ".0%", tickformat = ".0%"
+        #       )
       ),
-      note = "Note: Workers who commute by taxicab are included in the 'public transit' category.",
-      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
-    ),
+      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 American
+          Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+        2020 and 2024 City of Boston Planning Department Research Division estimates"
+    ), 
     ### vehicles available ----
     "Vehicles Available" = list(
       data_code = "vehicles_available_tracts", generalTopic = 'Transportation',
-      areas_categories_csv = 'csv/vehiclesavailable_tract_bins.csv',
+      areas_categories_csv = 'csv/hhs_by_veh_tract_rev.csv', # 'csv/vehiclesavailable_tract_bins.csv',
       barTitle = "Households by vehicles available", barhoverformat = ",.0f",
       null_description = "little to no households",
       additional_null_geoms = c(25025981100),
       barCats = list(
         "0 vehicles" = "no_vehicles",
-        "1 vehicle" = "one_vehicle",
-        "2 vehicles" = "two_vehicles",
-        "3+ vehicles" = "three_or_more_vehicles"
+        "1+ vehicles" = "one_or_more_vehicles"
+        #       "1 vehicle" = "one_vehicle"
+        #       "2 vehicles" = "two_vehicles"
+        #       "3+ vehicles" = "three_or_more_vehicles"
       ),
       summary_indicators = list(
         "Share of households with no vehicles available" = list(
@@ -601,15 +665,21 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
         ),
-        "Share of households with two or more vehicles available" = list(
-          summary_expression = rlang::expr((two_vehicles + three_or_more_vehicles) / total_occupied_units),
+        "Number of households with no vehicles available" = list(
+          summary_expression = rlang::expr(no_vehicles),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
+          hoverformat = ".0f", tickformat = ""
         )
+        #       "Share of households with two or more vehicles available" = list(
+        #         summary_expression = rlang::expr((two_vehicles + three_or_more_vehicles) / total_occupied_units),
+        #         citywide_comparison = TRUE,
+        #         hoverformat = ".0%", tickformat = ".0%"
+        #       )
       ),
-      source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
-    ),
+      source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2006-2010 American
+          Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+        2020 and 2024 City of Boston Planning Department Research Division estimates"
+      ),
     ### num of home loans ----
     "Number of Home Loans" = list(
       data_code = "numholoanstract", generalTopic = 'Loans',
@@ -640,7 +710,7 @@ APP_CONFIG <- list(
         )
       ),
       note = "Note: All originated loans for single- and multi-family properties are included.",
-      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; BPDA Research Division Analysis"
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; City of Boston Planning Department Research Division Analysis"
     ),
     ### $ of home loans ----
     "Volume ($) of Home Loans" = list(
@@ -682,7 +752,7 @@ APP_CONFIG <- list(
         )
       ),
       note = "Note: All originated loans for single- and multi-family properties are included. All monetary values are in 2022 inflation-adjusted dollars.",
-      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; BPDA Research Division Analysis"
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; City of Boston Planning Department Research Division Analysis"
     ),
     ### num of sm. bus. loans ----
     "Number of Small Business Loans" = list(
@@ -710,7 +780,7 @@ APP_CONFIG <- list(
         )
       ),
       note = "Note: A business is considered small if it has <$1M in annual revenue.",
-      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; BPDA Research Division analysis"
+      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; City of Boston Planning Department Research Division analysis"
     ),
     ### $ of sm. bus. loans ----
     "Volume ($) of Small Business Loans" = list(
@@ -758,7 +828,7 @@ APP_CONFIG <- list(
         )
       ),
       note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2022 inflation-adjusted dollars.",
-      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; BPDA Research Division analysis"
+      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; City of Boston Planning Department Research Division analysis"
     )
   )
   ),
@@ -767,7 +837,8 @@ APP_CONFIG <- list(
     ### pop by sex ----
     "Population" = list(
       data_code = 'hbicntp', generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_neigh_totpop_sex_bins.csv', totalarea_categories_csv = 'csv/hbictpop_cb.csv',
+      areas_categories_csv = 'csv/pop_by_sex_neigh_rev.csv',            # 'csv/hbic_neigh_totpop_sex_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',    # 'csv/hbictpop_cb.csv',
       barTitle = "Population by sex", barhoverformat = ",.0f",
       barCats = list("Male" = "male", "Female" = "female"),
       summary_indicators = list(
@@ -792,14 +863,13 @@ APP_CONFIG <- list(
           hoverformat = ".0%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted
-        to reflect Boston's successful group quarters challenge); IPUMS-NHGIS,
-        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
     ### age ----
     "Age" = list(
       data_code = "hbicna", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_neigh_age_year_bins.csv',
+      areas_categories_csv = 'csv/pop_by_age_neigh_rev.csv',  # 'csv/hbic_neigh_age_year_bins.csv',
       barTitle = "Population by age", barhoverformat = ",.0f",
       barCats = list(
         "0-9 years" = "zero_nine",
@@ -853,13 +923,13 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses,
-      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
     ### children by age -----
     "Children by Age" = list(
       data_code = "chilna", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/children_neigh_age_bins.csv',
+      areas_categories_csv = 'csv/chi_by_age_neigh_rev.csv',        # 'csv/children_neigh_age_bins.csv',
       barTitle = "Children by age", barhoverformat = ",.0f",
       barCats = list(
         "0-4 years" = "under5",
@@ -883,13 +953,13 @@ APP_CONFIG <- list(
         )
       ),
       source = "U.S. Census Bureau, 1980-2020 Decennial Censuses,
-      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
     ### race & ethnicity -----
     "Race and Ethnicity" = list(
       data_code = "hbicnre", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_neigh_race_ethn_bins.csv',
-      barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
+      areas_categories_csv = 'csv/pop_by_race_neigh_rev.csv',        # 'csv/hbic_neigh_race_ethn_bins.csv',
+      barTitle = "Population by race/ethnicity", barhoverformat = ",.0f", smallbarfont = TRUE,
       barCats = list(
         "White" = "white",
         "Black/African American" = "black",
@@ -941,15 +1011,15 @@ APP_CONFIG <- list(
           hoverformat = ".0%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS,
-        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates",
       note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other. Two or more races became an option in 2000."
     ),
     ### children by race & ethnicity ----
     "Children by Race and Ethnicity" = list(
       data_code = "chilnre", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/children_neigh_race_bins.csv',
-      barTitle = "Children by race/ethnicity", barhoverformat = ",.0f",
+      areas_categories_csv =  'csv/chi_by_race_neigh_rev.csv',          #  'csv/children_neigh_race_bins.csv',
+      barTitle = "Children by race/ethnicity", barhoverformat = ",.0f", smallbarfont = TRUE,
       barCats = list(
         "White" = "white",
         "Black/African American" = "black",
@@ -993,14 +1063,14 @@ APP_CONFIG <- list(
           hoverformat = ".0%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1980-2020 Decennial Censuses, IPUMS-NHGIS,
-        University of Minnesota, www.nhgis.org; BPDA Research Division Analysis",
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates",
       note = "Note: Two or More races did not become an option on the decennial census until 2000."
     ),
     ### nativity ----
     "Nativity" = list(
       data_code = "hbicnnat", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_neigh_nativity_bins.csv',
+      areas_categories_csv =  'csv/pop_by_nat_neigh_rev.csv',        # 'csv/hbic_neigh_nativity_bins.csv',
       barTitle = "Population by nativity", barhoverformat = ",.0f",
       barCats = list("Native-born" = "native", "Foreign-born" = "foreign"),
       summary_indicators = list(
@@ -1015,14 +1085,15 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2024 City of Boston Planning Department 
+      Research Division estimates"
     ),
     ### educ attainment ----
     "Educational Attainment" = list(
       data_code = "hbicnedu", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_neigh_edu_attain_bins.csv',
-      barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
+      areas_categories_csv = 'csv/pop_by_edu_neigh_rev.csv',     # 'csv/hbic_neigh_edu_attain_bins.csv',
+      barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f", smallbarfont = TRUE,
       barCats = list(
         "Less than high school" = "lhs",
         "High school or some equivalent" = "he",
@@ -1041,13 +1112,14 @@ APP_CONFIG <- list(
           hoverformat = ".0%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2024 City of Boston Planning Department 
+      Research Division estimates"
     ),
     ### labor force ----
     "Labor Force" = list(
       data_code = "hbicnlf", generalTopic = 'Demographics',
-      areas_categories_csv = 'csv/hbic_neigh_labor_force_bins.csv',
+      areas_categories_csv = 'csv/pop_by_lab_neigh_rev.csv',  #  'csv/hbic_neigh_labor_force_bins.csv',
       barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
       barCats = list(
         "Male in labor force" = "ilf_m"
@@ -1067,49 +1139,102 @@ APP_CONFIG <- list(
           hoverformat = ".0%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2024 City of Boston Planning Department 
+      Research Division estimates"
     ),
-    ### ratio of income to poverty -----
-    "Ratio of Income to Poverty" = list(
-      data_code = "inc2povn", generalTopic = "Demographics",
-      areas_categories_csv = "csv/inc2pov_neigh_bins.csv",
-      barTitle = "Population by Ratio of Income to Poverty", barhoverformat = ",.0f",
+    ### ratio of income to poverty - DEPRECATED -----
+    #"Ratio of Income to Poverty" = list(
+    # data_code = "inc2povn", generalTopic = "Demographics",
+    # areas_categories_csv = "csv/inc2pov_neigh_bins.csv",
+    # barTitle = "Population by Ratio of Income to Poverty", barhoverformat = ",.0f",
+    # null_description = "little to no population",
+    # additional_null_geoms = c(
+    #   paste0("25025", c("061202", "981201", "981202", "981501", "981502")), 
+    #   paste0("2502598", c("03", "07", "10", "11", "13", "16", "17", "18", "19"), "00")
+    # ),
+    # barCats = list(
+    #   "Under 0.5" = "c20aa", "0.5 to 0.74" = "c20ab", "0.75 to 0.99" = "c20ac",
+    #   "1.00 to 1.24" = "c20ad", "1.25 to 1.49" = "c20ae", "1.50 to 1.74" = "c20af",
+    #   "1.75 to 1.84" = "c20ag", "1.85 to 1.99" = "c20ah", "2.00 and over" = "c20ai"
+    # ),
+    # summary_indicators = list(
+    #   "Share of population under poverty line" = list(
+    #     summary_expression = rlang::expr(
+    #       (c20aa + c20ab + c20ac) / 
+    #         (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
+    #     ),
+    #     citywide_comparison = TRUE,
+    #     hoverformat = ".0%", tickformat = ".0%"
+    #   ),
+    #   "Share of population under 200% of poverty line" = list(
+    #     summary_expression = rlang::expr(
+    #       (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah) / 
+    #         (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
+    #     ),
+    #     citywide_comparison = TRUE,
+    #     hoverformat = ".0%", tickformat = ".0%"
+    #   )
+    # ),
+    # source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
+    # Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; City of Boston Planning Department Research Division Analysis"
+    # ),
+    ### poverty - NEW -----
+    "Poverty Status" = list(
+      data_code = "povn", generalTopic = "Demographics",
+      areas_categories_csv = 'csv/pop_by_pov_neigh_rev.csv',
+      barTitle = "Population by poverty status", barhoverformat = ",.0f",
       null_description = "little to no population",
-      additional_null_geoms = c(
-        paste0("25025", c("061202", "981201", "981202", "981501", "981502")), 
-        paste0("2502598", c("03", "07", "10", "11", "13", "16", "17", "18", "19"), "00")
-      ),
       barCats = list(
-        "Under 0.5" = "c20aa", "0.5 to 0.74" = "c20ab", "0.75 to 0.99" = "c20ac",
-        "1.00 to 1.24" = "c20ad", "1.25 to 1.49" = "c20ae", "1.50 to 1.74" = "c20af",
-        "1.75 to 1.84" = "c20ag", "1.85 to 1.99" = "c20ah", "2.00 and over" = "c20ai"
+        "Below poverty line" = "tot_below_pov",
+        "Above poverty line" = "tot_above_pov"
       ),
       summary_indicators = list(
-        "Share of population under poverty line" = list(
-          summary_expression = rlang::expr(
-            (c20aa + c20ab + c20ac) / 
-              (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
-          ),
-          citywide_comparison = TRUE,
+        "Share of population below poverty line" = list(
+          summary_expression = rlang::expr(tot_below_pov / tot_pov_stat_det),
+          citywide_comparison = TRUE, 
           hoverformat = ".0%", tickformat = ".0%"
         ),
-        "Share of population under 200% of poverty line" = list(
-          summary_expression = rlang::expr(
-            (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah) / 
-              (c20aa + c20ab + c20ac + c20ad + c20ae + c20af + c20ag + c20ah + c20ai)
-          ),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
+        "Total population below poverty line" = list(
+          summary_expression = rlang::expr(tot_below_pov),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1980-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2024 City of Boston Planning Department 
+      Research Division estimates"
+    ),
+    ### children by poverty - NEW -----
+    "Children by Poverty Status" = list(
+      data_code = "chipovn", generalTopic = "Demographics",
+      areas_categories_csv = 'csv/chi_by_pov_neigh_rev.csv',
+      barTitle = "Children by poverty status", barhoverformat = ",.0f",
+      null_description = "little to no population",
+      barCats = list(
+        "Below poverty line" = "chi_below_pov",
+        "Above poverty line" = "chi_above_pov"
+      ),
+      summary_indicators = list(
+        "Share of children below poverty line" = list(
+          summary_expression = rlang::expr(chi_below_pov / chi_pov_stat_det),
+          citywide_comparison = TRUE, 
+          hoverformat = ".0%", tickformat = ".0%"
+        ),
+        "Total children below poverty line" = list(
+          summary_expression = rlang::expr(chi_below_pov),
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+        )
+      ),
+      source = "U.S. Census Bureau, 1980-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2024 City of Boston Planning Department 
+      Research Division estimates"
     ),
     ### living arrangements -------
     "Living Arrangements" = list(
       data_code = "hhgqn", generalTopic = "Demographics",
-      areas_categories_csv = 'csv/hh_gq_neigh_bins.csv',
+      areas_categories_csv = 'csv/pop_by_livarr_neigh_rev.csv',  # 'csv/hh_gq_neigh_bins.csv',
       barTitle = "Population by living arrangement type", barhoverformat = ",.0f",
       null_description = "little to no population",
       barCats = list(
@@ -1133,14 +1258,14 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses (with 2020 adjusted
-        to reflect Boston's successful group quarters challenge), IPUMS-NHGIS, University of
-      Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
     ),
     ### housing units ----
     "Housing Units" = list(
       data_code = "hbicnhou", generalTopic = 'Housing',
-      areas_categories_csv = 'csv/hbic_neigh_housing_bins.csv',
+      areas_categories_csv = 'csv/hu_neigh_rev.csv', # 'csv/hbic_neigh_housing_bins.csv',
+      totalarea_categories_csv = 'csv/tot_hu_rev.csv', # 'csv/hbicthou_cb.csv',
       barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
       barCats = list(
         "Occupied" = "occ",
@@ -1158,14 +1283,15 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of
-      Minnesota, www.nhgis.org; Mayor's Office of Housing; BPDA Research Division Analysis"
-    ),
-    ### housing occupancy -----
-    "Housing Occupancy" = list(
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
+      ),
+    ### housing vacancy -----
+    "Housing Vacancy" = list(
       data_code = "hbicnhouvac", generalTopic = 'Housing',
-      areas_categories_csv = 'csv/hbic_neigh_housing_vacancy_bins.csv',
-      barTitle = "Housing units by occupancy", barhoverformat = ",.0f",
+      areas_categories_csv = 'csv/hu_by_vac_neigh_rev.csv', # 'csv/hbic_neigh_housing_vacancy_bins.csv',
+      totalarea_categories_csv = 'csv/tot_huvac_rev.csv',   # 'csv/hbicthouvac_cb.csv',
+      barTitle = "Housing units by vacancy", barhoverformat = ",.0f",
       barCats = list(
         "Occupied" = "occ",
         "Vacant" = "vac"
@@ -1182,12 +1308,13 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
-    ),
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
+      ),
     ### housing tenure -----
     "Housing Tenure" = list(
       data_code = "hbicnhouten", generalTopic = 'Housing',
-      areas_categories_csv = 'csv/hbic_neigh_housing_tenure_bins.csv',
+      areas_categories_csv = 'csv/hu_by_ten_neigh_rev.csv', # 'csv/hbic_neigh_housing_tenure_bins.csv',
       barTitle = "Occupied housing units by tenure", barhoverformat = ",.0f",
       barCats = list(
         "Owner-occupied" = "owner",
@@ -1210,8 +1337,8 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2024 City of Boston Planning Department Research Division estimates"
       ),
     ### housing sales ------
     "Housing Sales" = list(
@@ -1250,44 +1377,41 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "Mayor's Office of Housing, The Warren Group, BPDA Research Division analysis",
+      source = "Mayor's Office of Housing, The Warren Group, City of Boston Planning Department Research Division analysis",
       note = "Note: Only one neighborhood at a time can be selected for median price variables."
     ),
     ### commute mode ----
     "Commute Mode" = list(
       data_code = "commute_mode_neighs", generalTopic = 'Transportation',
-      areas_categories_csv = 'csv/commutemode_neigh_bins.csv',
+      areas_categories_csv = 'csv/wrkrs_by_comm_neigh_rev.csv',      #  'csv/commutemode_neigh_bins.csv',
       barTitle = "Workers (16+) by primary commute mode", barhoverformat = ",.0f",
-      null_description = "little to no population",
+      null_description = "little to no population", smallbarfont = TRUE,
       barCats = list(
-        "Car, truck, or van" = "car_truck_van",
+        "Car, truck, or van - drove alone" = "car_truck_van_alone",
+        "Car, truck, or van - carpooled" = "car_truck_van_carpool",
         "Public transit" = "public_transportation",
-        "Bicycle" = "bicycle",
         "Walked" = "walked",
-        "Other means" = "other_means",
+        "Taxi, motorcycle, bike, other" = "taxi_moto_bike_other",
         "Worked from home" = "worked_from_home"
+#       "Car, truck, or van" = "car_truck_van"
+#       "Other means" = "other_means"
+#       "Bicycle" = "bicycle"
       ),
       summary_indicators = list(
-        "Share of commuters (16+) walking or biking" = list(
-          summary_expression = rlang::expr((bicycle + walked) /
-                                             (total_workers_16_and_over - worked_from_home)),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        ),
         "Share of commuters (16+) taking public transit" = list(
           summary_expression = rlang::expr(public_transportation /
                                              (total_workers_16_and_over - worked_from_home)),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
         ),
-        "Share of commuters (16+) walking, biking, or taking transit" = list(
-          summary_expression = rlang::expr((bicycle + walked + public_transportation) /
+        "Share of commuters (16+) walking" = list(
+          summary_expression = rlang::expr(walked /
                                              (total_workers_16_and_over - worked_from_home)),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
         ),
         "Share of commuters (16+) taking a car, truck, or van" = list(
-        summary_expression = rlang::expr(car_truck_van /
+        summary_expression = rlang::expr((car_truck_van_alone +  car_truck_van_carpool) /
                                              (total_workers_16_and_over - worked_from_home)),
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
@@ -1297,22 +1421,29 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
         )
+#       "Share of commuters (16+) walking or biking" = list(
+#         summary_expression = rlang::expr((bicycle + walked) /
+#                                            (total_workers_16_and_over - worked_from_home)),
+#         citywide_comparison = TRUE,
+#         hoverformat = ".0%", tickformat = ".0%"
+#       )
       ),
-      note = "Note: Workers who commute by taxicab are included in the 'public transit' category.",
-      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2024 City of Boston Planning Department
+      Research Division estimates"
     ),
     ### vehicles available ----
     "Vehicles Available" = list(
       data_code = "vehicles_available_neighs", generalTopic = 'Transportation',
-      areas_categories_csv = 'csv/vehiclesavailable_neigh_bins.csv',
+      areas_categories_csv = 'csv/hhs_by_veh_neigh_rev.csv',        # 'csv/vehiclesavailable_neigh_bins.csv',
       barTitle = "Households by vehicles available", barhoverformat = ",.0f",
       null_description = "little to no households",
       barCats = list(
         "0 vehicles" = "no_vehicles",
-        "1 vehicle" = "one_vehicle",
-        "2 vehicles" = "two_vehicles",
-        "3+ vehicles" = "three_or_more_vehicles"
+        "1+ vehicles" = "one_or_more_vehicles"
+#       "1 vehicle" = "one_vehicle"
+#       "2 vehicles" = "two_vehicles"
+#       "3+ vehicles" = "three_or_more_vehicles"
       ),
       summary_indicators = list(
         "Share of households with no vehicles available" = list(
@@ -1320,14 +1451,20 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE,
           hoverformat = ".0%", tickformat = ".0%"
         ),
-        "Share of households with two or more vehicles available" = list(
-          summary_expression = rlang::expr((two_vehicles + three_or_more_vehicles) / total_occupied_units),
+        "Number of households with no vehicles available" = list(
+          summary_expression = rlang::expr(no_vehicles),
           citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
+          hoverformat = ".0f", tickformat = ""
         )
+#       "Share of households with two or more vehicles available" = list(
+#         summary_expression = rlang::expr((two_vehicles + three_or_more_vehicles) / total_occupied_units),
+#         citywide_comparison = TRUE,
+#         hoverformat = ".0%", tickformat = ".0%"
+#       )
       ),
-      source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2006-2010 and 2016-2020 American
-      Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; BPDA Research Division Analysis"
+      source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2024 City of Boston Planning Department
+      Research Division estimates"
     ),
     ### num of home loans ----
     "Number of Home Loans" = list(
@@ -1358,7 +1495,7 @@ APP_CONFIG <- list(
         )
       ),
       note = "Note: All originated loans for single- and multi-family properties are included.",
-      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; BPDA Research Division Analysis"
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; City of Boston Planning Department Research Division Analysis"
     ),
     ### $ of home loans ----
     "Volume ($) of Home Loans" = list(
@@ -1399,7 +1536,7 @@ APP_CONFIG <- list(
         )
       ),
       note = "Note: All originated loans for single- and multi-family properties are included. All monetary values are in 2022 inflation-adjusted dollars.",
-      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; BPDA Research Division Analysis"
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; City of Boston Planning Department Research Division Analysis"
     ),
     ### num of sm. bus. loans ----
     "Number of Small Business Loans" = list(
@@ -1426,7 +1563,7 @@ APP_CONFIG <- list(
         )
       ),
       note = "Note: A business is considered small if it has <$1M in annual revenue.",
-      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; BPDA Research Division analysis"
+      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; City of Boston Planning Department Research Division analysis"
     ),
     ### $ of sm. bus. loans ----
     "Volume ($) of Small Business Loans" = list(
@@ -1473,7 +1610,7 @@ APP_CONFIG <- list(
         )
       ),
       note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2022 inflation-adjusted dollars.",
-      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; BPDA Research Division analysis"
+      source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; City of Boston Planning Department Research Division analysis"
     )
   )
   ),
@@ -1520,7 +1657,7 @@ APP_CONFIG <- list(
             hoverformat = ".0%", tickformat = ".0%"
           )
         ),
-        source = "U.S. Census Bureau, Zip Code Business Patterns; BPDA Research Division analysis"
+        source = "U.S. Census Bureau, Zip Code Business Patterns; City of Boston Planning Department Research Division analysis"
       ),
       
       ### businesses by size ------
@@ -1548,7 +1685,7 @@ APP_CONFIG <- list(
             hoverformat = ".0%", tickformat = ".0%"
           )
         ),
-        source = "U.S. Census Bureau, Zip Code Business Patterns; BPDA Research Division analysis"
+        source = "U.S. Census Bureau, Zip Code Business Patterns; City of Boston Planning Department Research Division analysis"
       ),
       
       ### num of sm. bus. loans ------
@@ -1580,7 +1717,7 @@ APP_CONFIG <- list(
           )
         ),
         note = "Note: A business is considered small if it has <$1M in annual revenue.",
-        source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; U.S. Census Bureau, Zip Code Business Patterns; BPDA Research Division analysis"
+        source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; U.S. Census Bureau, Zip Code Business Patterns; City of Boston Planning Department Research Division analysis"
       ),
       ### $ of sm. bus. loans ------
       "Volume ($) of Small Business Loans" = list(
@@ -1626,7 +1763,7 @@ APP_CONFIG <- list(
           )
         ),
         note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2022 inflation-adjusted dollars.",
-        source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; BPDA Research Division analysis"
+        source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; City of Boston Planning Department Research Division analysis"
       )
       )
     )
@@ -1643,7 +1780,7 @@ for (geo_name in names(APP_CONFIG)) {
     length(APP_CONFIG[[geo_name]]$geoms$GEOID) != length(unique(APP_CONFIG[[geo_name]]$geoms$GEOID))
     ) {
     stop(paste("Error: the specified geoms for", geo_name, "must have a GEOID attribute that uniquely identifies each feature. 
-         More information: https://github.com/bpda-research-division/neighborhood-change/blob/main/ABOUT.md#preparing-geographic-features"))
+         More information: https://github.com/City of Boston Planning Department-research-division/neighborhood-change/blob/main/ABOUT.md#preparing-geographic-features"))
   }
 }
 
@@ -1654,8 +1791,6 @@ if (length(topic_codes) != length(unique(topic_codes))) {
 }
 
 # # You can either prep data for individual topics...
-# prep_data(APP_CONFIG[['zip code areas']]$topics[['Numbers of Small Business Loans']])
-# prep_data(APP_CONFIG[['zip code areas']]$topics[['Volume ($) of Small Business Loans']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Race and Ethnicity']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
@@ -1663,27 +1798,43 @@ if (length(topic_codes) != length(unique(topic_codes))) {
 #prep_data(APP_CONFIG[['census tracts']]$topics[['Commute Mode']])
 #prep_data(APP_CONFIG[['neighborhoods']]$topics[['Commute Mode']])
 
-prep_data(APP_CONFIG[['census tracts']]$topics[['Number of Home Loans']])
-prep_data(APP_CONFIG[['census tracts']]$topics[['Volume ($) of Home Loans']])
-prep_data(APP_CONFIG[['census tracts']]$topics[['Number of Small Business Loans']])
-prep_data(APP_CONFIG[['census tracts']]$topics[['Volume ($) of Small Business Loans']])
+#prep_data(APP_CONFIG[['census tracts']]$topics[['Number of Home Loans']])
+#prep_data(APP_CONFIG[['census tracts']]$topics[['Volume ($) of Home Loans']])
+#prep_data(APP_CONFIG[['census tracts']]$topics[['Number of Small Business Loans']])
+#prep_data(APP_CONFIG[['census tracts']]$topics[['Volume ($) of Small Business Loans']])
 
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Number of Home Loans']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Volume ($) of Home Loans']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Number of Small Business Loans']])
-prep_data(APP_CONFIG[['neighborhoods']]$topics[['Volume ($) of Small Business Loans']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Number of Home Loans']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Volume ($) of Home Loans']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Volume ($) of Small Business Loans']])
 
 #prep_data(APP_CONFIG[['census tracts']]$topics[['Vehicles Available']])
 #prep_data(APP_CONFIG[['neighborhoods']]$topics[['Vehicles Available']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
 
-# # ...or prep data for all topics
-# for (geo_type in APP_CONFIG) {
-#   for (topic in geo_type$topics) {
-#     prep_data(topic)
-#   }
-# }
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Age']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Race and Ethnicity']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Race and Ethnicity']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Nativity']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Educational Attainment']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Labor Force']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Poverty']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Living Arrangements']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Commute Mode']])
+#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Vehicles Available']])
+
+
+
+ # ...or prep data for all topics
+ for (geo_type in APP_CONFIG) {
+   for (topic in geo_type$topics) {
+     prep_data(topic)
+   }
+ }
 
 # always save config after making changes to it
 APP_CONFIG %>% saveRDS(file='../config/APP_CONFIG.rds')
+
+

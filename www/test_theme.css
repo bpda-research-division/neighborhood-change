@@ -2,110 +2,563 @@
 
 /*Define Fonts*/
 
-
-@font-face{
-  font-family: Legato;
-  src: url("fonts/Legato/FontFont - LegatoOT.otf");
-}
-
-@font-face{
-  font-family: Legato;
-  src: url("fonts/Legato/FontFont - LegatoOT-Bold.otf");
-  font-weight: bold;
-}
-
-@font-face{
-  font-family: "Open Sans";
-  src: url("fonts/Open Sans/OpenSans-Regular.ttf");
-  font-weight:400;
-}
-
-@font-face{
-  font-family: "Open Sans";
-  src: url("fonts/Open Sans/OpenSans-Light.ttf");
-  font-weight:300;
-}
-
-@font-face{
-  font-family: "Open Sans";
-  src: url("fonts/Open Sans/OpenSans-Semibold.ttf");
-  font-weight:600;
-}
-
-@font-face{
-  font-family: "Open Sans";
-  src: url("fonts/Open Sans/OpenSans-Bold.ttf");
-  font-weight:700;
-}
-
-@font-face{
-  font-family: "Open Sans";
-  src: url("fonts/Open Sans/OpenSans-ExtraBold.ttf");
-  font-weight:800;
-}
-
-
-@font-face{
-  font-family: "Open Sans";
-  src: url("fonts/Open Sans/OpenSans-Italic.ttf");
-  font-style:italic;
-}
-
 @font-face {
   font-family: "Lora";
   src: url("fonts/Lora/Lora-Regular.ttf");
-  font-weight: 400;
+  font-weight:400;
 }
 
 @font-face {
   font-family: "Lora";
   src: url("fonts/Lora/Lora-Bold.ttf");
-  font-weight: 700;
+  font-weight:700;
 }
 
 @font-face {
   font-family: "Lora";
   src: url("fonts/Lora/Lora-Italic.ttf");
-  font-style: italic;
+  font-style:italic;
 }
 
-@font-face {
-  font-family: "Montserrat";
-  src: url("fonts/Montserrat/Montserrat-Regular.ttf");
-  font-weight: 400;
-}
 
 @font-face {
   font-family: "Montserrat";
   src: url("fonts/Montserrat/Montserrat-Bold.ttf");
-  font-weight: 700;
+  font-weight:700;
 }
 
 @font-face {
   font-family: "Montserrat";
   src: url("fonts/Montserrat/Montserrat-ExtraBold.ttf");
-  font-style: 800;
+  font-weight:800;
 }
 
 body {
   font-family: "Lora";
 }
 
-/* Leaflet Font Changes */
-/* Legend */
+
+/* HEADER STYLE ------------------------------------------------------------- */
+
+.header {
+    background-color: APP_FONT_COLOR; /* global variable*/
+    padding: 10px 0;
+}
+
+/* Title styles */
+.header-title {
+    font-size: 28px; 
+    font-family: "Montserrat"; 
+    margin: 0; 
+    font-weight: 800; 
+    color: white;
+}
+/* Subtitle styles */
+.header-subtitle {
+    font-size: 18px; 
+    color: white; 
+    font-weight: 400; 
+    padding-top: 5px;
+}
+/* About button styles */
+.about-button {
+    padding: 5px 10px; 
+    margin-right: 10px; 
+    margin-top: 10px;
+}
+
+.about-button a {
+    font-size: 100%; 
+    color: white; 
+    font-family: "Montserrat"; 
+    font-weight: 800; 
+}
+
+/*TAB STYLE  ---------------------------------------------------------------- */
+
+/* tab title formatting */
+.tab-title {
+  font-family: "Montserrat"; 
+  text-transform: uppercase; 
+  font-weight: 700; 
+  font-size: 16px;
+  color: white;
+}
+/* remove bottom border */
+.nav.nav-tabs {
+  border-bottom: 1px solid transparent;
+  padding-left: 5px;
+}
+/* inactive tabs */
+.nav.nav-tabs li a {
+  color: white;                 /*  text color */
+  background-color: #288be4;    /* background color of tab */
+  border: 2px solid transparent; /* Set border width and make it transparent */
+  border-radius: 8px;           /* Rounded corner */
+  margin-right: 10px;
+margin-bottom: 8px;
+}
+/* active tabs */
+.nav.nav-tabs li.active a{
+  background-color: #fb4d42;
+  color: white;
+  border: 2px solid white; /* Set border width and make it transparent */
+  border-radius: 8px;           /* Rounded corner */
+  margin-right: 10px;
+
+}
+/* Hover effect for inactive tabs */
+.nav.nav-tabs li a:hover {
+  background-color: #0056b3; /* Darker blue on hover for inactive tabs */
+  border: 2px solid white; /* Change border color on hover */
+  border-radius: 8px;           /* Rounded corner */
+  margin-right: 10px;
+
+}
+/* Prevent hover effect on active tab */
+.nav.nav-tabs li.active a:hover {
+  background-color: #fb4d42; /* Keep the active tab color */
+}
+
+.nav>li>a {
+    padding: 5px 15px;
+}
+
+/* SIDEBAR PANEL (MAP PANEL) STYLING ---------------------------------------- */
+
+/* Style for the sidebar panel */
+.sidebar-panel {
+    height: 100%; /* set height to be consistent with the main panel height using 99.5 units of viewport height (browser window) */
+    background-color: #ffffff; /* Set background to white */
+    border-radius: 8px; /* Rounded corners */
+   margin-left: -10px; /* Adjust left margin */
+
+}
+
+/* Style for well backgrounds */
+.well {
+    background-color: #ffffff; /* Set background to white */
+    padding: 0px;
+}
+
+/* styling the first control (topic filters) with its own class */
+.first-control-row {
+    border-bottom: 1px solid #f0f0f0; /* add horizontal light gray bottom border */
+
+}
+
+/* styling other control rows (topic + variable selectors, time slder) */
+.control-row {
+  border-bottom: 1px solid #f0f0f0; /* add horizontal light gray bottom border */
+}
+
+.col-sm-2 {
+  padding-left: 10px;
+}
+
+.col-sm-6 {
+      padding-left: 10px;
+
+}
+
+/* style all rows to center-align ---> NOTE: THIS INCLUDES HEADER ROW */
+@media (min-width: 769px) {
+.row {
+  display: flex;
+  align-items: center;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+}
+
+@media (max-width: 768px) {
+  .row {
+  display: block;
+    margin-left: 0px;
+  margin-right: 0px;
+  }
+}
+
+
+/* Style for control row titles */
+.control-row-title {
+  font-family: "Montserrat";
+  font-size: 16px;
+  
+}
+
+/* style the selector containers to have margins */
+.form-group {
+  margin: 10px 0;
+} 
+
+/* Style for padding in the instruction area */
+.instruction-map {
+    padding: 10px;
+    font-style: italic;
+}
+
+/* fix topic and variable selectors to take up width of column */
+.selectize-control.shiny-bound-input {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+}
+
+/* remove bottom margin on topic and variable selectors */
+.selectize-control {
+  margin-bottom: -8px;
+}
+
+/* TOPIC FILTERS STYLING ---------------------------------------------------- */
+.custom-checkbox {
+  display: inline-block; /* Make sure it aligns properly */
+}
+
+.custom-checkbox label {
+  background-color: white; /* Default background color */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 3px 8px; /* Padding for button-like appearance */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+.custom-checkbox input[type='checkbox'] {
+  display: inline-block;
+}
+
+/* margin around checkbox buttons */
+.checkbox-inline+.checkbox-inline, .radio-inline+.radio-inline {
+    margin: 2px;
+}
+.checkbox-inline{
+  cursor: pointer;
+}
+.checkbox-inline:hover{
+  cursor: pointer;
+    background-color: #e6e6e6; /* Light gray background on hover */
+  border-color: #8c8c8c;
+}
+/* adjust checkbox alignment to center of checkbox text */
+.checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio] {
+    position: relative;
+    margin-left: -20px;
+}
+.custom-checkbox input[type='checkbox']:hover {
+  cursor: pointer;
+}
+/* Adjustments for the unchecked state */
+.custom-checkbox label::before {
+  content: ''; /* No checkmark when unchecked */
+  display: inline-block; /* Ensure it takes space */
+  width: 16px; /* Width for checkmark space */
+  height: 16px; /* Height for checkmark space */
+}
+
+/* GENERAL STYLING  -------------------------------------------------------   */
+
+/* Set app background */
+.container-fluid {
+    background-color: #091F2F;
+}
+
+/* Standardize font type and size across the app */
+* {
+    font-size: 17px; /* global variable */
+    font-family: "Lora"; /* Replace with the actual font variable or string */
+    color: #091f2f;
+}
+
+/* make h3 bold (in the Welcome and About Dialog boxes) */
+h3 {
+  font-weight: 700;
+}
+
+/* make h2 2uppercasse and montserrat */
+h2 {
+  font-family: "Montserrat";
+  text-transform: uppercase;
+}
+/* TIME SLIDER ------------------------------------------------------- */
+
+/* Increase the size of the play button on the slider */
+.glyphicon {
+    font-size: 25px; /* Adjust the size of the icon */
+}
+
+/* play button color */
+.slider-animate-button {
+    color: #091f2f;
+    opacity: 1;
+}
+
+/* play button container height/margin */
+.slider-animate-container {
+    margin-top: 0px;
+    height:25px;
+}
+
+/* change color of play/pause button when hovering */
+.glyphicon:hover {
+    color: #23527c;
+}
+
+/* Hide minor ticks on slider */
+.irs-grid-pol.small {
+    height: 0px;
+}
+
+/* time slider line */
+.irs--round .irs-bar {
+    background-color: #288BE4;
+    height: 5px;
+    cursor: pointer;
+}
+
+/* time slider line gray */
+.irs--round .irs-line {
+  cursor: pointer;
+  height: 5px;
+} 
+
+/* circle on time slider */
+.irs--round .irs-handle {
+    top: 28px;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #fb4d42;
+}
+
+/* time slider years */
+.irs-grid-text {
+  font-family: "Montserrat";
+}
+
+/* style time slider selected year box */
+.irs--round .irs-from, .irs--round .irs-to, .irs--round .irs-single {
+  background-color: #fb4d42;
+  font-family: "Montserrat";
+}
+
+/* time slider selected yearbox down-arrow */
+.irs--round .irs-from:before, .irs--round .irs-to:before, .irs--round .irs-single:before {
+  border-top-color: #fb4d42;
+}
+
+/* min and max on time slider styling */
+.irs--round .irs-min, .irs--round .irs-max {
+  font-family: "Montserrat";
+}
+
+/* make play button appear to the left of time slider */
+.col-sm-11 .form-group.shiny-input-container {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 10px;
+
+}
+
+/* expand the play button/time slider container to take up the entire space */
+.irs.irs--round.js-irs-0.irs-with-grid { /* for census tract map */
+  flex-grow: 1;
+} 
+.irs.irs--round.js-irs-1.irs-with-grid { /* for neighborhood map */
+    flex-grow: 1;
+}
+.irs.irs--round.js-irs-2.irs-with-grid { /* for zip code map */
+    flex-grow: 1;
+}
+
+/* MAIN PANEL STYLING ------------------------------------------------------- */
+.main-panel {
+  background-color: #ffffff; /* white background */
+  border-radius: 8px; /* rounded corners */
+  padding: 10px 5px 5px 5px;  /* top padding 10px, 5px all other sides */
+}
+
+
+/* footnote styling */
+.footnote {
+  font-size: 13px; /* Sets the font size */
+  font-style: italic;
+  background-color: #ffffff; /* White background */
+  margin-bottom: 10px; /* margin below footnote div */
+  padding: 0px 8px 8px; /* padding between footnote and border */
+  border-bottom: 1px solid #f0f0f0; /* light gray bottom border for subtle divider between charts */
+}
+
+/* source citation styling */
+.source-citation {
+  padding: 0px 8px 8px;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* BAR CHART STYLING ------------------------------------------------------- */
+/* Style for the wrapper div of the bar chart */
+.chart-pane {
+    position: relative;
+    width: 100%;
+    margin: 0;
+}
+
+/* Style for the download button */
+.chart-download-button {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+/* bold the x-axis labels */
+.xaxislayer-above {
+  font-weight: 700;
+}
+
+/* bold the y-axis labels */
+.yaxislayer-above {
+  font-weight: 700;
+}
+
+/* bold the legend */
+.legend {
+  font-weight: 700;
+  cursor: auto;
+/*  font-style: italic; */
+}
+
+/* italicize the legend */
+.infolayer .legend .scrollbox {
+  font-style: italic;
+  font-weight: 700;
+  cursor: auto;
+}
+
+/* make legend unclickable */
+.legendtoggle {
+  cursor: auto;
+}
+
+
+/* MAP STYLING --------------------------------------------------------- */
+
+/*make border around map have rounded corners */
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.leaflet-control-zoom.leaflet-bar.leaflet-control{
+  border: 1px solid #ccc;
+}
+
+.leaflet-top .leaflet-control {
+  margin-top: 5px;
+  margin-left: 5px;
+}
+.leaflet-right .leaflet-control {
+  margin-right: 10px;
+}
+.leaflet-bottom .leaflet-control {
+    margin-bottom: 5px;
+}
+
+.leaflet-touch .leaflet-bar a:first-child {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.leaflet-touch .leaflet-bar a:last-child {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+/* adjust padding around buttons */
+.btn.btn-default.action-button.shiny-bound-input {
+  padding: 5px 5.5px;
+}
+
+.btn.btn-default {
+  font-weight: 700;
+  color: #091f2f;
+}
+
+/* padding around trash icon */
+.fas.fa-trash {
+  padding: 0px 2px 0px 0;
+}
+
+/* padding around download icon */
+.fas.fa-download {
+  padding: 0px 2px 0px 0;
+}
+
+/* Legend margin */
 .info.legend.leaflet-control{
-    font-family: "Lora";
+    margin-bottom: 15px;
 }
-/* Tooltips */
-.leaflet-tooltip {
-   font-family:"Lora";
-}
-button{
-  font-family:"Lora";
-}
-span{
-  font-family:"Lora";
+/* Tooltips text formatting to Montserrant, font size, uppercase*/
+.leaflet-tooltip.leaflet-zoom-animated center{
+  font-family: Montserrat;
+  font-size: 14px;
+  text-transform: uppercase;
 }
 
+/* change the numbers in the map legend to Montserrat */
+.legend svg text {
+    fill: #091f2f;
+    font-family: "Montserrat";
+    font-size: 14px;
+}
 
+/* decrease size of map attribution at the bottom right */
+.leaflet-control-attribution a {
+    font-size: 11px;
+}
 
+/* remove bottom margin below mbta subway toggle */
+.leaflet-control-layers label {
+  margin-bottom: 0px;
+}
+/* Adjust font size of mbta subway toggle */
+.leaflet-control-layers-overlays label div span {
+font-size: 14px; 
+}
+/* make mbta subway toggle cursor change to pointer on hover */
+.leaflet-control-layers-overlays label div {
+cursor:pointer;
+}
+/* make mbta subway toggle cursor change to pointer on hover */
+.leaflet-control-layers-overlays label div input {
+cursor:pointer;
+}
+/* adjust border and padding around mbta subway toggle */
+.leaflet-touch .leaflet-control-layers, .leaflet-touch .leaflet-bar {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+
+}
+/* adjust padding around mbta subway toggle */
+.leaflet-control-layers.leaflet-control-layers-expanded.leaflet-control{
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-right: 5px;
+}
+/* Hover effect for the MBTA subway toggle */
+.leaflet-control-layers.leaflet-control-layers-expanded.leaflet-control:hover {
+  background-color: #e6e6e6; /* Light gray background on hover */
+  border-color: #8c8c8c;
+  cursor: pointer; /* Change cursor to indicate it's clickable */
+}
+
+/* DOWNLOAD BUTTON STYLING --------------------------------------------------- */
+
+/* switch download dialog selectors from flex display to inline display */
+.form-group.shiny-input-radiogroup.shiny-input-container.shiny-bound-input {
+  display: inline;
+}
+
+/* switch from flex display to inline display */
+.form-group.shiny-input-container.filename-input {
+  display: inline;
+}
