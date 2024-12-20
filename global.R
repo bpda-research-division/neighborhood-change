@@ -13,16 +13,20 @@ library(htmltools)
 library(shinycssloaders)
 
 # Define global formatting parameters #######
-# APP_FONT <- "Helvetica" 
-# CECILIA'S EDITS #
-APP_HEADER_FONT <- "Montserrat"
-APP_FONT <- "Lora"
+FONT_MONT <- "Montserrat"
+FONT_LORA <- "Lora"
 ###################
 APP_FONT_SIZE <- 17
 APP_FONT_COLOR <- "#091F2F"
-MAP_PALETTE <- "YlGnBu" # https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
+MAP_PALETTE <- c("#B3DFFC", "#89CFF0", "#288BE4", "#003865", "#091F2F")# custom map palette; other options here: https://r-graph-gallery.com/38-rcolorbrewers-palettes.html
 BAR_COLOR <- '#288BE4' # previously, we set the map palette as Purples with bar/line color 7f76b7
 LINE_COLOR <- BAR_COLOR # could also change line to a separate hex code if desired
+OUTLINE_ZIPS <- read_sf("geoms/boston_outline_zipbased.geojson")     # load outline for zipcode map
+OUTLINE_TRACTS <- read_sf("geoms/boston_outline_tractbased.geojson")  # load outline for tract/neigh map
+MBTA_STOPS <- read_sf("geoms/MBTA_STOPS.geojson")
+MBTA_LINES <- read_sf("geoms/MBTA_LINES.geojson")
+CR_STOPS <- read_sf("geoms/CR_STOPS.geojson")
+CR_LINES <- read_sf("geoms/CR_LINES.geojson")
 
 # Miscellaneous functions ###########
 

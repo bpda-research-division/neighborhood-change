@@ -18,108 +18,124 @@ geoTabPanelUI <- function(geo_type) {
   css_legend_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
   html_legend_fix <- htmltools::tags$style(type = "text/css", css_legend_fix)  # Convert CSS to HTML
   
-  tabPanel(tools::toTitleCase(geo_type), style='padding:10px;', # within each tab,
+  tabPanel(
+    title = tags$div(class = "tab-title",
+                     toupper(tools::toTitleCase(geo_type))),
     # the left side of the screen will be filled by a sidebarPanel containing the controls
-    sidebarPanel(width=6, style="height:850px;", tags$style(".well {background-color:#ebedf2;}"),
-        fluidRow( # The first row of controls is dedicated to general topic filtering
-          column(width=4, 
-                 HTML("<b>Topic filters:</b>")
-                 ),
-          column(width=8, align='center', style="margin-top:-5px;",
-                 checkboxGroupInput(ns("generalTopicSelect"), label = NULL, # no default label since we have our own
-                             choices = generalTopics, selected = generalTopics, 
-                             inline = TRUE # displays general topics horizontally rather than vertically
-                             )
-                 )
+    sidebarPanel(
+      width = 6,
+      class = "sidebar-panel",  # Use the sidebar panel class
+      fluidRow(  class = "first-control-row",# The first row of controls is dedicated to general topic filtering
+        column(
+          width = 2, 
+          HTML("<b class='control-row-title'>FILTERS</b>")  # Use a class for bold titles
         ),
-        fluidRow( # The second row of controls is for choosing a specific topic
-          column(width=4, 
-                 HTML("<b>Choose a topic:</b>")
-                 ),
-          column(width=8, style="z-index:1011; margin-top:-5px;", # ensure this drop-down menu displays in front of other stuff
-                 selectInput(ns("topicSelect"), label = NULL, 
-                             choices = NULL # topic choices are populated by the server, so no initialization here
-                             )
-                 )
-        ),
-        fluidRow( # The third row of controls is for choosing a specific indicator / variable within a topic
-          column(width=4, 
-                 HTML("<b>Choose a variable:</b>")
-                 ),
-          column(width=8, style="z-index:1010;",
-                 selectInput(ns("indicatorSelect"), label = NULL, 
-                             choices = NULL # again, these choices will be populated by the server
-                 )
+        column(
+          width = 10, class = "selectors", align = 'center',  
+          div(class = "custom-checkbox",  # Add custom class here
+              checkboxGroupInput(ns("generalTopicSelect"), label = NULL, 
+                                 choices = generalTopics, selected = generalTopics, 
+                                 inline = TRUE
+              )
           )
+        )
+      ),
+      fluidRow(class = "control-row", # The second row of controls is for choosing a specific topic
+        column(
+          width = 2, 
+          HTML("<b class='control-row-title'>TOPIC</b>")  # Use a class for bold titles
         ),
-        fluidRow( # The fourth row of controls is for the time slider
-           column(width=4, 
-                  HTML(
-                    "<b>Drag the slider or click &#9658; to move through time:</b>"
-                    ) # the above jumble of characters is the HTML code for a play button symbol
-                  ),
-           column(width=8,
-                  sliderTextInput(inputId = ns("yearSelect"), 
-                      choices = initial_years,
-                      selected = tail(initial_years, 1), grid=TRUE, label = NULL,
-                      animate = animationOptions(interval = 800) # set play button's animation speed here
-                      )
-                  )
-       ),
-
-       div(style="padding-bottom:5px;", HTML(
-         sprintf("<b>Select one or more %s on the map:</b>", geo_type)
-       )), # the bottom section of the controls is dedicated to the map, with a line of instructional text above it
-       leafletOutput(ns("map"), height="530px") %>%
-         htmlwidgets::prependContent(html_legend_fix), # apply the legend NA values fix
+        column(
+          width = 10, class = "selectors", style="z-index:1011;",  # Ensure this drop-down menu displays in front of other stuff
+          selectInput(ns("topicSelect"), label = NULL, 
+                      choices = NULL  # Topic choices are populated by the server, so no initialization here
+          )
+        )
+      ),
+      fluidRow(class = "control-row",  # The third row of controls is for choosing a specific indicator / variable within a topic
+        column(
+          width = 2, 
+          HTML("<b class='control-row-title'>VARIABLE</b>")  # Use a class for bold titles
+        ),
+        column(
+          width = 10, class = "selectors", style="z-index:1010;",
+          selectInput(ns("indicatorSelect"), label = NULL, 
+                      choices = NULL  # Again, these choices will be populated by the server
+          )
+        )
+      ),
+      fluidRow(class = "control-row",  # The fourth row of controls is for the time slider
+        column(
+          width = 1, 
+          HTML("<b class='control-row-title'>YEAR</b>")  # Use a class for the slider instruction
+        ),
+        column(
+          width = 11, style = "min-width: 0;",
+          sliderTextInput(inputId = ns("yearSelect"), 
+                          choices = initial_years,
+                          selected = tail(initial_years, 1), grid = TRUE, label = NULL,
+                          animate = animationOptions(interval = 800)  # Set play button's animation speed here
+          )
+        )
+      ),
+      
+      div(class = "instruction-map",  # Use a class for padding in the  map instruction row
+          HTML(sprintf("<b>Click one or more %s on the map:</b>", geo_type))
+      ),  # The bottom section of the controls is dedicated to the map, with a line of instructional text above it
+      leafletOutput(ns("map"), height = "580px") %>%
+        htmlwidgets::prependContent(html_legend_fix),
+  # Apply the legend NA values fix
     ),
-    mainPanel(width=6, # the right-hand side of the screen displays the charts, any notes, and source citations
+    mainPanel(class = "main-panel",
+              width=6,  # the right-hand side of the screen displays the charts, any notes, and source citations
        # bar chart with loading spinner enabled. hide.ui = TRUE ensures that the chart UI isn't redrawn each time a year changes
-       shinycssloaders::withSpinner(plotlyOutput(ns("bar_chart")), color="#2186bb", size=1.5, type=5, hide.ui = FALSE),
-
-       # default background color for plotly charts is white, so our note area matches that
-       htmlOutput(align="center", style="font-size:9pt; background-color: #ffffff; padding-bottom:5px;", ns("note")),
+       div(class = "chart-pane",
+           shinycssloaders::withSpinner(plotlyOutput(ns("bar_chart")), color = "#2186bb", size = 1, type = 8, hide.ui = FALSE)
+       ),
+       # Note area for bar chart
+       htmlOutput(class = "footnote", ns("note")),
        
-       # line chart with loading spinner enabled. hide.ui = TRUE ensures that the chart UI isn't redrawn each time a year changes
-       shinycssloaders::withSpinner(plotlyOutput(ns("line_chart")), color="#2186bb", size=1.5, type=5, hide.ui = FALSE),
-
-       htmlOutput(style=sprintf('padding:10px; font-size:%spx', APP_FONT_SIZE - 4), ns("sourceText")) # citation at bottom
-       )
+       # Line chart with loading spinner
+       div(class = "chart-pane", 
+           shinycssloaders::withSpinner(plotlyOutput(ns("line_chart")), color = "#2186bb", size = 1, type = 8, hide.ui = FALSE)
+       ),
+       htmlOutput(class = "source-citation", ns("sourceText")) # citation at bottom
+    )
   )
 }
 
 # UI ##########
-styling_commands = c(
-  ".container-fluid {background-color: #f5f7fb;}" # set app background
-  , ".irs-grid-pol.small {height: 0px;}" # hide minor ticks on slider
-  , sprintf( # standardize font type and size across the app
-    '* {font-size: %spx;}; * {font-family: "%s";};', APP_FONT_SIZE, APP_FONT
-    ) 
-)
-
-ui <- fluidPage(title = "Neighborhood Change Explorer",
-  # set the browser icon for the page to be the BPDA logo
+ui <- fluidPage(
+  title = "Neighborhood Change Explorer",
+  
+  # Set the browser icon for the page to be the city logo
   tags$head(tags$link(rel="shortcut icon", href="cob_favicon.ico")),
-  tags$head(tags$script(src='setLeafletLabel.js')), # function for updating leaflet labels
-  ## CECILIA'S EDITS ##
+  tags$head(tags$script(src='setLeafletLabel.js')), # Function for updating leaflet labels
+  
+  ## LOAD CSS STYLE ##
   tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "test_theme.css")),
   #####################
-  tags$head(tags$style(HTML(paste(styling_commands)))), # apply other style commands
-  tags$head(tags$style( # increase the size of the the play button on the slider
-    type='text/css', ".slider-animate-button { font-size: 20pt !important; }"
-    )),
-  chooseSliderSkin("Square"), # set slider style according to a template
   
-  fluidRow( # this is the top of the page / title area
-    column(10, # title
-      h3("BOSTON NEIGHBORHOOD CHANGE EXPLORER", 
-         align = "left", 
-         style = sprintf('font-size:32px; font-family: "%s"; padding: 0px; font-weight: 800; color: #091F2F', APP_HEADER_FONT)
-        ) 
-    ),
-    column(2, align='right', # about button goes at the top right
-      div(style='padding:10px;',
-        actionButton("about", "About", style='padding:7px; font-size:120%')
+#  tags$head(tags$style(HTML(paste(styling_commands)))), # Apply other style commands
+  
+  chooseSliderSkin("Round"), # Set slider style according to a template
+  
+  # Top header with Logo, Title, Subtitle, and About Button
+  div(class = "header",  # Use the header class for styling
+      fluidRow(
+        column(1, align = "center", img(src = "planning_logo.png", height = "60px")),  # Logo top left of header
+        column(9, 
+               h3("BOSTON NEIGHBORHOOD CHANGE EXPLORER", align = "left", 
+                  class = "header-title" # Use the header title class
+               ), 
+               div("Developed by the City of Boston Planning Department Research Division", 
+                   class = "header-subtitle" # Use the header subtitle class
+               ) # Add subtitle
+        ),
+        column(2, align = 'right', 
+               div(class = 'about-button',  # Use the about button class
+                   actionLink("about", "ABOUT")
+               )
         )
       )
   ),

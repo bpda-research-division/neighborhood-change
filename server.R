@@ -21,16 +21,17 @@ tabPanelServer <- function(geo_type) {
       # Keep track of the full list of topic display names that can appear in the "Choose a topic:" menu
       topic_display_names <- names(APP_CONFIG[[geo_unit]]$topics) %>%
         lapply(function (n) { # display each variable with its start and end year
-          paste0(n, " (", variables_years[[n]][1], "-", tail(variables_years[[n]], 1), ")")
+          paste0(n, ", ", variables_years[[n]][1], "-", tail(variables_years[[n]], 1))
         })
       
       # Topic display names are initialized with the year range concatenated to each variable name.
       # To extract the currently selected topic name from input$topicSelect... 
       topic_name <- reactive({ # ...we use a regex to find the last occurrence of a ( followed by a digit...
-        idxs <- gregexpr("\\((\\d)", input$topicSelect)
-        idx <- idxs[[1]][length(idxs)]
-        topicName <- substr(input$topicSelect, 1, idx - 2) # ...and strip that part away.
-        topicName
+        sub(",.*", "", input$topicSelect)
+        #idxs <- gregexpr("\\((\\d)", input$topicSelect)
+        #idx <- idxs[[1]][length(idxs)]
+        #topicName <- substr(input$topicSelect, 1, idx - 2) # ...and strip that part away.
+        #topicName
       })
       
       # Keep track of the parameters for whichever topic is selected
@@ -128,8 +129,9 @@ tabPanelServer <- function(geo_type) {
       output$map <- renderLeaflet({
         leaflet() %>% 
           addProviderTiles(provider = "CartoDB.Positron", group='basemap') %>%
-          addMapPane("layer1", zIndex=420) %>% # we create two panes with different z values to ensure that the polygons 
-          addMapPane("layer2",zIndex=410) %>% # currently selected by the user are always displayed in front of other polygons
+          addMapPane("outline_mbta", zIndex = 420) %>% # pane for outline and mbta layers
+          addMapPane("selected_polyg", zIndex = 430) %>% # pane for polygons currently selected
+          addMapPane("all_polyg", zIndex = 410) %>% # pane for all polygons
           setView(initial_lon, initial_lat, zoom = initial_zoom_level)
       })
       
@@ -140,13 +142,12 @@ tabPanelServer <- function(geo_type) {
         } else {
           null_description <- "null values"
         }
-        
-        lapply(
-          split_max_2_lines(paste(
-            tools::toTitleCase(geo_unit), 'with', null_description)
-          )
-          , htmltools::HTML
+        styled_text <- lapply( # Apply font size and style adjustments to the null description
+          split_max_2_lines(paste(tools::toTitleCase(geo_unit), "with", null_description)), # split description to 2 lines
+          function(line) htmltools::HTML(paste0("<span style='font-size:", APP_FONT_SIZE - 5,
+                                                "px;font-style:italic;line-height:0;font-weight: 400;'>", line, "</span>"))
         )
+        styled_text
       })
       
       # Make it so that maps on inactive tabs stay rendered
@@ -178,23 +179,106 @@ tabPanelServer <- function(geo_type) {
         leafletProxy("map") %>%
           clearShapes() %>% clearControls() %>% # clear existing stuff before redrawing...
           addControl( # ...but make sure each map has a button for users to clear their map selections...
-            actionButton(session$ns("clearSelections"), "Clear all selections",
-                         style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE-2, APP_FONT)),
+            actionButton(session$ns("clearSelections"), "Clear selections", icon = icon("trash"), title = "Clear selections", # use trash icon, and add tooltip
+                         style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE-3, FONT_LORA)),
             position="topright", className = "fieldset {border: 0;}" # remove default button border
           ) %>%
-          addControl( # ...as well as a data download button.
-            actionButton(session$ns("downloadButton"), "Download selected data", icon = icon("download"),
-                         style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE-2, APP_FONT)),
+          addControl( #...and a button to reset the map view...
+            actionButton(session$ns("resetMapButton"), "",icon = icon("home"), title = "Reset view"), # use home icon, and add tooltip
+            position="topleft", className = "fieldset {border: 0;}" # remove default button border
+          ) %>%
+          addControl( # ...as well as a data download button...
+            actionButton(session$ns("downloadButton"), "Download selected data", icon = icon("download"), title = "Download selected data", 
+                         style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE-3, FONT_LORA)),
             position="bottomright", className = "fieldset {border: 0;}" # remove default button border
           ) %>% 
           leaflet.extras2::addSpinner() %>% # add a loading spinner to be displayed while the map renders
           leaflet.extras2::startSpinner(
             options=list(
-              "lines"=8, "length"=0, "width"=38, "radius"=67, "scale"=0.9, 
-              "color"="#2186bb", "animation"="spinner-line-shrink"
+              "lines"=15, "length"=15, "width"=10, "radius"=45, "scale"=1.1,"corners" = 1, "speed"=1.3,
+              "color"="#fb4d42", "animation"="spinner-line-fade-default"
               )
             ) # This starts the spinner off
-                                                                                                                                                        # Note that this animation must be defined in a css file (see test_theme.css)
+        
+        # Add Boston outline to each map
+        if (geo_type %in% c("census_tracts", "neighborhoods")) {
+          leafletProxy("map") %>%
+            addPolygons(
+              data = OUTLINE_TRACTS, 
+              color = "#222222", weight = 2, fillOpacity = 0, 
+              options = pathOptions(pane = "outline_mbta", clickable = FALSE)
+            )
+        } else if (geo_type == "zip_code_areas") {
+          leafletProxy("map") %>%
+            addPolygons(
+              data = OUTLINE_ZIPS, 
+              color = "#222222", weight = 2, fillOpacity = 0, 
+              options = pathOptions(pane = "outline_mbta", clickable = FALSE)
+            )
+        }
+        
+        # Create color palettes based on MBTA subway line colors
+        line_colors <- colorFactor(
+          palette = c("#003da5", "#00843d", "#ed8b00", "#da291c"), 
+          domain = MBTA_LINES$LINE
+        )
+        station_colors <- colorFactor(
+          palette = c("#003da5", "#00843d", "#ed8b00", "#da291c"), 
+          domain = MBTA_STOPS$LINE
+        )
+        
+        # Add MBTA lines and stations to the outline later of the map
+        leafletProxy("map") %>%
+          addPolylines( # Add CR lines
+            data = CR_LINES, 
+            color = "#7B388C", weight = 2, opacity = 0.8, 
+            group = "MBTA lines",
+            options = pathOptions(pane = "outline_mbta", clickable = TRUE), # Enable clickable for tooltips
+            label = "Commuter Rail", # Tooltip content from a column in your data
+            labelOptions = labelOptions(
+              style = list("color" = APP_FONT_COLOR, "font-size" = "12px", "background-color" = "white"),
+              textsize = "15px", direction = "auto")
+            ) %>%
+          addCircleMarkers( # Add CR stations
+            data = CR_STOPS, 
+            color = "white", fillColor = "#7B388C", radius = 3, 
+            fillOpacity = 0.8, stroke = TRUE, weight = 0.4, opacity = 1,
+            group = "MBTA lines", 
+            options = pathOptions(pane = "outline_mbta", clickable = TRUE), # Enable clickable for tooltips
+            label = ~paste0(LINE, ": ", STATION_ID), # Tooltip with station name
+            labelOptions = labelOptions(
+              style = list("color" = APP_FONT_COLOR, "font-size" = "12px", "background-color" = "white"),
+              textsize = "15px", direction = "auto"
+            )
+          ) %>%
+          addPolylines( # Add MBTA lines
+            data = MBTA_LINES, 
+            color = ~line_colors(LINE), weight = 2, opacity = 0.8,  
+            group = "MBTA lines", 
+            options = pathOptions(pane = "outline_mbta", clickable = TRUE), # Enable clickable for tooltips
+            label = ~LINE_NAME, # Tooltip showing line name
+            labelOptions = labelOptions(
+              style = list("color" = APP_FONT_COLOR, "font-size" = "12px", "background-color" = "white"),
+              textsize = "15px", direction = "auto")
+            ) %>%
+          addCircleMarkers( # Add MBTA stations
+            data = MBTA_STOPS, 
+            color = "white", fillColor = ~station_colors(LINE), radius = 3, 
+            fillOpacity = 0.8, stroke = TRUE, weight = 0.4, opacity = 1,
+            group = "MBTA lines", 
+            options = pathOptions(pane = "outline_mbta", clickable = TRUE), # Enable clickable for tooltips
+            label = ~paste0(LINE_NAME, ": ",  STATION), # Tooltip with station name
+            labelOptions = labelOptions(
+              style = list("color" = APP_FONT_COLOR, "font-size" = "12px", "background-color" = "white"),
+              textsize = "15px", direction = "auto"
+            )
+          ) %>%  
+          addLayersControl( # Single layers control for both groups
+            overlayGroups = c("MBTA lines"), 
+            options = layersControlOptions(collapsed = FALSE),
+            position = "topright" # Specify position for the control
+          ) %>%
+          hideGroup("MBTA lines") # Hide both groups initially
         
         for (yr in names(yrdfs)) { # Draw and add one layer of polygons for each year
           leafletProxy("map") %>% 
@@ -202,16 +286,13 @@ tabPanelServer <- function(geo_type) {
               group=yr, # each layer is assigned to a group ID corresponding to its year...
               layerId = ~paste(GEOID, yr), # ...and each polygon is identified by its GEOID and year
               fillColor = ~pal(SUMMARY_VALUE), fillOpacity = 0.7, # polygon shading
-              weight = 1, color = "gray", # polygon border formatting
-              options = pathOptions(pane = "layer2"), # place these layers on the lower pane
+              weight = 1, color = "#818185", # polygon border formatting
+              options = pathOptions(pane = "all_polyg"), # place these layers on the lower pane
               label = ~lapply(labelText, htmltools::HTML), # custom label text displayed in a tooltip on hover 
-              labelOptions = labelOptions( 
-                style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2), "font-family" = APP_FONT)
-                ), # set font size for the tooltips a bit smaller than in the rest of app
               highlight = highlightOptions( # when you hover over these polygons...
                 weight = 3,
                 fillOpacity = 0.7,
-                color = "black", # ...given them a black border of weight 3 so they "pop out"
+                color = "#091f2f", # ...given them a dark blue border of weight 3 so they "pop out"
                 bringToFront = TRUE
               ),
             ) %>% hideGroup(group = yr) # hide each yearly layer after initializing it
@@ -231,12 +312,9 @@ tabPanelServer <- function(geo_type) {
           addPolygons(data=yrdfs[[yr]], 
             group = ~GEOID, # for these polygons, we'll use the GEOID as the group name
             layerId = ~GEOID,
-            weight = 3, color = "red", fillOpacity=0, # no fill but red border
-            options = pathOptions(pane = "layer1"), # place these polygons on the upper pane
-            label = ~lapply(labelText, htmltools::HTML), # custom label text displayed in a tooltip on hover 
-            labelOptions = labelOptions( 
-              style=list("font-size" = sprintf("%spx", APP_FONT_SIZE-2), "font-family" = APP_FONT)
-            ) # set font size for the tooltips a bit smaller than in the rest of app
+            weight = 3, color = "#fb4d42", opacity = 1, fillOpacity=0, # no fill but red border
+            options = pathOptions(pane = "selected_polyg"), # place these polygons on the upper pane
+            label = ~lapply(labelText, htmltools::HTML) # custom label text displayed in a tooltip on hover 
           ) %>% hideGroup(group = yrdfs[[yr]]$GEOID) %>% # hide these polygons initially
           
           # add the map legend, formatting labels as specified in APP_CONFIG for the given variable 
@@ -261,7 +339,12 @@ tabPanelServer <- function(geo_type) {
       
       # Keep track of the unique set of years for the variable the user selects
       var_years <- reactive({
-        unique(APP_DATA[[geo_unit]][[topic_name()]]$areas_categories_df$YEAR) %>% sort()
+        years <- unique(APP_DATA[[geo_unit]][[topic_name()]]$areas_categories_df$YEAR) %>% sort()
+        # Check the selected indicator and remove 1950 and 1960 if necessary (for race/ethnicity categories)
+        if (input$indicatorSelect %in% c("Share of population, Hispanic of any race", "Share of population, Asian alone")) {
+          years <- years[!years %in% c(1950, 1960)]
+        }
+        return(years)
       })
       
       # Keep track of the subset of the summary indicators dataframe for the currently selected year
@@ -320,6 +403,12 @@ tabPanelServer <- function(geo_type) {
         selectedPolygons$groups <- vector() # ...unselect all polygons and hide them on the map.
       })
       
+      # In response to the user resetting the map view...
+      observeEvent(input$resetMapButton, {
+        leafletProxy("map") %>%
+          setView(lng = initial_lon, lat = initial_lat, zoom = initial_zoom_level) #...set lat, long and zoom to initial.
+      })
+      
       # To update the specific topic selection menu each time the user selects a different general topic...
       observeEvent(input$generalTopicSelect, {
 
@@ -352,12 +441,24 @@ tabPanelServer <- function(geo_type) {
         geo_type <- geo_unit
         num_selected <- length(selectedPolygons$groups)
         
+        # define the names of the selected areas to be shown in the chart legends
         if (num_selected == 0) { # if nothing is selected, we're showing citywide data
-          return("Citywide")
-        } else if (num_selected == 1) { # if only one polygon is selected, lop the "s" off the geo type
-          geo_type <- substr(geo_type, 1, nchar(geo_type) - 1)
+          return("City of Boston")
+        } else if (num_selected > 5) { # if more than 5 geos selected, then show the current number of selected areas
+          sprintf("%s selected %s", num_selected, geo_type) 
+        } else if (geo_type == "census tracts") { # for tracts, reformat GEOIDs to cleaner tract names
+          tract_label <- ifelse(num_selected == 1, "Census tract", "Census tracts") # Use "Tract" for a singular selection, "Tracts" for multiple
+          list_of_areas <- paste(tract_label, paste(sapply(selectedPolygons$groups, function(tract) {
+            as.character(as.numeric(substr(tract, nchar(tract) - 5, nchar(tract))) / 100)
+          }), collapse = ", "))
+        } else if (geo_type == "zip code areas") { # For zip code areas, remove "Zip Code" from each entry
+          zip_label <- ifelse(num_selected == 1, "Zip code", "Zip codes") # Use "Zip code" for a singular selection, "Zip codes" for multiple
+          list_of_areas <- paste(zip_label, paste(sapply(selectedPolygons$groups, function(zca) {
+            as.character(sub("^Zip Code(s)? ", "", zca)) # Remove "Zip Code(s)" from the start of each zip code area object
+          }), collapse = ", "))
+        } else { # otherwise, just show the list of neighborhoods that are selected
+          toString(selectedPolygons$groups)
         }
-        sprintf("%s selected %s", num_selected, geo_type) # show the current number of selected areas
       })
       
       # The data that goes into data downloads / onto the bar chart for a given topic & geo selection
@@ -400,57 +501,102 @@ tabPanelServer <- function(geo_type) {
       # The font size of the bar chart labels can be smaller than the default if the smallbarfont parameter is included
       bar_font_size <- reactive({
         if ("smallbarfont" %in% names(var_params())) {
-          return(APP_FONT_SIZE - 6)
+          return(APP_FONT_SIZE - 4)
         } else {
           return(APP_FONT_SIZE - 2)
         }
       })
       
+      # title font size depending on the number of chars in the bar chart title, used as an input for the title in both charts
+      title_font_size <- reactive({
+        if (nchar(var_params()$barTitle) > 30) {
+          return(APP_FONT_SIZE + 1)
+        } else {
+          return(APP_FONT_SIZE + 3)
+        }
+      })
+      
       # Define how we render the bar chart at any given time
       output$bar_chart <- renderPlotly({
-        plot_ly(filteredBar(),
-                x = ~CATEGORY, 
-                y = ~VALUE,
-                name = selectionName(), # this gets displayed on the chart legend
-                text = ~VALUE, # data label for each bar, formatted according to our topic parameters
-                texttemplate=paste0(var_params()$bartickprefix, '%', sprintf('{y:%s}', var_params()$barhoverformat)),
-                textposition = 'outside', # for a bar chart, "text" is the labeling directly above each bar
-                textfont=list(color= APP_FONT_COLOR, family = APP_FONT, size=APP_FONT_SIZE - 2),
-                hoverinfo = 'skip' # to enable values to be displayed on hover, use 'y' here and uncomment stuff below
-                ) %>% 
-          config(displayModeBar = FALSE) %>% # remove default plotly controls
-          add_bars(color=I(BAR_COLOR), # set the fill color for the bars
-                   marker = list(line = list(color=BAR_COLOR)) # set bar outline color
-                   ) %>% 
-          layout(title = list(
-                    text = toupper(paste0(var_params()$barTitle, " in ", input$yearSelect)), # dynamic title
-                    font=list( # for the chart title
-                      color= APP_FONT_COLOR, family = APP_HEADER_FONT, 
-                      size=APP_FONT_SIZE + 4
-                    )
-                  ),
-                 font=list( # for the labels underneath each bar
-                   color= APP_FONT_COLOR, family = APP_FONT, 
-                   size=bar_font_size()
-                   ),
-                 xaxis = list(title = '', fixedrange = TRUE,
-                              # set the order in which categories appear on the x axis
-                              categoryorder = 'array', categoryarray = names(var_params()$barCats)
-                              ),
-                 yaxis = list(title = '' , fixedrange = TRUE, range = barRange(),
-                              showticklabels = FALSE, showgrid = FALSE
-                              ),
-                 showlegend=T, # always show the legend (even with just 1 series) 
-                 legend = list(orientation = 'h', # place legend items side by side
-                               x=0.01, y=1.05, # position legend near the top left
-                               font=list(
-                                 color=APP_FONT_COLOR, family = APP_FONT, 
-                                 size=APP_FONT_SIZE - 2
-                               ),
-                               itemclick = FALSE, itemdoubleclick = FALSE # disable default plotly clicking options
-                               ),
-                 margin = list(t=50) # top padding to make sure chart title is visible
-                 )
+        # Check if "smallbarfont" exists in var_params to render a horizontal chart
+        if ("smallbarfont" %in% names(var_params())) {
+          plot_ly(filteredBar(),
+                  y = ~CATEGORY,    # CATEGORY goes on the y-axis
+                  x = ~VALUE,       # VALUE goes on the x-axis
+                  name = selectionName(),
+                  text = ~VALUE,
+                  texttemplate = paste0(var_params()$bartickprefix, '%', sprintf('{x:%s}', var_params()$barhoverformat)),
+                  textposition = 'outside',
+                  textfont = list(color = APP_FONT_COLOR, family = FONT_MONT, size = APP_FONT_SIZE - 2),
+                  hoverinfo = 'skip',
+                  orientation = 'h'  # Explicitly set orientation to horizontal
+          ) %>% 
+            config(displayModeBar = FALSE) %>%
+            add_bars(color = I(BAR_COLOR),
+                     marker = list(line = list(color = BAR_COLOR))
+            ) %>% 
+            layout(title = list(
+              text = toupper(paste0(var_params()$barTitle, " in ", input$yearSelect)),
+              font = list(color = APP_FONT_COLOR, family = FONT_MONT, size = title_font_size())
+            ),
+            font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = bar_font_size()),
+            xaxis = list(title = '', fixedrange = TRUE, range = barRange(),
+                         showticklabels = FALSE, showgrid = FALSE
+            ),  # Adjust x-axis for horizontal bars
+            yaxis = list(title = '', fixedrange = TRUE,
+                         ticklabelposition = "outside", ticklen = 5, tickcolor = "rgba(0,0,0,0)", # add clear tick lines to distance labels from axis
+                         categoryorder = 'array', categoryarray = names(var_params()$barCats), autorange = "reversed"
+            ),  # Adjust y-axis for categories
+            showlegend = T,
+            legend = list(orientation = 'h', 
+                          x = -0.4, y = 1.10, # location of the legend
+                          font = list(
+                            color = APP_FONT_COLOR, family = FONT_LORA,
+                            size = APP_FONT_SIZE - 2
+                          ),
+                          itemclick = FALSE, itemdoubleclick = FALSE
+            ),
+            margin = list(t = 75) # margin above chart
+            )
+        } else {
+          # Default axes (no flip)
+          plot_ly(filteredBar(),
+                  x = ~CATEGORY,    # CATEGORY goes on the x-axis
+                  y = ~VALUE,       # VALUE goes on the y-axis
+                  name = selectionName(),
+                  text = ~VALUE,
+                  texttemplate = paste0(var_params()$bartickprefix, '%', sprintf('{y:%s}', var_params()$barhoverformat)),
+                  textposition = 'outside',
+                  textfont = list(color = APP_FONT_COLOR, family = FONT_MONT, size = APP_FONT_SIZE - 2),
+                  hoverinfo = 'skip'
+          ) %>% 
+            config(displayModeBar = FALSE) %>%
+            add_bars(color = I(BAR_COLOR),
+                     marker = list(line = list(color = BAR_COLOR))
+            ) %>% 
+            layout(title = list(
+              text = toupper(paste0(var_params()$barTitle, " in ", input$yearSelect)),
+              font = list(color = APP_FONT_COLOR, family = FONT_MONT, size = title_font_size())
+            ),
+            font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = bar_font_size()),
+            xaxis = list(title = '', fixedrange = TRUE,
+                         categoryorder = 'array', categoryarray = names(var_params()$barCats)
+            ),
+            yaxis = list(title = '', fixedrange = TRUE, range = barRange(),
+                         showticklabels = FALSE, showgrid = FALSE
+            ),
+            showlegend = T,
+            legend = list(orientation = 'h', 
+                          x = 0.01, y = 1.05,
+                          font = list(
+                            color = APP_FONT_COLOR, family = FONT_LORA,
+                            size = APP_FONT_SIZE - 2
+                          ),
+                          itemclick = FALSE, itemdoubleclick = FALSE
+            ),
+            margin = list(t = 50) # margin above chart
+            )
+        }
       })
       
       # Displays any note that's been provided for the variable in APP_CONFIG
@@ -487,11 +633,16 @@ tabPanelServer <- function(geo_type) {
         }
       })
       
+      selectedLineFilter <- reactive({ # remove old years for Hispanic and Asian population indicators
+        selectedLine() %>% # get data that has already been filtered for the selected geographies
+          filter(!(input$indicatorSelect %in% c("Share of population, Hispanic of any race", "Share of population, Asian alone") & YEAR %in% c(1950, 1960)))
+      })
+      
       # The y-axis range for the line chart is fixed for a given variable and map selection,
       # but if we want to display a citywide comparison line, the range shouldn't cut that off
       lineRange <- reactive ({
         # the default upper value of the line chart y axis is the maximum summary value for the selection
-        top_val <- max(selectedLine()$SUMMARY_VALUE, na.rm=TRUE)
+        top_val <- max(selectedLineFilter()$SUMMARY_VALUE, na.rm=TRUE)
         
         # but if we want to show a citywide comparison...
         if (length(selectedPolygons$groups) > 0 & indicator_params()$citywide_comparison) {
@@ -511,7 +662,7 @@ tabPanelServer <- function(geo_type) {
       
       # Define how we render the line chart at any given time
       output$line_chart <- renderPlotly({
-        p <- plot_ly(selectedLine(), 
+        p <- plot_ly(selectedLineFilter(), 
                 x = ~YEAR,
                 y = ~SUMMARY_VALUE,
                 source = session$ns("line_chart"), # this label helps us manage click events
@@ -521,31 +672,42 @@ tabPanelServer <- function(geo_type) {
           add_trace(hoverinfo='x', mode = 'markers', type = 'scatter', # add a hidden trace for displaying years on hover
                     marker=list(size=0, color='white'), showlegend=FALSE, opacity=0) %>%
           add_lines(color=I(LINE_COLOR), # set the line formatting options
-                    line=list(width = 2, shape = 'spline', smoothing = 1),
+                    line=list(width = 3, shape = 'spline', smoothing = 1),
                     hoverinfo = "y", # display y-values when hovering over line chart
                     name=selectionName() # set the series name for the line (appears in legend)
                     ) %>%
-          layout(title = list(text = toupper(input$indicatorSelect), font = list(family = APP_HEADER_FONT, color = APP_FONT_COLOR)),
-                 font=list(color=APP_FONT_COLOR, family = APP_FONT, size = APP_FONT_SIZE-2),
+          add_markers(x = ~YEAR, 
+                      y = ~SUMMARY_VALUE,
+                      marker = list(color = LINE_COLOR, size = 6, symbol = 'circle'), # solid circle marker for years w/ data
+                      showlegend = FALSE, # don't show this marker in the legend
+                      hoverinfo = 'none' # enable hover info for the markers
+          ) %>%
+          
+          layout(title = list(text = toupper(input$indicatorSelect), font=list(color = APP_FONT_COLOR, family = FONT_MONT, size=title_font_size())), 
+                 font=list(color=APP_FONT_COLOR, family = FONT_LORA, size = APP_FONT_SIZE-2),
                  xaxis = list(title = '', fixedrange = TRUE,
                               range = c( # set x axis range a little wider than the data so as to not cut off text
                                 as.numeric(var_years()[1]) - line_xrange_bookend(),
                                 as.numeric(tail(var_years(), 1)) + line_xrange_bookend()
-                                )
+                                ),
+                              tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)
                               ),
                  yaxis = list(title = '', fixedrange = TRUE, range = lineRange(),
                               # set the number format for the data that appear on hover...
                               hoverformat = indicator_params()$hoverformat,
                               # ... and the number formatting for the y axis labels
                               tickprefix = indicator_params()$tickprefix, 
-                              tickformat = indicator_params()$tickformat
+                              tickformat = indicator_params()$tickformat,
+                              tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)
                               ),
                  showlegend = T, # always show the legend (even with just 1 series)
                  legend = list(orientation = 'h', # place legend items side by side
                                x=0.01, y=1.05, # position legend near the top left
-                               itemclick = FALSE, itemdoubleclick = FALSE
+                               itemclick = FALSE, itemdoubleclick = FALSE,
+                               font = list(family = FONT_LORA)
                                ), 
                  hovermode = "x unified", # show the data values for all lines when hovering over a given x
+                 hoverlabel = list(font = list(family = FONT_MONT, color = APP_FONT_COLOR)),
                  margin = list(t=40) # top padding to make sure chart title is visible
           )
         
@@ -553,18 +715,19 @@ tabPanelServer <- function(geo_type) {
         if (length(selectedPolygons$groups) > 0 & indicator_params()$citywide_comparison) { 
           p <- p %>% # ...add a dashed line showing the citywide comparison for the summary value over time
             add_lines(x = totalarea_summary_df()$YEAR, y = totalarea_summary_df()$SUMMARY_VALUE,
-               hoverinfo="y", name="Citywide", color=I(LINE_COLOR),
-               line = list(dash='dash', shape = 'spline', smoothing = 1)
-               )
+               hoverinfo="y", name="City of Boston", color = I("rgba(40, 139, 228, 0.4)"), # 40% transparency
+               line=list(width = 3, shape = 'spline', smoothing = 1)
+            )
         }
         
         # we also add a marker highlighting the summary value for the year currently on the slider...
-        marker_y_data <- subset(selectedLine(), YEAR == input$yearSelect)
+        marker_y_data <- subset(selectedLineFilter(), YEAR == input$yearSelect)
         if (nrow(marker_y_data) > 0) { # ...as long as there isn't missing data for that year.
           p <- p %>%
             add_markers(x = input$yearSelect, y = marker_y_data$SUMMARY_VALUE,
-                        marker = list(color=LINE_COLOR, symbol="diamond", size=10), showlegend = F,
-                        hoverinfo = "skip" # we already have hoverinfo for the lines, so no need for the marker
+                        marker = list(color = "white", symbol = "circle", size = 16,
+                                      line = list(color = "#fb4d42", width = 3) # outline color of selected year
+                        ), showlegend = FALSE, hoverinfo = "skip" # we already have hoverinfo for the lines, so no need for the marker
                         )           
         }
         line_loaded(TRUE) # change line_loaded() from false to true when line chart is ready to be clicked upon
@@ -602,9 +765,9 @@ tabPanelServer <- function(geo_type) {
           HTML(
             paste(
               "<b>Topic:</b>", topic_name(), "<br>", 
-              "<b>Geographic extent:</b>", selectionName(), selectedAreas(), "<br>",
+              "<b>Geographic extent:</b>", selectedAreas(), "<br>",
               "<b>Variable:</b>", input$indicatorSelect, "<br><br>",
-              conditionalPanel(
+              conditionalPanel(   # prompts user to select a disagreegaged data series, or disaggregated series
                 condition = 'output.showAggPanel == true', ns = session$ns,
                 radioButtons(
                   session$ns("downloadType"), "Choose a download type:",
@@ -613,46 +776,87 @@ tabPanelServer <- function(geo_type) {
                   width = "100%",
                   selected = "single-area / aggregated"
                 )
-              )
-              )
+              ),
+              conditionalPanel(
+                condition = 'true', ns = session$ns,  # always show this modal dialog
+                radioButtons(
+                  session$ns("yearDownload"), "Years for download:",
+                  choiceNames = c(paste0("All years: ", var_years()[1], "-", var_years()[length(var_years())]),
+                                  paste0("Only selected year: ", input$yearSelect)),  # Display selected year
+                  choiceValues = c("all", "selected"),
+                  width = "100%",
+                  selected = "all"  # Default selection
+                  )
+              ),
+              conditionalPanel(
+                condition = 'true', ns = session$ns,  # Always show file name editing panel
+                textInput(
+                  session$ns("customFileName"), "Enter a custom file name:",
+                  value = paste0(gsub("[[:punct:][:space:]]+", "_", topic_name()), "_in_Boston")  # Default file name
+                ) %>% tagAppendAttributes(class="filename-input") # assign a class to the input object so we can style it differently from other input divs
+              ) 
+            )
           ), # the modal displays download details, and then the user can either cancel or proceed downloading
           title=h2("Confirm download details", align='center'),
           easyClose = TRUE,
           footer = tagList(modalButton("Cancel"),
                            downloadButton(session$ns("downloadData"), "Download .csv file")
-                           
-          )
+            )
         ))
       })
       
       # String representation of the currently selected areas (used in downloads)
       selectedAreas <- reactive({
-        ifelse(
-          length(selectedPolygons$groups) > 0, 
-          paste0("(", toString(selectedPolygons$groups), ")"),
-          "")
+        geo_type <- geo_unit
+        num_selected <- length(selectedPolygons$groups)
+        # define the names of the selected areas to be shown in the chart legends
+        if (num_selected == 0) { # if nothing is selected, we're showing citywide data
+          return("City of Boston")
+        } else if (geo_type == "census tracts") {
+          tract_label <- ifelse(num_selected == 1, "Census tract", "Census tracts") # Use "Tract" for a singular selection, "Tracts" for multiple
+          list_of_areas <- paste(tract_label, toString(selectedPolygons$groups))
+        } else if (geo_type == "zip code areas") { # For zip code areas, remove "Zip Code" from each entry
+          zip_label <- ifelse(num_selected == 1, "Zip code", "Zip codes") # Use "Zip code" for a singular selection, "Zip codes" for multiple
+          list_of_areas <- paste(zip_label, paste(sapply(selectedPolygons$groups, function(zca) {
+            as.character(sub("^Zip Code(s)? ", "", zca)) # Remove "Zip Code(s)" from the start of each zip code area object
+          }), collapse = ", "))
+        } else { # otherwise, just show the list of neighborhoods that are selected
+          toString(selectedPolygons$groups)
+        }
       })
       
       # Performs the data download in response to user confirming their download
       output$downloadData <- downloadHandler(
         filename = function() {
-          "NeighborhoodChangeExplorer_download.csv"
+          paste0(ifelse(input$customFileName != "",input$customFileName, 
+                        (paste0(gsub("[[:punct:]\\s]+", "_", topic_name()), "_in_Boston"))),
+                 ".csv")
         },
         content = function(out_file) {
           removeModal() # close confirmation window
+          
+          # Get selected year(s) from the modal dialog
+          if (input$yearDownload == "selected") {
+            years_to_use <- input$yearSelect # Use only the selected year if 'Only selected year' is chosen
+          } else {
+            years_to_use <- var_years() # Use all years if 'All years' is selected
+            
+          }
           
           if (input$downloadType == "single-area / aggregated") {
             output <- selectionData() %>% 
               pivot_wider(id_cols = "YEAR", names_from='CATEGORY', values_from='VALUE') %>%
               subset(select = c("YEAR", names(var_params()$barCats))) %>%
+              filter(YEAR %in% years_to_use) %>% # filter for year selection
               # downloaded data includes bar chart categories + the selected indicator for each year
-              merge(selectedLine() %>% select(YEAR, SUMMARY_VALUE) %>% st_drop_geometry(), by='YEAR') %>%
+              merge(selectedLineFilter() %>% select(YEAR, SUMMARY_VALUE) %>% st_drop_geometry(), by='YEAR') %>%
               # rename the SUMMARY_VALUE column to the name of the selected indicator
               mutate(YEAR = as.character(YEAR), !!input$indicatorSelect := SUMMARY_VALUE, .keep='unused')
           } else if (length(selectedPolygons$groups) == 0) { # i.e. if the user wants disaggregated citywide data
             output <- areas_categories_df() %>% 
               pivot_wider(id_cols = c("GEOID", "YEAR"), names_from='CATEGORY', values_from='VALUE') %>%
               subset(select = c("GEOID", "YEAR", names(var_params()$barCats))) %>%
+              filter(YEAR %in% years_to_use) %>% # filter for year selection
               # downloaded data includes bar chart categories + the selected indicator for each year
               merge(
                 areas_summary_df() %>% 
@@ -667,6 +871,7 @@ tabPanelServer <- function(geo_type) {
               subset(GEOID %in% selectedPolygons$groups) %>% 
               pivot_wider(id_cols = c("GEOID", "YEAR"), names_from='CATEGORY', values_from='VALUE') %>%
               subset(select = c("GEOID", "YEAR", names(var_params()$barCats))) %>%
+              filter(YEAR %in% years_to_use) %>% # filter for year selection
               # downloaded data includes bar chart categories + the selected indicator for each year
               merge(
                 areas_summary_df() %>% 
@@ -679,15 +884,13 @@ tabPanelServer <- function(geo_type) {
               mutate(YEAR = as.character(YEAR), !!input$indicatorSelect := SUMMARY_VALUE, .keep='unused')
           }
           
-          list_of_areas <- ifelse( # format any multiselections with commas and parentheses
-            length(selectedPolygons$groups) > 0, 
-            paste0("(", toString(selectedPolygons$groups), ")"),
-            "")
-          
+
           o <- as.data.frame(
             rbind( # paste a description and citation of the data on the first few lines of the output csv file
               c(paste("Topic:", topic_name()),rep(NA,ncol(output)-1)),
-              c(paste("Geographic Extent:", selectionName(), list_of_areas),rep(NA,ncol(output)-1)),
+              c(paste("Geographic Extent:", selectedAreas()),rep(NA,ncol(output)-1)),
+              c(paste("Year(s):", paste(years_to_use, collapse = ", ")), rep(NA, ncol(output) - 1)),  
+              c(paste(var_params()$note), rep(NA, ncol(output) - 1)),
               c(paste("Source:", gsub("\\s+", " ", gsub("[\r\n]", "", var_params()$source))),rep(NA,ncol(output)-1)),
               c(paste("Download type:", input$downloadType),rep(NA,ncol(output)-1)),
               c(rep(NA,ncol(output))), # blank line
@@ -707,9 +910,65 @@ tabPanelServer <- function(geo_type) {
           )
         }
       )
+#      # Observe the downloadMapButton click
+#      observeEvent(input$downloadMapButton, {
+#        showModal(modalDialog(
+#          HTML(paste("<b>Topic:</b>", topic_name(), "<br>", 
+#                  "<b>Variable:</b>", input$indicatorSelect, "<br>",
+#                  "<b>Year:</b>", input$yearSelect, "<br>"
+#                    )
+#              ),
+#          title = h2("Confirm download details", align = 'center'),
+#          easyClose = TRUE,
+#          footer = tagList(
+#            modalButton("Cancel"),
+#            actionButton("downloadMap", "Download map as .png file", icon = icon("image"))
+#          )
+#        ))
+#      })
+#      
+#        # Trigger download
+#      output$DownloadMap <- downloadHandler(
+#        filename = 'mymap.png',  # Can also be .pdf if desired
+#        content = function(file) {
+#          # Use `mapshot` to capture the current map view with all layers
+#          mapshot(mymap(), file = file, cliprect = "viewport")
+#        }
+#      )
+        
+      
+#      # Download handler for the bar chart
+#      output$download_bar <- downloadHandler(
+#        filename = function() {
+#          paste("bar_chart", Sys.Date(), ".png", sep = "")
+#        },
+#        content = function(file) {
+#          # Save the plotly output as an HTML file first
+#          html_file <- tempfile(fileext = ".html")
+#          saveWidget(ggplotly(bar_chart()), html_file, selfcontained = TRUE)  # Capture the rendered plot
+#          
+#          # Use webshot to take a screenshot of the HTML file
+#          webshot(html_file, file = file, vwidth = 800, vheight = 600)
+#        }
+#      )
+#      
+#      output$download_line <- downloadHandler(
+#        filename = function() {
+#          paste("line_chart", Sys.Date(), ".png", sep = "")
+#        },
+#        content = function(file) {
+#          # Save the plotly output as an HTML file first
+#          html_file <- tempfile(fileext = ".html")
+#          saveWidget(output$line_chart(), html_file, selfcontained = TRUE)
+#          
+#          # Use webshot to take a screenshot of the HTML file
+#          webshot(html_file, file = file, vwidth = 800, vheight = 600)
+#        }
+#      )
     }
   )
 }
+
 
 # Server ##############
 #' Each geography type gets its own module server so that they can act independently
@@ -732,7 +991,7 @@ server <- function(input, output, session) {
       )
     )
   })
-  
+
   # build the server modules for each geography type in APP_CONFIG
   lapply(names(APP_CONFIG), function(geo_type) {
     tabPanelServer(gsub(" ","_",geo_type))
