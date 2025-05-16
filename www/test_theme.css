@@ -147,6 +147,17 @@ margin-bottom: 8px;
 
 }
 
+/* styling the year ranges in the dropdown */
+.years-in-dropdown {
+    font-family: "Montserrat";
+    color: #333;
+    font-size: 12px;
+    line-height: 1;
+    padding: 3px 5px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
 /* styling other control rows (topic + variable selectors, time slder) */
 .control-row {
   border-bottom: 1px solid #f0f0f0; /* add horizontal light gray bottom border */
@@ -184,7 +195,7 @@ margin-bottom: 8px;
 .control-row-title {
   font-family: "Montserrat";
   font-size: 16px;
-  
+  font-style: normal;
 }
 
 /* style the selector containers to have margins */
@@ -196,6 +207,56 @@ margin-bottom: 8px;
 .instruction-map {
     padding: 10px;
     font-style: italic;
+}
+/* adjust margin for projections switch */
+.pretty {
+  margin-right: 0;
+}
+
+
+/* projections switch margin */
+.input[type=checkbox] {
+  margin: 0;
+}
+
+/* circle in projections switch set to white when on */
+.pretty.p-switch input:checked~.state label:after {
+  background-color: #ffffff!important;
+    height: 21px;
+    width: 21px;
+}
+
+/* circle in projections switch set to white when off */
+.pretty.p-switch .state label:after {
+    background-color: #ffffff!important;
+    height: 21px;
+    width: 21px;
+}
+
+
+/* background of projections switch set to gray when on */
+.pretty.p-switch input:checked~.state:before {
+    border-color : #fb4d42;
+    background: #fb4d42;
+    width: 40px;
+    height: 19px;
+}
+
+/* background of projections switch set to gray when off */
+.pretty.p-switch .state:before {
+    background: #bdc3c7;
+    width: 40px;
+    height: 19px;
+}
+
+.projection-switch-div {
+  padding-right: 0px;
+}
+
+
+/* Style the map instruction/projection row without margins */
+.instruction-map .row .col-sm-6 .form-group {
+  margin: 0px;
 }
 
 /* fix topic and variable selectors to take up width of column */
@@ -510,25 +571,31 @@ h2 {
     font-family: "Montserrat";
     font-size: 14px;
 }
+ 
 
 /* decrease size of map attribution at the bottom right */
 .leaflet-control-attribution a {
     font-size: 11px;
 }
 
-/* remove bottom margin below mbta subway toggle */
+/* remove bottom margin below mbtatoggle */
 .leaflet-control-layers label {
   margin-bottom: 0px;
 }
-/* Adjust font size of mbta subway toggle */
+/* border color of Mbta toggle */
+.leaflet-control-layers.leaflet-control-layers-expanded.leaflet-control {
+    border: 1px solid #ccc;
+}
+ 
+/* Adjust font size of mbta toggle */
 .leaflet-control-layers-overlays label div span {
 font-size: 14px; 
 }
-/* make mbta subway toggle cursor change to pointer on hover */
+/* make mbta toggle cursor change to pointer on hover */
 .leaflet-control-layers-overlays label div {
 cursor:pointer;
 }
-/* make mbta subway toggle cursor change to pointer on hover */
+/* make mbta toggle cursor change to pointer on hover */
 .leaflet-control-layers-overlays label div input {
 cursor:pointer;
 }
@@ -538,13 +605,13 @@ cursor:pointer;
         cursor: pointer;
 
 }
-/* adjust padding around mbta subway toggle */
+/* adjust padding around mbta toggle */
 .leaflet-control-layers.leaflet-control-layers-expanded.leaflet-control{
     padding-top: 2px;
     padding-bottom: 2px;
     padding-right: 5px;
 }
-/* Hover effect for the MBTA subway toggle */
+/* Hover effect for the MBTA toggle */
 .leaflet-control-layers.leaflet-control-layers-expanded.leaflet-control:hover {
   background-color: #e6e6e6; /* Light gray background on hover */
   border-color: #8c8c8c;

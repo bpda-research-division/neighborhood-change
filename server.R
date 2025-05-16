@@ -14,24 +14,23 @@ tabPanelServer <- function(geo_type) {
       # geographic features for the namespaced geography type
       geo_shapes <- APP_CONFIG[[geo_unit]]$geoms
       
-      # Keep track of the unique years of data we have for each topic
-      variables_years <- APP_DATA[[geo_unit]] %>%
+      # get current year, used to determine whether selected years are projections or now
+      current_year <- as.integer(format(Sys.Date(), "%Y"))
+      
+      # Keep track of the unique years of data we have for each topic, displayed in the topic dropdown
+      dropdown_years <- APP_DATA[[geo_unit]] %>%
         lapply(function(var) unique(var$areas_categories_df$YEAR) %>% sort())
       
-      # Keep track of the full list of topic display names that can appear in the "Choose a topic:" menu
-      topic_display_names <- names(APP_CONFIG[[geo_unit]]$topics) %>%
-        lapply(function (n) { # display each variable with its start and end year
-          paste0(n, ", ", variables_years[[n]][1], "-", tail(variables_years[[n]], 1))
-        })
+      # Keep track of the full list of topic names that can appear in the "TOPIC" menu
+      topic_names <- names(APP_CONFIG[[geo_unit]]$topics)
+      #topic_display_names <- names(APP_CONFIG[[geo_unit]]$topics) %>%
+      #  lapply(function (n) { # display each variable with its start and end year
+      #    paste0(n, ", ", dropdown_years[[n]][1], "-", tail(dropdown_years[[n]], 1))
+      #  })
       
-      # Topic display names are initialized with the year range concatenated to each variable name.
-      # To extract the currently selected topic name from input$topicSelect... 
-      topic_name <- reactive({ # ...we use a regex to find the last occurrence of a ( followed by a digit...
-        sub(",.*", "", input$topicSelect)
-        #idxs <- gregexpr("\\((\\d)", input$topicSelect)
-        #idx <- idxs[[1]][length(idxs)]
-        #topicName <- substr(input$topicSelect, 1, idx - 2) # ...and strip that part away.
-        #topicName
+      # Extract the currently selected topic name from input$topicSelect
+      topic_name <- reactive({
+        input$topicSelect
       })
       
       # Keep track of the parameters for whichever topic is selected
@@ -343,7 +342,16 @@ tabPanelServer <- function(geo_type) {
         # Check the selected indicator and remove 1950 and 1960 if necessary (for race/ethnicity categories)
         if (input$indicatorSelect %in% c("Share of population, Hispanic of any race", "Share of population, Asian alone")) {
           years <- years[!years %in% c(1950, 1960)]
+        }   
+        if (!input$projectionsToggle) {   # If projections are turned off, remove future years
+          years <- years[years <= current_year]
         }
+        return(years)
+      })
+      
+      # Keep track of the the unique set of *possible* years for each variable the user selects
+      possible_years <- reactive({
+        years <- unique(APP_DATA[[geo_unit]][[topic_name()]]$areas_categories_df$YEAR) %>% sort()
         return(years)
       })
       
@@ -355,7 +363,7 @@ tabPanelServer <- function(geo_type) {
       # Update the map When the user moves the time slider or picks a new variable
       observeEvent(input$yearSelect, {
         leafletProxy("map") %>% 
-          hideGroup(group = var_years()) %>% # hide whatever year is currently selected...
+          hideGroup(group = possible_years()) %>% # hide whatever year is currently selected...
           showGroup(input$yearSelect) %>% # ...then show the layer for the selected year...
           # ...while updating the labels of all selected polygons to reflect data for the given year
           setShapeLabel(layerId = asdf_selectedYear()$GEOID, label = asdf_selectedYear()$labelText)
@@ -411,22 +419,43 @@ tabPanelServer <- function(geo_type) {
       
       # To update the specific topic selection menu each time the user selects a different general topic...
       observeEvent(input$generalTopicSelect, {
-
+        selectedTopics <- list()
         selected_gt <- input$generalTopicSelect
+
         if (length(selected_gt) > 0) { # ...identify the topics that match the selected set of general topics...
           selected <- APP_CONFIG[[geo_unit]]$topics %>%
             lapply(function(topic) {topic$generalTopic %in% selected_gt}) %>%
             unlist()
-          selectedTopics <- topic_display_names[selected] # ...and filter out the other topics' names...
-        }
-        else { # ...(unless no general topics are selected, in which case, show all possible topic names)...
-          selectedTopics <- topic_display_names
-        } # ...so that we can update the "Choose a topic:" menu to only show topics matching selected general topics
-        updateSelectInput(session, "topicSelect", choices=selectedTopics, selected=selectedTopics[[1]])
+          selectedTopics <- topic_names[selected] %>% # ...and filter out the other topics' names...
+            lapply(function(n) {  # (function creates a dataframe of topics and corresponding year ranges)
+              data.frame(topic = n, years = paste0(dropdown_years[[n]][1], "-", tail(dropdown_years[[n]], 1)))
+            }) %>% bind_rows()
+        } else { # ...(unless no general topics are selected, in which case, show all possible topic names)...
+          selectedTopics <- topic_names %>%
+            lapply(function(n) {  # (function creates a dataframe of topics and corresponding year ranges)
+              data.frame(topic = n, years = paste0(dropdown_years[[n]][1], "-", tail(dropdown_years[[n]], 1)))
+            }) %>% bind_rows()
+          } # ...so that we can update the "TOPIC" menu to only show topics matching selected general topics
+        updateSelectizeInput(session, "topicSelect", choices = selectedTopics, selected = selectedTopics$topic[1],
+                             options = list(
+                               valueField = 'topic',   # the html below allows year ranges to be shown next to topic names
+                               labelField = 'topic',   # and styled differently to create visual hierarchy
+                               render = I("{
+                                option: function(item, escape) {
+                                  return '<div>'
+                                    + '<span>' + escape(item.topic) + '       </span>'
+                                    + '<small class=\"years-in-dropdown\">' + escape(item.years) + '</small>'
+                                    + '</div>';
+                                  }
+                                }" 
+                               )
+                             ),
+                             server = TRUE
+                           )
       }, ignoreNULL = FALSE)
       
-      # Each time the user selects a different topic...
-      observeEvent(input$topicSelect, {
+      # Each time the user selects a different topic or toggles the projections...
+      observeEvent(c(input$topicSelect, input$projectionsToggle), {
         indicators <- names(var_params()$summary_indicators) # ...update the list of available indicators...
         updateSelectInput(session, "indicatorSelect", choices=indicators, selected=indicators[[1]])
         updateSliderTextInput(session, "yearSelect",
@@ -436,7 +465,7 @@ tabPanelServer <- function(geo_type) {
           )
       })
       
-      # Display label for the geographic scope of the current map selection (e.g. "2 selected tracts" or "Citywide")
+      # Display label for the geographic scope of the current map selection
       selectionName <- reactive({ # this is used for the legends on the bar and line charts
         geo_type <- geo_unit
         num_selected <- length(selectedPolygons$groups)
@@ -533,10 +562,14 @@ tabPanelServer <- function(geo_type) {
           ) %>% 
             config(displayModeBar = FALSE) %>%
             add_bars(color = I(BAR_COLOR),
-                     marker = list(line = list(color = BAR_COLOR))
+                     marker = list(pattern = list(shape = ifelse(input$yearSelect > current_year, "/", ""), # Apply diagonal pattern to future bars
+                                                  bgcolor = ifelse(input$yearSelect > current_year, "#B3DFFC", ""),
+                                                  size = ifelse(input$yearSelect > current_year, "20", ""),
+                                                  solidity = ifelse(input$yearSelect > current_year, "0.7", ""))) 
             ) %>% 
             layout(title = list(
-              text = toupper(paste0(var_params()$barTitle, " in ", input$yearSelect)),
+              text = toupper(paste0(ifelse(input$yearSelect > current_year, "Projected ", ""), # If selected year is in the future, prepend "Projected" to the title
+                                    var_params()$barTitle, " in ", input$yearSelect)),         # Otherwise, display the title as usual
               font = list(color = APP_FONT_COLOR, family = FONT_MONT, size = title_font_size())
             ),
             font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = bar_font_size()),
@@ -572,10 +605,14 @@ tabPanelServer <- function(geo_type) {
           ) %>% 
             config(displayModeBar = FALSE) %>%
             add_bars(color = I(BAR_COLOR),
-                     marker = list(line = list(color = BAR_COLOR))
+                     marker = list(pattern = list(shape = ifelse(input$yearSelect > current_year, "/", ""), # Apply diagonal pattern to future bars
+                                                  bgcolor = ifelse(input$yearSelect > current_year, "#B3DFFC", ""),
+                                                  size = ifelse(input$yearSelect > current_year, "20", ""),
+                                                  solidity = ifelse(input$yearSelect > current_year, "0.7", ""))) 
             ) %>% 
             layout(title = list(
-              text = toupper(paste0(var_params()$barTitle, " in ", input$yearSelect)),
+              text = toupper(paste0(ifelse(input$yearSelect > current_year, "Projected ", ""), # If selected year is in the future, prepend "Projected" to the title
+                                    var_params()$barTitle, " in ", input$yearSelect)),         # Otherwise, display the title as usual
               font = list(color = APP_FONT_COLOR, family = FONT_MONT, size = title_font_size())
             ),
             font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = bar_font_size()),
@@ -662,11 +699,22 @@ tabPanelServer <- function(geo_type) {
       
       # Define how we render the line chart at any given time
       output$line_chart <- renderPlotly({
-        p <- plot_ly(selectedLineFilter(), 
-                x = ~YEAR,
-                y = ~SUMMARY_VALUE,
-                source = session$ns("line_chart"), # this label helps us manage click events
-                hoverinfo = 'text' # enable text to be displayed on hover
+        # Separate selected data into past and future based on the current year
+        past_data <- subset(selectedLineFilter(), YEAR <= current_year)
+        max_past_year <- max(past_data$YEAR, na.rm = TRUE)
+        future_data <- subset(selectedLineFilter(), YEAR > current_year | YEAR == max_past_year)
+        
+        # Separate citywide data into past and future based on the current year
+        past_citywide_data <- subset(totalarea_summary_df(), YEAR <= current_year)
+        max_past_citywide_year <- max(past_citywide_data$YEAR, na.rm = TRUE)
+        future_citywide_data <- subset(totalarea_summary_df(), YEAR > current_year | YEAR == max_past_year)
+        
+        # Create the base plot for the past data
+        p <- plot_ly(past_data, 
+                     x = ~YEAR,
+                     y = ~SUMMARY_VALUE,
+                     source = session$ns("line_chart"), 
+                     hoverinfo = 'text'
         ) %>% 
           config(displayModeBar = FALSE) %>% # remove default plotly controls
           add_trace(hoverinfo='x', mode = 'markers', type = 'scatter', # add a hidden trace for displaying years on hover
@@ -689,9 +737,9 @@ tabPanelServer <- function(geo_type) {
                               range = c( # set x axis range a little wider than the data so as to not cut off text
                                 as.numeric(var_years()[1]) - line_xrange_bookend(),
                                 as.numeric(tail(var_years(), 1)) + line_xrange_bookend()
-                                ),
-                              tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)
                               ),
+                              tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)
+                 ),
                  yaxis = list(title = '', fixedrange = TRUE, range = lineRange(),
                               # set the number format for the data that appear on hover...
                               hoverformat = indicator_params()$hoverformat,
@@ -699,40 +747,71 @@ tabPanelServer <- function(geo_type) {
                               tickprefix = indicator_params()$tickprefix, 
                               tickformat = indicator_params()$tickformat,
                               tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)
-                              ),
+                 ),
                  showlegend = T, # always show the legend (even with just 1 series)
                  legend = list(orientation = 'h', # place legend items side by side
                                x=0.01, y=1.05, # position legend near the top left
                                itemclick = FALSE, itemdoubleclick = FALSE,
                                font = list(family = FONT_LORA)
-                               ), 
+                 ), 
                  hovermode = "x unified", # show the data values for all lines when hovering over a given x
                  hoverlabel = list(font = list(family = FONT_MONT, color = APP_FONT_COLOR)),
                  margin = list(t=40) # top padding to make sure chart title is visible
           )
         
-        # if at least one polygon is selected and the given variable is configured to show citywide comparisons...
-        if (length(selectedPolygons$groups) > 0 & indicator_params()$citywide_comparison) { 
-          p <- p %>% # ...add a dashed line showing the citywide comparison for the summary value over time
-            add_lines(x = totalarea_summary_df()$YEAR, y = totalarea_summary_df()$SUMMARY_VALUE,
-               hoverinfo="y", name="City of Boston", color = I("rgba(40, 139, 228, 0.4)"), # 40% transparency
-               line=list(width = 3, shape = 'spline', smoothing = 1)
+        # If projections are enabled, add future data
+        if (input$projectionsToggle) {
+          # Format the future line as dotted (if projections are on)
+          p <- p %>%
+            add_trace(x = future_data$YEAR, y = future_data$SUMMARY_VALUE,
+                      hoverinfo=ifelse(future_data$YEAR > max_past_year, "x", "none"), mode = 'markers', type = 'scatter', # add a hidden trace for displaying years on hover
+                      marker=list(size=0, color='white'), showlegend=FALSE, opacity=0
+            ) %>%
+            add_lines(x = future_data$YEAR, y = future_data$SUMMARY_VALUE,
+                      hoverinfo=ifelse(future_data$YEAR > max_past_year, "y", "none"), color=I(LINE_COLOR), # set the line formatting options
+                      line=list(width = 3, shape = 'spline', smoothing = 1, dash='dot'), name="Projection", showlegend = FALSE
+            ) %>% 
+            add_markers(x = future_data$YEAR,
+                        y = future_data$SUMMARY_VALUE,
+                        marker = list(color = LINE_COLOR, size = 6, symbol = 'circle'), # solid circle marker for years w/ data
+                        showlegend = FALSE, # don't show this marker in the legend
+                        hoverinfo = 'none' # enable hover info for the markers
             )
         }
         
-        # we also add a marker highlighting the summary value for the year currently on the slider...
+        # If at least one polygon is selected and citywide comparison is enabled...
+        if (length(selectedPolygons$groups) > 0 & indicator_params()$citywide_comparison) {
+          p <- p %>%
+            add_lines(x = past_citywide_data$YEAR, y = past_citywide_data$SUMMARY_VALUE,
+                      hoverinfo="y", name="City of Boston", color = I("rgba(40, 139, 228, 0.4)"),
+                      line=list(width = 3, shape = 'spline', smoothing = 1)
+            )
+          if (input$projectionsToggle) {
+            p <- p %>%
+              add_lines(x = future_citywide_data$YEAR, y = future_citywide_data$SUMMARY_VALUE,
+                        hoverinfo=ifelse(future_citywide_data$YEAR > max_past_citywide_year, "y", "none"), name="City of Boston", color = I("rgba(40, 139, 228, 0.4)"),
+                        line=list(width = 3, shape = 'spline', smoothing = 1, dash='dot'), showlegend = FALSE
+              )
+          }
+        }
+        
+        # Add a marker highlighting the current year on the slider
         marker_y_data <- subset(selectedLineFilter(), YEAR == input$yearSelect)
-        if (nrow(marker_y_data) > 0) { # ...as long as there isn't missing data for that year.
+        if (nrow(marker_y_data) > 0) {
           p <- p %>%
             add_markers(x = input$yearSelect, y = marker_y_data$SUMMARY_VALUE,
                         marker = list(color = "white", symbol = "circle", size = 16,
-                                      line = list(color = "#fb4d42", width = 3) # outline color of selected year
-                        ), showlegend = FALSE, hoverinfo = "skip" # we already have hoverinfo for the lines, so no need for the marker
-                        )           
+                                      line = list(color = "#fb4d42", width = 3)
+                        ), showlegend = FALSE, hoverinfo = "skip"
+            )
         }
-        line_loaded(TRUE) # change line_loaded() from false to true when line chart is ready to be clicked upon
+        
+        # Mark the line chart as ready to be clicked
+        line_loaded(TRUE)
+        
         p
       })
+      
       
       # initializing this as FALSE initially and requiring it before event_data() prevents plotly click warnings
       line_loaded <- reactiveVal(value = FALSE)
@@ -883,7 +962,6 @@ tabPanelServer <- function(geo_type) {
               # rename the SUMMARY_VALUE column to the name of the selected indicator
               mutate(YEAR = as.character(YEAR), !!input$indicatorSelect := SUMMARY_VALUE, .keep='unused')
           }
-          
 
           o <- as.data.frame(
             rbind( # paste a description and citation of the data on the first few lines of the output csv file
@@ -895,8 +973,16 @@ tabPanelServer <- function(geo_type) {
               c(paste("Download type:", input$downloadType),rep(NA,ncol(output)-1)),
               c(rep(NA,ncol(output))), # blank line
               colnames(output), # headers
-              matrix(unlist(output, use.names=FALSE), # data rows
-                     nrow = nrow(output),
+              matrix(
+                unlist(
+                  output %>%
+                    mutate(across(
+                      where(is.numeric) & !any_of(c("YEAR", "GEOID", input$indicatorSelect)), 
+                      round # round the raw data columns
+                    )), 
+                  use.names = FALSE
+                ), 
+                nrow = nrow(output)
               )
             )
           )

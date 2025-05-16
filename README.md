@@ -15,7 +15,8 @@ The Neighborhood Change Explorer was originally built by the Research Division o
 
 To learn more about how the app works and how you can create your own version of it, see the [about page](ABOUT.md).
 
-Primary author/maintainer: [@mciethan](https://www.github.com/mciethan)
+Original author: [@mciethan](https://www.github.com/mciethan)
+Primary maintainer: [@samklugherz](https://github.com/samklugherz)
 
 Want to report a bug or suggest a feature? Create an [issue](https://github.com/bpda-research-division/neighborhood-change/issues). 
 

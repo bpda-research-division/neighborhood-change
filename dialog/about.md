@@ -12,6 +12,8 @@ For the Children by Race and Ethnicity topic, some values from 1980 and 1990 wer
 
 The topics on business establishments and business loans are reported for "zip code areas", a set of geographic boundaries based on Zip Code Tabulation Areas (ZCTAs) that we designed to allow for better correspondence between tract-level FFIEC Community Reinvestment Act (CRA) data on business loans and zipcode-level business establishment data from the Census. See the "Businesses and Loans Methodology" section below for a description of this correspondence.
 
+Population projections are also available by age and sex at the citywide and neighborhood levels for 2030 and 2035. Boston’s neighborhood projections conform to the citywide projections controlled by housing unit production, population mobility, and population aging in place. A presentation overview of the motivation and methodology behind the Research Division's population projections can be found [here](https://www.bostonplans.org/getattachment/67a636f4-0de7-44dd-a2f5-dc302cd9bc9e).
+
 The full source code for the Neighborhood Change Explorer is available on [our Github page](https://github.com/bpda-research-division/neighborhood-change) along with documentation for developers.
 
 ### Crosswalk Methodology 

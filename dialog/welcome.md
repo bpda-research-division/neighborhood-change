@@ -16,4 +16,7 @@ To explore change over time, try:
 * pressing the &#9658; button on the time slider
 * clicking on a different year on the line chart
 
+To view population projections by neighborhood:
+* click the neighborhood tab, and toggle projections for the topics "Population" and "Age" 
+
 To download data, use the "Download selected data" button located at the bottom right of the map.

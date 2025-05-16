@@ -167,121 +167,141 @@
 "South End","South End",14423,979,2010,540.9067611
 "West End","West End",2882,379,2010,174.3610166
 "West Roxbury","West Roxbury",12960,586,2010,3286.172429
-"Allston","Allston",10270,739,2021,881.6769432
-"Back Bay","Back Bay",10006,1518,2021,327.1692548
-"Beacon Hill","Beacon Hill",5526,556,2021,177.4767684
-"Brighton","Brighton",23274,1155,2021,1736.324511
-"Charlestown","Charlestown",9055,601,2021,866.3393593
+"Allston","Allston",10027,721,2020,881.6769432
+"Allston","Allston",10071,724,2021,881.6769432
+"Allston","Allston",10268,740,2022,881.6769432
+"Allston","Allston",10383,750,2023,881.6769432
+"Allston","Allston",10781,774,2024,881.6769432
+"Allston","Allston",10974,785,2025,881.6769432
+"Back Bay","Back Bay",10006,1518,2020,327.1692548
+"Back Bay","Back Bay",9998,1517,2021,327.1692548
+"Back Bay","Back Bay",10005,1519,2022,327.1692548
+"Back Bay","Back Bay",9989,1517,2023,327.1692548
+"Back Bay","Back Bay",10172,1551,2024,327.1692548
+"Back Bay","Back Bay",10170,1550,2025,327.1692548
+"Beacon Hill","Beacon Hill",5483,552,2020,177.4767684
+"Beacon Hill","Beacon Hill",5539,556,2021,177.4767684
+"Beacon Hill","Beacon Hill",5526,554,2022,177.4767684
+"Beacon Hill","Beacon Hill",5520,553,2023,177.4767684
+"Beacon Hill","Beacon Hill",5516,553,2024,177.4767684
+"Beacon Hill","Beacon Hill",5528,553,2025,177.4767684
+"Brighton","Brighton",22535,1118,2020,1736.324511
+"Brighton","Brighton",22685,1140,2021,1736.324511
+"Brighton","Brighton",23220,1207,2022,1736.324511
+"Brighton","Brighton",23515,1223,2023,1736.324511
+"Brighton","Brighton",24008,1277,2024,1736.324511
+"Brighton","Brighton",24484,1338,2025,1736.324511
+"Charlestown","Charlestown",8932,593,2020,866.3393593
+"Charlestown","Charlestown",8954,596,2021,866.3393593
+"Charlestown","Charlestown",9054,602,2022,866.3393593
+"Charlestown","Charlestown",9059,604,2023,866.3393593
+"Charlestown","Charlestown",9047,603,2024,866.3393593
+"Charlestown","Charlestown",9068,604,2025,866.3393593
+"Chinatown","Chinatown",2937,335,2020,70.70623964
 "Chinatown","Chinatown",2937,335,2021,70.70623964
-"Dorchester","Dorchester",45263,3173,2021,4657.666107
-"Downtown","Downtown",5746,1302,2021,414.2432607
-"East Boston","East Boston",17245,1365,2021,3104.612739
-"Fenway","Fenway",13595,1390,2021,848.7014714
-"Harbor Islands","Harbor Islands",0,0,2021,808.1126827
-"Hyde Park","Hyde Park",12509,580,2021,3187.05253
-"Jamaica Plain","Jamaica Plain",17749,1164,2021,1990.583099
-"Longwood","Longwood",317,49,2021,125.3338263
-"Mattapan","Mattapan",9020,537,2021,1746.754335
-"Mission Hill","Mission Hill",6818,293,2021,384.9785704
-"North End","North End",6340,520,2021,121.5770832
-"Roslindale","Roslindale",11766,599,2021,1400.81718
-"Roxbury","Roxbury",20305,1685,2021,2217.508373
-"South Boston","South Boston",18338,1204,2021,1132.00878
-"South Boston Waterfront","South Boston Waterfront",4074,1122,2021,829.1247946
-"South End","South End",16842,1508,2021,540.9067611
-"West End","West End",4982,731,2021,174.3610166
-"West Roxbury","West Roxbury",13468,684,2021,3286.172429
-"Allston","Allston",10387,747,2022,881.6769432
-"Back Bay","Back Bay",9990,1515,2022,327.1692548
-"Beacon Hill","Beacon Hill",5520,555,2022,177.4767684
-"Brighton","Brighton",23574,1170,2022,1736.324511
-"Charlestown","Charlestown",9062,601,2022,866.3393593
-"Chinatown","Chinatown",3087,352,2022,70.70623964
-"Dorchester","Dorchester",45438,3185,2022,4657.666107
-"Downtown","Downtown",5746,1302,2022,414.2432607
-"East Boston","East Boston",17732,1404,2022,3104.612739
-"Fenway","Fenway",14006,1432,2022,848.7014714
-"Harbor Islands","Harbor Islands",0,0,2022,808.1126827
-"Hyde Park","Hyde Park",12531,581,2022,3187.05253
-"Jamaica Plain","Jamaica Plain",17932,1176,2022,1990.583099
-"Longwood","Longwood",317,49,2022,125.3338263
-"Mattapan","Mattapan",9221,549,2022,1746.754335
-"Mission Hill","Mission Hill",6851,294,2022,384.9785704
-"North End","North End",6364,522,2022,121.5770832
-"Roslindale","Roslindale",11818,602,2022,1400.81718
-"Roxbury","Roxbury",20427,1695,2022,2217.508373
-"South Boston","South Boston",18568,1219,2022,1132.00878
-"South Boston Waterfront","South Boston Waterfront",4163,1146,2022,829.1247946
-"South End","South End",17128,1534,2022,540.9067611
-"West End","West End",4982,731,2022,174.3610166
-"West Roxbury","West Roxbury",13747,698,2022,3286.172429
-"Allston","Allston",10595,762,2023,881.6769432
-"Back Bay","Back Bay",10191,1546,2023,327.1692548
-"Beacon Hill","Beacon Hill",5516,555,2023,177.4767684
-"Brighton","Brighton",24099,1196,2023,1736.324511
-"Charlestown","Charlestown",9050,600,2023,866.3393593
-"Chinatown","Chinatown",3089,352,2023,70.70623964
-"Dorchester","Dorchester",46073,3229,2023,4657.666107
-"Downtown","Downtown",5746,1302,2023,414.2432607
-"East Boston","East Boston",18034,1428,2023,3104.612739
-"Fenway","Fenway",14140,1446,2023,848.7014714
-"Harbor Islands","Harbor Islands",0,0,2023,808.1126827
-"Hyde Park","Hyde Park",12531,581,2023,3187.05253
-"Jamaica Plain","Jamaica Plain",17947,1177,2023,1990.583099
-"Longwood","Longwood",317,49,2023,125.3338263
-"Mattapan","Mattapan",9401,560,2023,1746.754335
-"Mission Hill","Mission Hill",6907,296,2023,384.9785704
-"North End","North End",6407,526,2023,121.5770832
-"Roslindale","Roslindale",11816,602,2023,1400.81718
-"Roxbury","Roxbury",20477,1699,2023,2217.508373
-"South Boston","South Boston",18784,1233,2023,1132.00878
-"South Boston Waterfront","South Boston Waterfront",4474,1232,2023,829.1247946
-"South End","South End",17474,1565,2023,540.9067611
-"West End","West End",4982,731,2023,174.3610166
-"West Roxbury","West Roxbury",13861,704,2023,3286.172429
-"Allston","Allston",10028,720,2020,881.6769432
-"Back Bay","Back Bay",10003,1521,2020,327.1692548
-"Beacon Hill","Beacon Hill",5488,549,2020,177.4767684
-"Brighton","Brighton",22541,1112,2020,1736.324511
-"Charlestown","Charlestown",8934,591,2020,866.3393593
-"Chinatown","Chinatown",2938,334,2020,70.70623964
-"Dorchester","Dorchester",44799,3166,2020,4657.666107
-"Downtown","Downtown",5382,1222,2020,414.2432607
-"East Boston","East Boston",16701,1315,2020,3104.612739
-"Fenway","Fenway",13265,1360,2020,848.7014714
-"Hyde Park","Hyde Park",12475,574,2020,3187.05253
-"Jamaica Plain","Jamaica Plain",17397,1150,2020,1990.583099
+"Chinatown","Chinatown",2937,335,2022,70.70623964
+"Chinatown","Chinatown",3086,353,2023,70.70623964
+"Chinatown","Chinatown",3088,353,2024,70.70623964
+"Chinatown","Chinatown",3095,354,2025,70.70623964
+"Dorchester","Dorchester",44823,3142,2020,4657.666107
+"Dorchester","Dorchester",44948,3150,2021,4657.666107
+"Dorchester","Dorchester",45266,3169,2022,4657.666107
+"Dorchester","Dorchester",45437,3183,2023,4657.666107
+"Dorchester","Dorchester",46073,3228,2024,4657.666107
+"Dorchester","Dorchester",46322,3243,2025,4657.666107
+"Downtown","Downtown",5384,1220,2020,414.2432607
+"Downtown","Downtown",5657,1335,2021,414.2432607
+"Downtown","Downtown",5696,1352,2022,414.2432607
+"Downtown","Downtown",5696,1352,2023,414.2432607
+"Downtown","Downtown",5979,1396,2024,414.2432607
+"Downtown","Downtown",5981,1396,2025,414.2432607
+"East Boston","East Boston",16664,1316,2020,3104.612739
+"East Boston","East Boston",16765,1329,2021,3104.612739
+"East Boston","East Boston",17202,1377,2022,3104.612739
+"East Boston","East Boston",17705,1412,2023,3104.612739
+"East Boston","East Boston",17855,1421,2024,3104.612739
+"East Boston","East Boston",18264,1457,2025,3104.612739
+"Fenway","Fenway",13272,1352,2020,848.7014714
+"Fenway","Fenway",13553,1393,2021,848.7014714
+"Fenway","Fenway",13578,1396,2022,848.7014714
+"Fenway","Fenway",14001,1426,2023,848.7014714
+"Fenway","Fenway",14001,1426,2024,848.7014714
+"Fenway","Fenway",14334,1461,2025,848.7014714
+"Hyde Park","Hyde Park",12469,578,2020,3187.05253
+"Hyde Park","Hyde Park",12480,578,2021,3187.05253
+"Hyde Park","Hyde Park",12510,578,2022,3187.05253
+"Hyde Park","Hyde Park",12532,579,2023,3187.05253
+"Hyde Park","Hyde Park",12548,579,2024,3187.05253
+"Hyde Park","Hyde Park",12644,583,2025,3187.05253
+"Jamaica Plain","Jamaica Plain",17392,1141,2020,1990.583099
+"Jamaica Plain","Jamaica Plain",17656,1183,2021,1990.583099
+"Jamaica Plain","Jamaica Plain",17723,1186,2022,1990.583099
+"Jamaica Plain","Jamaica Plain",17908,1196,2023,1990.583099
+"Jamaica Plain","Jamaica Plain",18098,1207,2024,1990.583099
+"Jamaica Plain","Jamaica Plain",18323,1218,2025,1990.583099
 "Longwood","Longwood",317,49,2020,125.3338263
-"Mattapan","Mattapan",8824,523,2020,1746.754335
-"Mission Hill","Mission Hill",6670,285,2020,384.9785704
-"North End","North End",6313,519,2020,121.5770832
-"Roslindale","Roslindale",11688,589,2020,1400.81718
-"Roxbury","Roxbury",20017,1670,2020,2217.508373
-"South Boston","South Boston",17953,1187,2020,1132.00878
-"South Boston Waterfront","South Boston Waterfront",3624,998,2020,829.1247946
-"South End","South End",16155,1443,2020,540.9067611
+"Longwood","Longwood",317,49,2021,125.3338263
+"Longwood","Longwood",317,49,2022,125.3338263
+"Longwood","Longwood",317,49,2023,125.3338263
+"Longwood","Longwood",317,49,2024,125.3338263
+"Longwood","Longwood",317,49,2025,125.3338263
+"Mattapan","Mattapan",8820,525,2020,1746.754335
+"Mattapan","Mattapan",8824,525,2021,1746.754335
+"Mattapan","Mattapan",9017,537,2022,1746.754335
+"Mattapan","Mattapan",9221,546,2023,1746.754335
+"Mattapan","Mattapan",9275,550,2024,1746.754335
+"Mattapan","Mattapan",9310,552,2025,1746.754335
+"Mission Hill","Mission Hill",6668,287,2020,384.9785704
+"Mission Hill","Mission Hill",6697,289,2021,384.9785704
+"Mission Hill","Mission Hill",6816,295,2022,384.9785704
+"Mission Hill","Mission Hill",6848,297,2023,384.9785704
+"Mission Hill","Mission Hill",6891,299,2024,384.9785704
+"Mission Hill","Mission Hill",6894,299,2025,384.9785704
+"North End","North End",6314,518,2020,121.5770832
+"North End","North End",6317,518,2021,121.5770832
+"North End","North End",6336,520,2022,121.5770832
+"North End","North End",6361,521,2023,121.5770832
+"North End","North End",6359,521,2024,121.5770832
+"North End","North End",6372,522,2025,121.5770832
+"Roslindale","Roslindale",11682,595,2020,1400.81718
+"Roslindale","Roslindale",11707,596,2021,1400.81718
+"Roslindale","Roslindale",11767,598,2022,1400.81718
+"Roslindale","Roslindale",11820,600,2023,1400.81718
+"Roslindale","Roslindale",11872,602,2024,1400.81718
+"Roslindale","Roslindale",11983,609,2025,1400.81718
+"Roxbury","Roxbury",20017,1662,2020,2217.508373
+"Roxbury","Roxbury",20104,1670,2021,2217.508373
+"Roxbury","Roxbury",20288,1693,2022,2217.508373
+"Roxbury","Roxbury",20427,1700,2023,2217.508373
+"Roxbury","Roxbury",20644,1715,2024,2217.508373
+"Roxbury","Roxbury",20773,1722,2025,2217.508373
+"South Boston","South Boston",17961,1179,2020,1132.00878
+"South Boston","South Boston",18108,1189,2021,1132.00878
+"South Boston","South Boston",18339,1203,2022,1132.00878
+"South Boston","South Boston",18564,1219,2023,1132.00878
+"South Boston","South Boston",18937,1243,2024,1132.00878
+"South Boston","South Boston",19008,1248,2025,1132.00878
+"South Boston Waterfront","South Boston Waterfront",3623,998,2020,829.1247946
+"South Boston Waterfront","South Boston Waterfront",4300,1202,2021,829.1247946
+"South Boston Waterfront","South Boston Waterfront",4300,1202,2022,829.1247946
+"South Boston Waterfront","South Boston Waterfront",4299,1202,2023,829.1247946
+"South Boston Waterfront","South Boston Waterfront",4299,1202,2024,829.1247946
+"South Boston Waterfront","South Boston Waterfront",4299,1202,2025,829.1247946
+"South End","South End",16152,1446,2020,540.9067611
+"South End","South End",16153,1447,2021,540.9067611
+"South End","South End",16811,1538,2022,540.9067611
+"South End","South End",17247,1586,2023,540.9067611
+"South End","South End",17566,1646,2024,540.9067611
+"South End","South End",17570,1646,2025,540.9067611
 "West End","West End",4572,671,2020,174.3610166
-"West Roxbury","West Roxbury",13395,675,2020,3286.172429
-"Allston","Allston",10967,553,2024,881.6769432
-"Back Bay","Back Bay",10166,1566,2024,327.1692548
-"Beacon Hill","Beacon Hill",5518,519,2024,177.4767684
-"Brighton","Brighton",24162,1176,2024,1736.324511
-"Charlestown","Charlestown",9015,622,2024,866.3393593
-"Chinatown","Chinatown",3056,385,2024,70.70623964
-"Dorchester","Dorchester",45369,3960,2024,4657.666107
-"Downtown","Downtown",6145,844,2024,414.2432607
-"East Boston","East Boston",17947,1549,2024,3104.612739
-"Fenway","Fenway",14347,776,2024,848.7014714
-"Hyde Park","Hyde Park",12434,694,2024,3187.05253
-"Jamaica Plain","Jamaica Plain",18225,839,2024,1990.583099
-"Longwood","Longwood",332,34,2024,125.3338263
-"Mattapan","Mattapan",9141,714,2024,1746.754335
-"Mission Hill","Mission Hill",6910,252,2024,384.9785704
-"North End","North End",6290,602,2024,121.5770832
-"Roslindale","Roslindale",11792,778,2024,1400.81718
-"Roxbury","Roxbury",20648,1777,2024,2217.508373
-"South Boston","South Boston",18808,1274,2024,1132.00878
-"South Boston Waterfront","South Boston Waterfront",4511,110,2024,829.1247946
-"South End","South End",17971,1412,2024,540.9067611
-"West End","West End",5015,697,2024,174.3610166
-"West Roxbury","West Roxbury",13910,636,2024,3286.172429
+"West End","West End",4572,671,2021,174.3610166
+"West End","West End",4963,750,2022,174.3610166
+"West End","West End",4963,750,2023,174.3610166
+"West End","West End",4963,750,2024,174.3610166
+"West End","West End",4963,750,2025,174.3610166
+"West Roxbury","West Roxbury",13323,667,2020,3286.172429
+"West Roxbury","West Roxbury",13344,668,2021,3286.172429
+"West Roxbury","West Roxbury",13402,672,2022,3286.172429
+"West Roxbury","West Roxbury",13679,688,2023,3286.172429
+"West Roxbury","West Roxbury",13793,694,2024,3286.172429
+"West Roxbury","West Roxbury",13814,695,2025,3286.172429

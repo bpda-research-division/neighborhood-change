@@ -253,7 +253,7 @@ APP_CONFIG <- list(
       ),
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
       2020 and 2024 City of Boston Planning Department Research Division estimates",
-      note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other."
+      note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other. Two or more races became an option in 2000."
     ),
     ### children by race & ethnicity -----
     #"Children by Race and Ethnicity" = list(
@@ -543,8 +543,7 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; Mayor's Office of Housing;
-      2020 and 2024 City of Boston Planning Department Research Division estimates"
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; Mayor's Office of Housing"
     ),
     ### housing vacancy -----
     "Housing Vacancy" = list(
@@ -864,7 +863,7 @@ APP_CONFIG <- list(
         )
       ),
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
-      2020 and 2024 City of Boston Planning Department Research Division estimates"
+      2020 and 2024 City of Boston Planning Department Research Division estimates, 2030 and 2035 Research Division projections"
     ),
     ### age ----
     "Age" = list(
@@ -924,7 +923,7 @@ APP_CONFIG <- list(
         )
       ),
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
-      2020 and 2024 City of Boston Planning Department Research Division estimates"
+      2020 and 2024 City of Boston Planning Department Research Division estimates, 2030 and 2035 Research Division projections"
     ),
     ### children by age -----
     "Children by Age" = list(
@@ -1016,57 +1015,57 @@ APP_CONFIG <- list(
       note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other. Two or more races became an option in 2000."
     ),
     ### children by race & ethnicity ----
-    "Children by Race and Ethnicity" = list(
-      data_code = "chilnre", generalTopic = 'Demographics',
-      areas_categories_csv =  'csv/chi_by_race_neigh_rev.csv',          #  'csv/children_neigh_race_bins.csv',
-      barTitle = "Children by race/ethnicity", barhoverformat = ",.0f", smallbarfont = TRUE,
-      barCats = list(
-        "White" = "white",
-        "Black/African American" = "black",
-        "Hispanic/Latino" = "hisp",
-        "Asian/Pacific Islander" = "aapi",
-        "American Indian" = "ainh",
-        "Two or More" = "twoplus",
-        "Other" = "other"
-      ),
-      summary_indicators = list(
-        "Non-white share of children" = list(
-          summary_expression = rlang::expr(
-            (black + hisp + aapi + ainh + twoplus + other) /
-              (white + black + hisp + aapi + ainh + twoplus + other)
-          ),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        ),
-        "Share of children, Black alone" = list(
-          summary_expression = rlang::expr(
-            (black) /
-              (white + black + hisp + aapi + ainh + twoplus + other)
-          ),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        ),
-        "Share of children, Hispanic of any race" = list(
-          summary_expression = rlang::expr(
-            (hisp) /
-              (white + black + hisp + aapi + ainh + twoplus + other)
-          ),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        ),
-        "Share of children, Asian alone" = list(
-          summary_expression = rlang::expr(
-            (aapi) /
-              (white + black + hisp + aapi + ainh + twoplus + other)
-          ),
-          citywide_comparison = TRUE,
-          hoverformat = ".0%", tickformat = ".0%"
-        )
-      ),
-      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
-      2020 and 2024 City of Boston Planning Department Research Division estimates",
-      note = "Note: Two or More races did not become an option on the decennial census until 2000."
-    ),
+    #"Children by Race and Ethnicity" = list(
+    #  data_code = "chilnre", generalTopic = 'Demographics',
+    #  areas_categories_csv =  'csv/chi_by_race_neigh_rev.csv',          #  'csv/children_neigh_race_bins.csv',
+    #  barTitle = "Children by race/ethnicity", barhoverformat = ",.0f", smallbarfont = TRUE,
+    #  barCats = list(
+    #    "White" = "white",
+    #    "Black/African American" = "black",
+    #    "Hispanic/Latino" = "hisp",
+    #    "Asian/Pacific Islander" = "aapi",
+    #    "American Indian" = "ainh",
+    #    "Two or More" = "twoplus",
+    #    "Other" = "other"
+    #  ),
+    #  summary_indicators = list(
+    #    "Non-white share of children" = list(
+    #      summary_expression = rlang::expr(
+    #        (black + hisp + aapi + ainh + twoplus + other) /
+    #          (white + black + hisp + aapi + ainh + twoplus + other)
+    #      ),
+    #      citywide_comparison = TRUE,
+    #      hoverformat = ".0%", tickformat = ".0%"
+    #    ),
+    #    "Share of children, Black alone" = list(
+    #      summary_expression = rlang::expr(
+    #        (black) /
+    #          (white + black + hisp + aapi + ainh + twoplus + other)
+    #      ),
+    #      citywide_comparison = TRUE,
+    #      hoverformat = ".0%", tickformat = ".0%"
+    #    ),
+    #    "Share of children, Hispanic of any race" = list(
+    #      summary_expression = rlang::expr(
+    #        (hisp) /
+    #          (white + black + hisp + aapi + ainh + twoplus + other)
+    #      ),
+    #      citywide_comparison = TRUE,
+    #      hoverformat = ".0%", tickformat = ".0%"
+    #    ),
+    #    "Share of children, Asian alone" = list(
+    #      summary_expression = rlang::expr(
+    #        (aapi) /
+    #          (white + black + hisp + aapi + ainh + twoplus + other)
+    #      ),
+    #      citywide_comparison = TRUE,
+    #      hoverformat = ".0%", tickformat = ".0%"
+    #    )
+    #  ),
+    #  source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+    #  2020 and 2024 City of Boston Planning Department Research Division estimates",
+    #  note = "Note: Two or More races did not become an option on the decennial census until 2000."
+    #),
     ### nativity ----
     "Nativity" = list(
       data_code = "hbicnnat", generalTopic = 'Demographics',
@@ -1283,8 +1282,7 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
-      2020 and 2024 City of Boston Planning Department Research Division estimates"
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; Mayor's Office of Housing"
       ),
     ### housing vacancy -----
     "Housing Vacancy" = list(
@@ -1793,8 +1791,8 @@ if (length(topic_codes) != length(unique(topic_codes))) {
 # # You can either prep data for individual topics...
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Age']])
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Race and Ethnicity']])
-# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
-# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Sales']])
+# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
+# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Age']])
 #prep_data(APP_CONFIG[['census tracts']]$topics[['Commute Mode']])
 #prep_data(APP_CONFIG[['neighborhoods']]$topics[['Commute Mode']])
 
@@ -1814,14 +1812,10 @@ if (length(topic_codes) != length(unique(topic_codes))) {
 
 #prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
 #prep_data(APP_CONFIG[['neighborhoods']]$topics[['Age']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Age']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Race and Ethnicity']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Children by Race and Ethnicity']])
+#prep_data(APP_CONFIG[['census tracts']]$topics[['Nativity']])
 #prep_data(APP_CONFIG[['neighborhoods']]$topics[['Nativity']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Educational Attainment']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Labor Force']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Poverty']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Living Arrangements']])
+#prep_data(APP_CONFIG[['census tracts']]$topics[['Labor Force']])
+#prep_data(APP_CONFIG[['census tracts']]$topics[['Living Arrangements']])
 #prep_data(APP_CONFIG[['neighborhoods']]$topics[['Commute Mode']])
 #prep_data(APP_CONFIG[['neighborhoods']]$topics[['Vehicles Available']])
 

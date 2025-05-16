@@ -12,7 +12,7 @@ geoTabPanelUI <- function(geo_type) {
   generalTopics <- APP_CONFIG[[geo_type]]$topics %>% 
     lapply(function(topic) {topic$generalTopic}) %>% 
     unique() # extract list of general topics for the topic filter checkboxes
-  
+
   # the below variables are used to reformat the map legend to place the NA value below the color
   # palette - default behavior in the current version of Leaflet is for them to be side by side
   css_legend_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
@@ -47,11 +47,18 @@ geoTabPanelUI <- function(geo_type) {
         ),
         column(
           width = 10, class = "selectors", style="z-index:1011;",  # Ensure this drop-down menu displays in front of other stuff
-          selectInput(ns("topicSelect"), label = NULL, 
-                      choices = NULL  # Topic choices are populated by the server, so no initialization here
+          selectizeInput(ns("topicSelect"), label = NULL, 
+                         choices = NULL,  # Topic choices are populated by the server
+                         multiple = FALSE,  # Set to TRUE if you want multi-selection
+                         options = list(
+                           allowEmptyOption = FALSE,
+                           maxItems = 1 # Limits selection to one item
+
           )
-        )
-      ),
+          )
+      )
+      )
+      ,
       fluidRow(class = "control-row",  # The third row of controls is for choosing a specific indicator / variable within a topic
         column(
           width = 2, 
@@ -79,8 +86,30 @@ geoTabPanelUI <- function(geo_type) {
         )
       ),
       
-      div(class = "instruction-map",  # Use a class for padding in the  map instruction row
-          HTML(sprintf("<b>Click one or more %s on the map:</b>", geo_type))
+      div(class = "instruction-map",  # Use a class for padding in the map instruction row
+          fluidRow(
+            column(8, 
+                   HTML(sprintf("<b>Click one or more %s on the map:</b>", geo_type))
+            ),
+            column(4, align = "right", class = "projection-switch-div",
+                   conditionalPanel(
+                     condition = sprintf(
+                       "(input['%s'] == 'Population' || input['%s'] == 'Age') && '%s' == 'neighborhoods'", 
+                       ns("topicSelect"), ns("topicSelect"), geo_type  
+                       # Display projections switch only for neighborhoods and certain topics
+                     ),
+                     div(
+                       HTML("<b class='control-row-title'>PROJECTIONS</b>"),  # Use a class for the slider instruction
+                      prettySwitch(
+                        inputId = ns("projectionsToggle"),
+                        label = NULL,
+                        value = FALSE,
+                        inline = TRUE,
+                        bigger = TRUE
+                        ))
+                   )
+            )
+          )
       ),  # The bottom section of the controls is dedicated to the map, with a line of instructional text above it
       leafletOutput(ns("map"), height = "580px") %>%
         htmlwidgets::prependContent(html_legend_fix),
