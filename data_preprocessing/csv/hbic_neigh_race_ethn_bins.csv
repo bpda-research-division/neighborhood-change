@@ -1,28 +1,28 @@
 GEOID,NAME,white,black,hisp,native,asian,two_plus,other,YEAR
-Allston,Allston,20485,212,0,0,0,0,0,1950
-Back Bay,Back Bay,20627,533,0,0,0,0,0,1950
-Beacon Hill,Beacon Hill,14049,87,0,0,0,0,0,1950
-Brighton,Brighton,46317,73,0,0,0,0,0,1950
-Charlestown,Charlestown,30922,323,0,0,0,0,0,1950
-Chinatown,Chinatown,1948,63,0,0,0,0,0,1950
-Dorchester,Dorchester,161324,601,0,0,0,0,0,1950
-Downtown,Downtown,3504,117,0,0,0,0,0,1950
-East Boston,East Boston,51077,53,0,0,0,0,0,1950
-Fenway,Fenway,25177,434,0,0,0,0,0,1950
-Harbor Islands,Harbor Islands,2029,111,0,0,0,0,0,1950
-Hyde Park,Hyde Park,26078,29,0,0,0,0,0,1950
-Jamaica Plain,Jamaica Plain,52427,364,0,0,0,0,0,1950
-Longwood,Longwood,2560,22,0,0,0,0,0,1950
-Mattapan,Mattapan,23781,43,0,0,0,0,0,1950
-Mission Hill,Mission Hill,20587,248,0,0,0,0,0,1950
-North End,North End,16271,56,0,0,0,0,0,1950
-Roslindale,Roslindale,32110,47,0,0,0,0,0,1950
-Roxbury,Roxbury,75387,27112,0,0,0,0,0,1950
-South Boston,South Boston,54915,42,0,0,0,0,0,1950
+Allston,Allston,20485,212,0,0,0,0,65,1950
+Back Bay,Back Bay,20627,533,0,0,0,0,68,1950
+Beacon Hill,Beacon Hill,14049,87,0,0,0,0,25,1950
+Brighton,Brighton,46317,73,0,0,0,0,37,1950
+Charlestown,Charlestown,30922,323,0,0,0,0,87,1950
+Chinatown,Chinatown,1948,63,0,0,0,0,790,1950
+Dorchester,Dorchester,161324,601,0,0,0,0,120,1950
+Downtown,Downtown,3504,117,0,0,0,0,509,1950
+East Boston,East Boston,51077,53,0,0,0,0,22,1950
+Fenway,Fenway,25177,434,0,0,0,0,181,1950
+Harbor Islands,Harbor Islands,2029,111,0,0,0,0,4,1950
+Hyde Park,Hyde Park,26078,29,0,0,0,0,21,1950
+Jamaica Plain,Jamaica Plain,52427,364,0,0,0,0,34,1950
+Longwood,Longwood,2560,22,0,0,0,0,11,1950
+Mattapan,Mattapan,23781,43,0,0,0,0,21,1950
+Mission Hill,Mission Hill,20587,248,0,0,0,0,31,1950
+North End,North End,16271,56,0,0,0,0,19,1950
+Roslindale,Roslindale,32110,47,0,0,0,0,16,1950
+Roxbury,Roxbury,75387,27112,0,0,0,0,253,1950
+South Boston,South Boston,54915,42,0,0,0,0,22,1950
 South Boston Waterfront,South Boston Waterfront,673,0,0,0,0,0,0,1950
-South End,South End,36644,9341,0,0,0,0,0,1950
-West End,West End,12758,139,0,0,0,0,0,1950
-West Roxbury,West Roxbury,27050,7,0,0,0,0,0,1950
+South End,South End,36644,9341,0,0,0,0,332,1950
+West End,West End,12758,139,0,0,0,0,11,1950
+West Roxbury,West Roxbury,27050,7,0,0,0,0,8,1950
 Allston,Allston,18759,197,0,0,0,0,120,1960
 Back Bay,Back Bay,17100,837,0,0,0,0,217,1960
 Beacon Hill,Beacon Hill,11481,83,0,0,0,0,83,1960

@@ -94,7 +94,7 @@ body {
   color: white;                 /*  text color */
   background-color: #288be4;    /* background color of tab */
   border: 2px solid transparent; /* Set border width and make it transparent */
-  border-radius: 8px;           /* Rounded corner */
+  border-radius: 9999px;           /* Rounded corner */
   margin-right: 10px;
 margin-bottom: 8px;
 }
@@ -103,7 +103,7 @@ margin-bottom: 8px;
   background-color: #fb4d42;
   color: white;
   border: 2px solid white; /* Set border width and make it transparent */
-  border-radius: 8px;           /* Rounded corner */
+  border-radius: 9999px;           /* Rounded corner */
   margin-right: 10px;
 
 }
@@ -111,7 +111,7 @@ margin-bottom: 8px;
 .nav.nav-tabs li a:hover {
   background-color: #0056b3; /* Darker blue on hover for inactive tabs */
   border: 2px solid white; /* Change border color on hover */
-  border-radius: 8px;           /* Rounded corner */
+  border-radius: 9999px;           /* Rounded corner */
   margin-right: 10px;
 
 }
@@ -146,7 +146,30 @@ margin-bottom: 8px;
     border-bottom: 1px solid #f0f0f0; /* add horizontal light gray bottom border */
 
 }
+/* styling the selected topic/variable in the dropdown row in the dropdown */
+.selectize-dropdown .active {
+    background-color: #f0f0f0;
+    padding: 5px;
+    color: #091f2f;
 
+}
+
+/* dropdown rounded corners*/
+.selectize-input {
+  border-radius: 8px;
+}
+.selectize-input.dropdown-active {
+  border-radius: 8px;
+}
+
+.selectize-control.single .selectize-input.input-active {
+  cursor: pointer;
+}
+
+/* add padding to unselected topics in dropdown */
+.selectize-dropdown [data-selectable] {
+    padding: 5px;
+}
 /* styling the year ranges in the dropdown */
 .years-in-dropdown {
     font-family: "Montserrat";
@@ -264,6 +287,7 @@ margin-bottom: 8px;
     display: table;
     table-layout: fixed;
     width: 100%;
+    margin-bottom: 1px;
 }
 
 /* remove bottom margin on topic and variable selectors */
@@ -279,7 +303,7 @@ margin-bottom: 8px;
 .custom-checkbox label {
   background-color: white; /* Default background color */
   border: 1px solid #ccc; /* Light gray border */
-  border-radius: 5px; /* Rounded corners */
+  border-radius: 12px; /* Rounded corners */
   padding: 3px 8px; /* Padding for button-like appearance */
   cursor: pointer; /* Pointer cursor on hover */
 }
@@ -523,7 +547,12 @@ h2 {
 .leaflet-bottom .leaflet-control {
     margin-bottom: 5px;
 }
+.leaflet-control-search.leaflet-control {
+    margin-top: 0px;
+  margin-left: 0px;
+    border: 1px solid #ccc;
 
+}
 .leaflet-touch .leaflet-bar a:first-child {
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;

@@ -150,24 +150,25 @@ ui <- fluidPage(
   chooseSliderSkin("Round"), # Set slider style according to a template
   
   # Top header with Logo, Title, Subtitle, and About Button
-  div(class = "header",  # Use the header class for styling
-      fluidRow(
-        column(1, align = "center", img(src = "planning_logo.png", height = "60px")),  # Logo top left of header
-        column(9, 
-               h3("BOSTON NEIGHBORHOOD CHANGE EXPLORER", align = "left", 
-                  class = "header-title" # Use the header title class
-               ), 
-               div("Developed by the City of Boston Planning Department Research Division", 
-                   class = "header-subtitle" # Use the header subtitle class
-               ) # Add subtitle
+# Top header with Logo, Title, Subtitle, and About Button
+div(class = "header",  # Use the header class for styling
+    div(style = "display: flex; align-items: center; justify-content: space-between;",
+        div(style = "display: flex; align-items: center;",
+            img(src = "planning_logo.png", height = "60px", style = "margin-right: 15px;"),
+            div(
+              h3("BOSTON NEIGHBORHOOD CHANGE EXPLORER", 
+                 class = "header-title", style = "margin: 0;"
+              ), 
+              div("Developed by the City of Boston Planning Department Research Division", 
+                  class = "header-subtitle"
+              )
+            )
         ),
-        column(2, align = 'right', 
-               div(class = 'about-button',  # Use the about button class
-                   actionLink("about", "ABOUT")
-               )
+        div(class = 'about-button',
+            actionLink("about", "ABOUT")
         )
-      )
-  ),
+    )
+),
   # create a tabsetPanel with one tab for each geography type present in APP_CONFIG
   do.call(tabsetPanel, lapply(names(APP_CONFIG), geoTabPanelUI))
 )

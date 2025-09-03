@@ -190,7 +190,8 @@ tabPanelServer <- function(geo_type) {
             actionButton(session$ns("downloadButton"), "Download selected data", icon = icon("download"), title = "Download selected data", 
                          style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE-3, FONT_LORA)),
             position="bottomright", className = "fieldset {border: 0;}" # remove default button border
-          ) %>% 
+          ) %>%
+          #leaflet.extras::addSearchOSM(options = searchOptions(position = "topleft")) %>%
           leaflet.extras2::addSpinner() %>% # add a loading spinner to be displayed while the map renders
           leaflet.extras2::startSpinner(
             options=list(
