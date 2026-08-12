@@ -1,4 +1,4 @@
-"GEOID","NAME","native","foreign","YEAR"
+"GEOID","NAME","nativeborn","foreign","YEAR"
 "Allston","Allston",16658,3826,1950
 "Back Bay","Back Bay",17400,3227,1950
 "Beacon Hill","Beacon Hill",11489,2559,1950
@@ -143,30 +143,29 @@
 "South End","South End",19316,4889,2000
 "West End","West End",3770,934,2000
 "West Roxbury","West Roxbury",23734,4929,2000
-"Allston","Allston",15474,7810,2010
-"Back Bay","Back Bay",14816,3063,2010
-"Beacon Hill","Beacon Hill",7967,1163,2010
-"Brighton","Brighton",31881,13021,2010
-"Charlestown","Charlestown",14289,2313,2010
-"Chinatown","Chinatown",1943,1875,2010
-"Dorchester","Dorchester",75708,34247,2010
-"Downtown","Downtown",6020,3340,2010
-"East Boston","East Boston",20328,20621,2010
-"Fenway","Fenway",24734,7601,2010
-"Harbor Islands","Harbor Islands",589,200,2010
-"Hyde Park","Hyde Park",22751,9685,2010
-"Jamaica Plain","Jamaica Plain",28816,7945,2010
-"Longwood","Longwood",5501,443,2010
-"Mattapan","Mattapan",15591,8585,2010
-"Mission Hill","Mission Hill",11439,3788,2010
-"North End","North End",8583,1104,2010
-"Roslindale","Roslindale",20872,8497,2010
-"Roxbury","Roxbury",33299,10522,2010
-"South Boston","South Boston",27067,3556,2010
-"South Boston Waterfront","South Boston Waterfront",1221,167,2010
-"South End","South End",22672,6859,2010
-"West End","West End",4351,1052,2010
-"West Roxbury","West Roxbury",23072,6168,2010
+"Allston","Allston",17432,6992,2010
+"Back Bay","Back Bay",13930,3057,2010
+"Beacon Hill","Beacon Hill",8419,1071,2010
+"Brighton","Brighton",31868,11587,2010
+"Charlestown","Charlestown",14297,2755,2010
+"Chinatown","Chinatown",2272,1743,2010
+"Dorchester","Dorchester",79754,38270,2010
+"Downtown","Downtown",7159,3186,2010
+"East Boston","East Boston",21327,20353,2010
+"Fenway","Fenway",25408,7515,2010
+"Hyde Park","Hyde Park",23635,9923,2010
+"Jamaica Plain","Jamaica Plain",29731,8236,2010
+"Longwood","Longwood",4343,624,2010
+"Mattapan","Mattapan",15059,8524,2010
+"Mission Hill","Mission Hill",11214,3611,2010
+"North End","North End",9480,1241,2010
+"Roslindale","Roslindale",22078,7764,2010
+"Roxbury","Roxbury",35781,10919,2010
+"South Boston","South Boston",28774,3916,2010
+"South Boston Waterfront","South Boston Waterfront",1434,204,2010
+"South End","South End",22017,6685,2010
+"West End","West End",4131,1061,2010
+"West Roxbury","West Roxbury",24383,6146,2010
 "Allston","Allston",20535.239796,9132.611735,2020
 "Back Bay","Back Bay",14772.989312,4110.453337,2020
 "Beacon Hill","Beacon Hill",8206.60227,1235.17002,2020

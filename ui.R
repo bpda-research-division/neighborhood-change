@@ -89,13 +89,16 @@ geoTabPanelUI <- function(geo_type) {
       div(class = "instruction-map",  # Use a class for padding in the map instruction row
           fluidRow(
             column(8, 
-                   HTML(sprintf("<b>Click one or more %s on the map:</b>", geo_type))
+                   div(style = "display: flex; align-items: center; gap: 10px; padding-right: 5px",
+                       HTML(sprintf("<b>Click %s on the map to:</b>", geo_type)),
+                       uiOutput(ns("selectionModeUI"))
+                   )
             ),
             column(4, align = "right", class = "projection-switch-div",
                    conditionalPanel(
                      condition = sprintf(
-                       "(input['%s'] == 'Population' || input['%s'] == 'Age') && '%s' == 'neighborhoods'", 
-                       ns("topicSelect"), ns("topicSelect"), geo_type  
+                       "(input['%s'] == 'Population' || input['%s'] == 'Age' || input['%s'] == 'Children by Age (NOW WITH PROJECTIONS!)') && '%s' == 'neighborhoods'", 
+                       ns("topicSelect"), ns("topicSelect"), ns("topicSelect"), geo_type  
                        # Display projections switch only for neighborhoods and certain topics
                      ),
                      div(
@@ -143,7 +146,9 @@ ui <- fluidPage(
   
   ## LOAD CSS STYLE ##
   tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "test_theme.css")),
-  #####################
+
+  # Change background color of selection for Combine vs Compare
+  #shinyThings::radioSwitchButtons_default_style(selected_background = "#fb4d42"),
   
 #  tags$head(tags$style(HTML(paste(styling_commands)))), # Apply other style commands
   

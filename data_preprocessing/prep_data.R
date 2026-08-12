@@ -41,6 +41,8 @@ prep_data <- function(topic) {
   }
   
   if (!all(bc %in% names(sb))) {
+    print(bc)
+    print(names(sb))
     stop(paste("Error: one or more columns in barCats for topic", topic$data_code, "are not present in areas_categories_csv. 
          More information: https://github.com/bpda-research-division/neighborhood-change/blob/main/ABOUT.md#topic-parameters"))
   }
@@ -98,7 +100,7 @@ APP_CONFIG <- list(
         ),
         "Population per square mile" = list(
           summary_expression = rlang::expr((male + female) / landarea_sqmiles),
-          citywide_comparison = TRUE,
+          citywide_comparison = TRUE,map_legend_bins = c(0, 7500, 15000, 22000, 30000, 40000, 52000, 65000),
           hoverformat = ",.0f", tickformat = ""
         ),
         "Female share of population" = list(
@@ -114,6 +116,7 @@ APP_CONFIG <- list(
     "Age" = list(
       data_code = "hbicta", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/pop_by_age_tract_rev.csv',   #'csv/hbic_tract_age_year_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population by age", barhoverformat = ",.0f",
       null_description = "little to no population",
       barCats = list(
@@ -213,6 +216,7 @@ APP_CONFIG <- list(
     "Race and Ethnicity" = list(
       data_code = "hbictre", generalTopic = 'Demographics',
       areas_categories_csv =  'csv/pop_by_race_tract_rev.csv', # 'csv/hbic_tract_race_ethn_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population by race/ethnicity", barhoverformat = ",.0f",
       null_description = "little to no population", smallbarfont = TRUE,
       barCats = list(
@@ -256,13 +260,21 @@ APP_CONFIG <- list(
           ),
           citywide_comparison = TRUE,
           hoverformat = ".1%", tickformat = ".0%"
-        )
-      ),
+        ),
+          "Share of population, two or more races" = list(
+            summary_expression = rlang::expr(
+              (two_plus) /
+                (white + black + hisp + asian + native + two_plus + other)
+            ),
+            citywide_comparison = TRUE,
+            hoverformat = ".1%", tickformat = ".0%"
+          )
+        ),
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
       2020 and 2025 City of Boston Planning Department Research Division estimates",
       note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other. Two or more races became an option in 2000."
     ),
-    ### children by race & ethnicity -----
+    ### children by race & ethnicity - DEPRECATED -----
     #"Children by Race and Ethnicity" = list(
     #  data_code = "chiltre", generalTopic = 'Demographics',
     #  areas_categories_csv = 'csv/chi_by_race_tract_rev.csv', #'csv/children_tract_race_bins.csv',
@@ -320,12 +332,13 @@ APP_CONFIG <- list(
     "Nativity" = list(
       data_code = "hbictnat", generalTopic = 'Demographics',
       areas_categories_csv =  'csv/pop_by_nat_tract_rev.csv', # 'csv/hbic_tract_nativity_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population by nativity", barhoverformat = ",.0f",
-      barCats = list("Native-born" = "native", "Foreign-born" = "foreign"),
+      barCats = list("Native-born" = "nativeborn", "Foreign-born" = "foreign"),
       null_description = "little to no population",
       summary_indicators = list(
         "Foreign-born share of population" = list(
-          summary_expression = rlang::expr(foreign / (foreign + native)),
+          summary_expression = rlang::expr(foreign / (foreign + nativeborn)),
           citywide_comparison = TRUE,
           hoverformat = ".1%", tickformat = ".0%"
         ),
@@ -335,13 +348,14 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2008-2012 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
       2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### educ attainment -----
     "Educational Attainment" = list(
       data_code = "hbictedu", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/pop_by_edu_tract_rev.csv',     # 'csv/hbic_tract_edu_attain_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f",
       null_description = "little to no population", smallbarfont = TRUE,
       barCats = list(
@@ -362,13 +376,14 @@ APP_CONFIG <- list(
           hoverformat = ".1%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2008-2012 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
       2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### labor force ----
     "Labor Force" = list(
       data_code = "hbictlf", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/pop_by_lab_tract_rev.csv',   # 'csv/hbic_tract_labor_force_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
       null_description = "little to no population",
       barCats = list(
@@ -378,6 +393,11 @@ APP_CONFIG <- list(
         , "Female not in labor force" = "nilf_f"
       ),
       summary_indicators = list(
+        "Overall labor force participation rate (16+)" = list(
+          summary_expression = rlang::expr((ilf_f + ilf_m) / (ilf_f + nilf_f + ilf_m + nilf_m)),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        ),
         "Female labor force participation rate (16+)" = list(
           summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
           citywide_comparison = TRUE,
@@ -389,7 +409,7 @@ APP_CONFIG <- list(
           hoverformat = ".1%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2008-2012 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
       2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### ratio of income to poverty - DEPRECATED -----
@@ -433,7 +453,7 @@ APP_CONFIG <- list(
     #  source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
     #  Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; City of Boston Planning Department Research Division Analysis"
     #),
-    ### poverty - NEW -----
+    ### poverty ------
     "Poverty Status" = list(
       data_code = "povt", generalTopic = "Demographics",
       areas_categories_csv = 'csv/pop_by_pov_tract_rev.csv',
@@ -459,11 +479,11 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1980-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      source = "U.S. Census Bureau, 1980-2000 Decennial Censuses, 2008-2012 American Community Survey,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2025 City of Boston Planning Department 
       Research Division estimates"
     ),
-    ### children by poverty - NEW -----
+    ### children by poverty ------
     "Children by Poverty Status" = list(
       data_code = "chipovt", generalTopic = "Demographics",
       areas_categories_csv = 'csv/chi_by_pov_tract_rev.csv',
@@ -489,7 +509,7 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2008-2012 American Community Survey,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2025 City of Boston Planning Department 
       Research Division estimates"
     ),
@@ -497,6 +517,7 @@ APP_CONFIG <- list(
     "Living Arrangements" = list(
       data_code = "hhgqt", generalTopic = "Demographics",
       areas_categories_csv = 'csv/pop_by_livarr_tract_rev.csv', # 'csv/hh_gq_tract_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population by living arrangement type", barhoverformat = ",.0f",
       null_description = "little to no population",
       additional_null_geoms = c(
@@ -550,7 +571,8 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; Mayor's Office of Housing"
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      for years beyond 2020, data are based on 2020 Census plus annual housing completions from the Mayor's Office of Housing"
     ),
     ### housing vacancy -----
     "Housing Vacancy" = list(
@@ -578,6 +600,40 @@ APP_CONFIG <- list(
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
       2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
+    ### housing vacancy by tenure - NEW -----
+    "Housing Vacancy by Tenure (NEW!)" = list(
+      data_code = "vacancy_tract_new", generalTopic = 'Housing',
+      areas_categories_csv = 'csv/vacancy_tract.csv', # 'csv/hbic_neigh_housing_vacancy_bins.csv',
+     # totalarea_categories_csv = 'csv/tot_huvac_rev.csv',   # 'csv/hbicthouvac_cb.csv',
+      barTitle = "Housing units by vacancy", barhoverformat = ",.0f",
+      barCats = list(
+        "Owner-occupied" = "own_occ",
+        "Renter-occupied" = "rent_occ",
+        "Vacant, for rent"  = "vacant_for_rent",
+        "Vacant, for sale"  = "vacant_for_sale",
+        "Other vacant" = "other_vacant_incl_rented_sold_not_occ"
+      ),
+      summary_indicators = list(
+        #        "Overall vacancy rate" = list(
+        #          summary_expression = rlang::expr(total_vacant / (own_occ + rent_occ + total_vacant)),
+        #          citywide_comparison = TRUE,
+        #          hoverformat = ".1%", tickformat = ".0%"
+        #        ),
+        "Rental vacancy rate" = list(
+          summary_expression = rlang::expr(vacant_for_rent / rent_denominator),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        ),
+        "Owner vacancy rate" = list(
+          summary_expression = rlang::expr(vacant_for_sale / own_denominator),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        )
+      ),
+     note = "Note: 'Other vacant' includes seasonal, recreational, occasional-use, migrant-worker, and rented/sold-but-not-yet-occupied units. 
+     2024 values reflect 2020-2024 American Community Survey estimates; summing the bins above will not equal the 2024 total housing unit estimate shown in the 'Housing Units' topic.",
+      source = "U.S. Census Bureau, 1960-2020 Decennial Censuses, 2020-2024 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org"
+    ),
     ### housing tenure ----
     "Housing Tenure" = list(
       data_code = "hbicthouten", generalTopic = 'Housing',
@@ -596,6 +652,33 @@ APP_CONFIG <- list(
         )
       ),
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+      2020 and 2025 City of Boston Planning Department Research Division estimates"
+    ),
+    ### household type - NEW ----
+    "Household Type (NEW!)" = list(
+      data_code = "hhtype_tract", generalTopic = 'Housing',
+      areas_categories_csv = 'csv/hhtype_tract.csv',
+      barTitle = "Households by type", barhoverformat = ",.0f",
+      null_description = "little to no households",
+      barCats = list(
+        "Single-person households" = "living_alone",
+        "Households with children" = "with_children",
+        "Other multi-person households"= "no_children"
+      ),
+      summary_indicators = list(
+        "Share of households with one person" = list(
+          summary_expression = rlang::expr(living_alone / occ),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        ),
+        "Share of households with children" = list(
+          summary_expression = rlang::expr(with_children / occ),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        )
+      ),
+      note = "Note: 'Other multi-person households' includes multi-person households with no one under 18, such as married or cohabiting couples without children, adult roommates, or multi-generational households of adults.",
+      source = "U.S. Census Bureau, 1970-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
       2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### commute mode ----
@@ -647,7 +730,7 @@ APP_CONFIG <- list(
         #         hoverformat = ".1%", tickformat = ".0%"
         #       )
       ),
-      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 American
+      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2008-2012 American
           Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
         2020 and 2025 City of Boston Planning Department Research Division estimates"
     ), 
@@ -673,17 +756,75 @@ APP_CONFIG <- list(
         ),
         "Number of households with no vehicles available" = list(
           summary_expression = rlang::expr(no_vehicles),
-          citywide_comparison = TRUE,
-          hoverformat = ".0f", tickformat = ""
-        )
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+          )
         #       "Share of households with two or more vehicles available" = list(
         #         summary_expression = rlang::expr((two_vehicles + three_or_more_vehicles) / total_occupied_units),
         #         citywide_comparison = TRUE,
         #         hoverformat = ".1%", tickformat = ".0%"
         #       )
       ),
-      source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2006-2010 American
+      source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2008-2012 American
           Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+        2020 and 2025 City of Boston Planning Department Research Division estimates"
+    ),
+    ### renter cost burden - NEW ----
+    "Renter Housing Cost Burden (NEW!)" = list(
+      data_code = "rentcostburden_tract", generalTopic = 'Housing',
+      areas_categories_csv = 'csv/rentcostburden_tract.csv', 
+      barTitle = "Renter householdss by share of income spent on rent", barhoverformat = ",.0f",
+      null_description = "little to no renter households",
+      additional_null_geoms = c(25025981100, 25025981300),
+      barCats = list(
+        "Less than 20%" = "less_than_twenty",
+        "20 to 24.9%" = "twenty_to_twentyfive",
+        "25 to 29.9%" = "twentyfive_to_thirty",
+        "30 to 34.9%" = "thirty_to_thirtyfive",
+        "35% or more" = "thirtyfive_or_more"
+      ),
+      summary_indicators = list(
+        "Share of renter households spending 35%+ of income on rent" = list(
+          summary_expression = rlang::expr(thirtyfive_or_more / renter),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        ),
+        "Share of renter households spending <20% of income on rent" = list(
+          summary_expression = rlang::expr(less_than_twenty / renter),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 2008-2012 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+        2020 and 2025 City of Boston Planning Department Research Division estimates"
+    ),
+    ### owner cost burden - NEW ----
+    "Owner Housing Cost Burden (NEW!)" = list(
+      data_code = "ownercostburden_tract", generalTopic = 'Housing',
+      areas_categories_csv = 'csv/ownercostburden_tract.csv', 
+      barTitle = "Owner households by share of income spent on housing", barhoverformat = ",.0f",
+      null_description = "little to no owner households",
+      additional_null_geoms = c(25025981100,25025981300),
+      barCats = list(
+        "Less than 20%" = "less_than_twenty",
+        "20 to 24.9%" = "twenty_to_twentyfive",
+        "25 to 29.9%" = "twentyfive_to_thirty",
+        "30 to 34.9%" = "thirty_to_thirtyfive",
+        "35% or more" = "thirtyfive_or_more"
+      ),
+      summary_indicators = list(
+        "Share of owner households spending 35%+ of income on housing" = list(
+          summary_expression = rlang::expr(thirtyfive_or_more / owner),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        ),
+        "Share of owner households spending <20% of income on housing" = list(
+          summary_expression = rlang::expr(less_than_twenty / owner),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 2008-2012 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
         2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### num of home loans ----
@@ -833,7 +974,7 @@ APP_CONFIG <- list(
           hoverformat = ".1%", tickformat = ".0%"
         )
       ),
-      note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2022 inflation-adjusted dollars.",
+      note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2024 inflation-adjusted dollars.",
       source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; City of Boston Planning Department Research Division analysis"
     )
   )
@@ -876,6 +1017,7 @@ APP_CONFIG <- list(
     "Age" = list(
       data_code = "hbicna", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/pop_by_age_neigh_rev.csv',  # 'csv/hbic_neigh_age_year_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population by age", barhoverformat = ",.0f",
       barCats = list(
         "0-9 years" = "zero_nine",
@@ -933,7 +1075,7 @@ APP_CONFIG <- list(
       2020, 2024, and 2025 City of Boston Planning Department Research Division estimates, 2030 and 2035 Research Division projections"
     ),
     ### children by age -----
-    "Children by Age" = list(
+    "Children by Age (NOW WITH PROJECTIONS!)" = list(
       data_code = "chilna", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/chi_by_age_neigh_rev.csv',        # 'csv/children_neigh_age_bins.csv',
       barTitle = "Children by age", barhoverformat = ",.0f",
@@ -965,13 +1107,14 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1980-2020 Decennial Censuses,
+      source = "U.S. Census Bureau, 1980-2020 Decennial Censuses, 
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020, 2024, and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### race & ethnicity -----
     "Race and Ethnicity" = list(
       data_code = "hbicnre", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/pop_by_race_neigh_rev.csv',        # 'csv/hbic_neigh_race_ethn_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population by race/ethnicity", barhoverformat = ",.0f", smallbarfont = TRUE,
       barCats = list(
         "White" = "white",
@@ -1028,7 +1171,7 @@ APP_CONFIG <- list(
       2020 and 2025 City of Boston Planning Department Research Division estimates",
       note = "Note: In 1950 and 1960, the only race/ethnicity categories on the Census were White, Black, and Other. Two or more races became an option in 2000."
     ),
-    ### children by race & ethnicity ----
+    ### children by race & ethnicity - DEPRECATED ----
     #"Children by Race and Ethnicity" = list(
     #  data_code = "chilnre", generalTopic = 'Demographics',
     #  areas_categories_csv =  'csv/chi_by_race_neigh_rev.csv',          #  'csv/children_neigh_race_bins.csv',
@@ -1084,11 +1227,12 @@ APP_CONFIG <- list(
     "Nativity" = list(
       data_code = "hbicnnat", generalTopic = 'Demographics',
       areas_categories_csv =  'csv/pop_by_nat_neigh_rev.csv',        # 'csv/hbic_neigh_nativity_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population by nativity", barhoverformat = ",.0f",
-      barCats = list("Native-born" = "native", "Foreign-born" = "foreign"),
+      barCats = list("Native-born" = "nativeborn", "Foreign-born" = "foreign"),
       summary_indicators = list(
         "Foreign-born share of population" = list(
-          summary_expression = rlang::expr(foreign / (foreign + native)),
+          summary_expression = rlang::expr(foreign / (foreign + nativeborn)),
           citywide_comparison = TRUE,
           hoverformat = ".1%", tickformat = ".0%"
         ),
@@ -1098,7 +1242,7 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2008-2012 American Community Survey,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2025 City of Boston Planning Department 
       Research Division estimates"
     ),
@@ -1106,6 +1250,7 @@ APP_CONFIG <- list(
     "Educational Attainment" = list(
       data_code = "hbicnedu", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/pop_by_edu_neigh_rev.csv',     # 'csv/hbic_neigh_edu_attain_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population (25+) by educational attainment", barhoverformat = ",.0f", smallbarfont = TRUE,
       barCats = list(
         "Less than high school" = "lhs",
@@ -1125,7 +1270,7 @@ APP_CONFIG <- list(
           hoverformat = ".1%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2008-2012 American Community Survey,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2025 City of Boston Planning Department 
       Research Division estimates"
     ),
@@ -1133,6 +1278,7 @@ APP_CONFIG <- list(
     "Labor Force" = list(
       data_code = "hbicnlf", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/pop_by_lab_neigh_rev.csv',  #  'csv/hbic_neigh_labor_force_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population (16+) by labor force status and sex", barhoverformat = ",.0f",
       barCats = list(
         "Male in labor force" = "ilf_m"
@@ -1141,6 +1287,11 @@ APP_CONFIG <- list(
         , "Female not in labor force" = "nilf_f"
       ),
       summary_indicators = list(
+        "Overall labor force participation rate (16+)" = list(
+          summary_expression = rlang::expr((ilf_f + ilf_m) / (ilf_f + nilf_f + ilf_m + nilf_m)),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        ),
         "Female labor force participation rate (16+)" = list(
           summary_expression = rlang::expr(ilf_f / (ilf_f + nilf_f)),
           citywide_comparison = TRUE,
@@ -1152,7 +1303,7 @@ APP_CONFIG <- list(
           hoverformat = ".1%", tickformat = ".0%"
         )
       ),
-      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2008-2012 American Community Survey,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2025 City of Boston Planning Department 
       Research Division estimates"
     ),
@@ -1192,7 +1343,7 @@ APP_CONFIG <- list(
     # source = "U.S. Census Bureau, 1950-2000 Decennial Censuses, 2006-2010 & 2016-2020 American
     # Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; City of Boston Planning Department Research Division Analysis"
     # ),
-    ### poverty - NEW -----
+    ### poverty -----
     "Poverty Status" = list(
       data_code = "povn", generalTopic = "Demographics",
       areas_categories_csv = 'csv/pop_by_pov_neigh_rev.csv',
@@ -1214,11 +1365,11 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1980-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      source = "U.S. Census Bureau, 1980-2000 Decennial Censuses, 2008-2012 American Community Survey,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2025 City of Boston Planning Department 
       Research Division estimates"
     ),
-    ### children by poverty - NEW -----
+    ### children by poverty -----
     "Children by Poverty Status" = list(
       data_code = "chipovn", generalTopic = "Demographics",
       areas_categories_csv = 'csv/chi_by_pov_neigh_rev.csv',
@@ -1240,7 +1391,7 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1980-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      source = "U.S. Census Bureau, 1980-2000 Decennial Censuses, 2008-2012 American Community Survey,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2025 City of Boston Planning Department 
       Research Division estimates"
     ),
@@ -1248,6 +1399,7 @@ APP_CONFIG <- list(
     "Living Arrangements" = list(
       data_code = "hhgqn", generalTopic = "Demographics",
       areas_categories_csv = 'csv/pop_by_livarr_neigh_rev.csv',  # 'csv/hh_gq_neigh_bins.csv',
+      totalarea_categories_csv = 'csv/tot_pop_rev.csv',  
       barTitle = "Population by living arrangement type", barhoverformat = ",.0f",
       null_description = "little to no population",
       barCats = list(
@@ -1296,7 +1448,9 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickformat = ""
         )
       ),
-      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; Mayor's Office of Housing"
+      source = "U.S. Census Bureau, 1950-2020 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 
+      for years beyond 2020, data are based on 2020 Census plus annual housing completions from the Mayor's Office of Housing"
+
     ),
     ### housing vacancy -----
     "Housing Vacancy" = list(
@@ -1322,6 +1476,45 @@ APP_CONFIG <- list(
       ),
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
       2020 and 2025 City of Boston Planning Department Research Division estimates"
+    ),
+    ### housing vacancy by tenure - NEW -----
+    "Housing Vacancy by Tenure (NEW!)" = list(
+      data_code = "vacancy_neigh_new", generalTopic = 'Housing',
+      areas_categories_csv = 'csv/vacancy_neigh.csv', # 'csv/hbic_neigh_housing_vacancy_bins.csv',
+      # totalarea_categories_csv = 'csv/tot_huvac_rev.csv',   # 'csv/hbicthouvac_cb.csv',
+      barTitle = "Housing units by vacancy", barhoverformat = ",.0f",
+      barCats = list(
+        "Owner-occupied" = "own_occ",
+        "Renter-occupied" = "rent_occ",
+        "Vacant, for rent"  = "vacant_for_rent",
+        "Vacant, for sale"  = "vacant_for_sale",
+        "Other vacant" = "other_vacant_incl_rented_sold_not_occ"
+      ),
+      summary_indicators = list(
+#        "Overall vacancy rate" = list(
+#          summary_expression = rlang::expr(total_vacant / (own_occ + rent_occ + total_vacant)),
+#          citywide_comparison = TRUE,
+#          hoverformat = ".1%", tickformat = ".0%"
+#        ),
+        "Rental vacancy rate" = list(
+          summary_expression = rlang::expr(vacant_for_rent / rent_denominator),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        ),
+        "Owner vacancy rate" = list(
+          summary_expression = rlang::expr(vacant_for_sale / own_denominator),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+#        ),
+#        "Total vacant units" = list(
+#          summary_expression = rlang::expr(total_vacant),
+#          citywide_comparison = FALSE,
+#          hoverformat = ",.0f", tickformat = ""
+        )
+      ),
+      note = "Note: 'Other vacant' includes seasonal, recreational, occasional-use, migrant-worker, and rented/sold-but-not-yet-occupied units. 
+      2024 values reflect 2020-2024 American Community Survey estimates; summing the bins above will not equal the 2024 total housing unit estimate shown in the 'Housing Units' topic.",
+      source = "U.S. Census Bureau, 1960-2020 Decennial Censuses, 2020-2024 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org"
     ),
     ### housing tenure -----
     "Housing Tenure" = list(
@@ -1352,8 +1545,35 @@ APP_CONFIG <- list(
       source = "U.S. Census Bureau, 1950-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
       2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
+    ### household type - NEW ----
+    "Household Type (NEW!)" = list(
+      data_code = "hhtype_neigh", generalTopic = 'Housing',
+      areas_categories_csv = 'csv/hhtype_neigh.csv',
+      barTitle = "Households by type", barhoverformat = ",.0f",
+      null_description = "little to no households",
+      barCats = list(
+        "Single-person households" = "living_alone",
+        "Households with children" = "with_children",
+        "Other multi-person households"= "no_children"
+      ),
+      summary_indicators = list(
+        "Share of households with one person" = list(
+          summary_expression = rlang::expr(living_alone / occ),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        ),
+        "Share of households with children" = list(
+          summary_expression = rlang::expr(with_children / occ),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+      )
+      ),
+      note = "Note: 'Other multi-person households' includes multi-person households with no one under 18, such as married or cohabiting couples without children, adult roommates, or multi-generational households of adults.",
+      source = "U.S. Census Bureau, 1970-2010 Decennial Censuses, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+        2020 and 2025 City of Boston Planning Department Research Division estimates"
+    ),
     ### housing sales ------
-    "Housing Sales" = list(
+    "Housing Sales (UPDATED WITH 2025!)" = list(
       data_code = "sales", generalTopic = 'Housing',
       areas_categories_csv = 'csv/sales_neighborhoods.csv', totalarea_categories_csv = 'csv/sales_citywide.csv',
       barTitle = "Number of sales transactions by unit type", barhoverformat = ",.0f",
@@ -1373,12 +1593,12 @@ APP_CONFIG <- list(
           citywide_comparison = TRUE, disable_multiselection = TRUE,
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
         ),
-        "Median condo unit price (2023 inflation-adjusted dollars)" = list(
+        "Median condo unit price (2025 inflation-adjusted dollars)" = list(
           summary_expression = rlang::expr(median_adj_RCD),
           citywide_comparison = TRUE, disable_multiselection = TRUE,
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
         ),
-        "Median single-family unit price (2023 inflation-adjusted dollars)" = list(
+        "Median single-family unit price (2025 inflation-adjusted dollars)" = list(
           summary_expression = rlang::expr(median_adj_R1F),
           citywide_comparison = TRUE, disable_multiselection = TRUE,
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
@@ -1392,6 +1612,75 @@ APP_CONFIG <- list(
       source = "Mayor's Office of Housing, The Warren Group, City of Boston Planning Department Research Division analysis",
       note = "Note: Only one neighborhood at a time can be selected for median price variables."
     ),
+    ### apartment rent ------
+    "Apartment Rent (UPDATED WITH 2025!)" = list(
+      data_code = "medrent", generalTopic = 'Housing',
+      areas_categories_csv = 'csv/median_rent_neighborhood_rentalbeast.csv', 
+      totalarea_categories_csv = 'csv/median_rent_citywide_rentalbeast.csv',
+      barTitle = "Median monthly apartment asking rent by unit type", barhoverformat = ",.0f", bartickprefix = "$",
+      null_description = "few or no listings",
+      barCats = list(
+        "Studio" = 'studio_median_rent',
+        "1-bed" = 'onebed_median_rent',
+        "2-bed" = 'twobed_median_rent',
+        "3-bed" = 'threebed_median_rent',
+        "4-bed" = 'fourbed_median_rent'
+      ),
+      summary_indicators = list(
+        "Studio median monthly rent (nominal dollars)" = list(
+          summary_expression = rlang::expr(studio_median_rent),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "1-bed median monthly rent (nominal dollars)" = list(
+          summary_expression = rlang::expr(onebed_median_rent),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "2-bed median monthly rent (nominal dollars)" = list(
+          summary_expression = rlang::expr(twobed_median_rent),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "3-bed median monthly rent (nominal dollars)" = list(
+          summary_expression = rlang::expr(threebed_median_rent),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "4-bed median monthly rent (nominal dollars)" = list(
+          summary_expression = rlang::expr(fourbed_median_rent),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "Studio median monthly rent (2025 inflation-adjusted dollars)" = list(
+          summary_expression = rlang::expr(studio_median_rent_adj),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "1-bed median monthly rent (2025 inflation-adjusted dollars)" = list(
+          summary_expression = rlang::expr(onebed_median_rent_adj),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "2-bed median monthly rent (2025 inflation-adjusted dollars)" = list(
+          summary_expression = rlang::expr(twobed_median_rent_adj),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "3-bed median monthly rent (2025 inflation-adjusted dollars)" = list(
+          summary_expression = rlang::expr(threebed_median_rent_adj),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        ),
+        "4-bed median monthly rent (2025 inflation-adjusted dollars)" = list(
+          summary_expression = rlang::expr(fourbed_median_rent_adj),
+          citywide_comparison = TRUE, disable_multiselection = TRUE,
+          hoverformat = ",.0f", tickprefix = "$", tickformat = ""
+        )
+      ),
+      source = "Mayor's Office of Housing (MOH) using Rental Beast and Multiple Listings Service (MLS) rental listings, City of Boston Planning Department Research Division analysis"#,
+      #note = "Note: Only one neighborhood at a time can be selected. Jan 2016 listings are missing; 2017 data are suppressed (Jan-Jun missing). Neighborhoods with <5 listings in any year for a given unit type are suppressed for all years. Listings <1 SD below the city mean (rooms, parking, non-units) are excluded."
+      ),
     ### commute mode ----
     "Commute Mode" = list(
       data_code = "commute_mode_neighs", generalTopic = 'Transportation',
@@ -1440,7 +1729,7 @@ APP_CONFIG <- list(
         #         hoverformat = ".1%", tickformat = ".0%"
         #       )
       ),
-      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      source = "U.S. Census Bureau, 1990-2000 Decennial Censuses, 2008-2012 American Community Survey,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2025 City of Boston Planning Department
       Research Division estimates"
     ),
@@ -1465,18 +1754,74 @@ APP_CONFIG <- list(
         ),
         "Number of households with no vehicles available" = list(
           summary_expression = rlang::expr(no_vehicles),
-          citywide_comparison = TRUE,
-          hoverformat = ".0f", tickformat = ""
-        )
+          citywide_comparison = FALSE,
+          hoverformat = ",.0f", tickformat = ""
+          )
         #       "Share of households with two or more vehicles available" = list(
         #         summary_expression = rlang::expr((two_vehicles + three_or_more_vehicles) / total_occupied_units),
         #         citywide_comparison = TRUE,
         #         hoverformat = ".1%", tickformat = ".0%"
         #       )
       ),
-      source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2006-2010 American Community Survey,
+      source = "U.S. Census Bureau, 1960-2000 Decennial Censuses, 2008-2012 American Community Survey,
       IPUMS-NHGIS, University of Minnesota, www.nhgis.org; 2020 and 2025 City of Boston Planning Department
       Research Division estimates"
+    ),
+    ### renter cost burden - NEW ----
+    "Renter Housing Cost Burden (NEW!)" = list(
+      data_code = "rentcostburden_neigh", generalTopic = 'Housing',
+      areas_categories_csv = 'csv/rentcostburden_neigh.csv', 
+      barTitle = "Renter households by share of income spent on rent", barhoverformat = ",.0f",
+      null_description = "little to no renter households",
+      barCats = list(
+        "Less than 20%" = "less_than_twenty",
+        "20 to 24.9%" = "twenty_to_twentyfive",
+        "25 to 29.9%" = "twentyfive_to_thirty",
+        "30 to 34.9%" = "thirty_to_thirtyfive",
+        "35% or more" = "thirtyfive_or_more"
+      ),
+      summary_indicators = list(
+        "Share of renter households spending 35%+ of income on rent" = list(
+          summary_expression = rlang::expr(thirtyfive_or_more / renter),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        ),
+        "Share of renter households spending <20% of income on rent" = list(
+          summary_expression = rlang::expr(less_than_twenty / renter),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 2008-2012 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+        2020 and 2025 City of Boston Planning Department Research Division estimates"
+    ),
+    ### owner cost burden - NEW ----
+    "Owner Housing Cost Burden (NEW!)" = list(
+      data_code = "ownercostburden_neigh", generalTopic = 'Housing',
+      areas_categories_csv = 'csv/ownercostburden_neigh.csv', 
+      barTitle = "Owner households by share of income spent on housing", barhoverformat = ",.0f",
+      null_description = "little to no owner households",
+      barCats = list(
+        "Less than 20%" = "less_than_twenty",
+        "20 to 24.9%" = "twenty_to_twentyfive",
+        "25 to 29.9%" = "twentyfive_to_thirty",
+        "30 to 34.9%" = "thirty_to_thirtyfive",
+        "35% or more" = "thirtyfive_or_more"
+      ),
+      summary_indicators = list(
+        "Share of owner households spending 35%+ of income on housing" = list(
+          summary_expression = rlang::expr(thirtyfive_or_more / owner),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        ),
+        "Share of owner households spending <20% of income on housing" = list(
+          summary_expression = rlang::expr(less_than_twenty / owner),
+          citywide_comparison = TRUE,
+          hoverformat = ".1%", tickformat = ".0%"
+        )
+      ),
+      source = "U.S. Census Bureau, 2008-2012 American Community Survey, IPUMS-NHGIS, University of Minnesota, www.nhgis.org;
+        2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### num of home loans ----
     "Number of Home Loans" = list(
@@ -1621,7 +1966,7 @@ APP_CONFIG <- list(
           hoverformat = ".1%", tickformat = ".0%"
         )
       ),
-      note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2022 inflation-adjusted dollars.",
+      note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2024 inflation-adjusted dollars.",
       source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; City of Boston Planning Department Research Division analysis"
     )
   )
@@ -1774,7 +2119,7 @@ APP_CONFIG <- list(
           hoverformat = ".1%", tickformat = ".0%"
         )
       ),
-      note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2022 inflation-adjusted dollars.",
+      note = "Note: A business is considered small if it has <$1M in annual revenue. All monetary values are in 2024 inflation-adjusted dollars.",
       source = "FFIEC, Community Reinvestment Act data, https://github.com/acforrester/community-reinvestment-act; City of Boston Planning Department Research Division analysis"
     )
   )
@@ -1810,30 +2155,6 @@ if (length(topic_codes) != length(unique(topic_codes))) {
 #prep_data(APP_CONFIG[['census tracts']]$topics[['Commute Mode']])
 #prep_data(APP_CONFIG[['neighborhoods']]$topics[['Commute Mode']])
 
-#prep_data(APP_CONFIG[['census tracts']]$topics[['Number of Home Loans']])
-#prep_data(APP_CONFIG[['census tracts']]$topics[['Volume ($) of Home Loans']])
-#prep_data(APP_CONFIG[['census tracts']]$topics[['Number of Small Business Loans']])
-#prep_data(APP_CONFIG[['census tracts']]$topics[['Volume ($) of Small Business Loans']])
-
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Number of Home Loans']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Volume ($) of Home Loans']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Volume ($) of Small Business Loans']])
-
-#prep_data(APP_CONFIG[['census tracts']]$topics[['Vehicles Available']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Vehicles Available']])
-# prep_data(APP_CONFIG[['neighborhoods']]$topics[['Housing Units']])
-# prep_data(APP_CONFIG[['census tracts']]$topics[['Housing Units']])
-
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Age']])
-#prep_data(APP_CONFIG[['census tracts']]$topics[['Nativity']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Nativity']])
-#prep_data(APP_CONFIG[['census tracts']]$topics[['Labor Force']])
-#prep_data(APP_CONFIG[['census tracts']]$topics[['Living Arrangements']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Commute Mode']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Vehicles Available']])
-
-
 
 # ...or prep data for all topics
 for (geo_type in APP_CONFIG) {
@@ -1841,6 +2162,9 @@ for (geo_type in APP_CONFIG) {
     prep_data(topic)
   }
 }
+
+# Change order on the tool to neighborhoods first, then tracts
+APP_CONFIG <- APP_CONFIG[c("neighborhoods", "census tracts", "zip code areas")]
 
 # always save config after making changes to it
 APP_CONFIG %>% saveRDS(file='../config/APP_CONFIG.rds')

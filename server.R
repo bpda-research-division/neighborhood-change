@@ -10,7 +10,8 @@ tabPanelServer <- function(geo_type) {
       # string representation of the namespaced geography type (e.g. "census tracts")
       geo_units <- gsub("_"," ", session$ns(''))
       geo_unit <- substr(geo_units, 1, nchar(geo_units) - 1)
-      
+      geo_unit_singular <- sub("s$", "", geo_unit)
+    
       # geographic features for the namespaced geography type
       geo_shapes <- APP_CONFIG[[geo_unit]]$geoms
       
@@ -116,7 +117,25 @@ tabPanelServer <- function(geo_type) {
           cats = var_params()$barCats, 
           summary_expr = indicator_params()$summary_expression, 
           id_columns = "YEAR"
-        )
+        )%>%
+          filter(!is.na(SUMMARY_VALUE))  # Filter out NA values from citywide data
+      })
+      
+      output$selectionModeUI <- renderUI({
+        indicator <- input$indicatorSelect
+        topic <- input$topicSelect
+        indicator_config <- APP_CONFIG[[geo_unit]]$topics[[topic]]$summary_indicators[[indicator]]
+        disable_multi <- isTRUE(indicator_config$disable_multiselection)
+        
+        if (disable_multi) {
+          shinyThings::radioSwitchButtons(session$ns("selectionMode"),
+                                          choices = c("Compare" = "compare")
+          )
+        } else {
+          shinyThings::radioSwitchButtons(session$ns("selectionMode"),
+                                          choices = c("Combine" = "combine", "Compare" = "compare")
+          )
+        }
       })
       
       # initial map centering + zoom level information
@@ -187,7 +206,7 @@ tabPanelServer <- function(geo_type) {
             position="topleft", className = "fieldset {border: 0;}" # remove default button border
           ) %>%
           addControl( # ...as well as a data download button...
-            actionButton(session$ns("downloadButton"), "Download selected data", icon = icon("download"), title = "Download selected data", 
+            actionButton(session$ns("downloadButton"), "Download data", icon = icon("download"), title = "Download data", 
                          style=sprintf('font-size:%spx; font-family: "%s"', APP_FONT_SIZE-3, FONT_LORA)),
             position="bottomright", className = "fieldset {border: 0;}" # remove default button border
           ) %>%
@@ -266,19 +285,33 @@ tabPanelServer <- function(geo_type) {
             color = "white", fillColor = ~station_colors(LINE), radius = 3, 
             fillOpacity = 0.8, stroke = TRUE, weight = 0.4, opacity = 1,
             group = "MBTA lines", 
-            options = pathOptions(pane = "outline_mbta", clickable = TRUE), # Enable clickable for tooltips
+            options = pathOptions(pane = "outline_mbta"),
             label = ~paste0(LINE_NAME, ": ",  STATION), # Tooltip with station name
             labelOptions = labelOptions(
               style = list("color" = APP_FONT_COLOR, "font-size" = "12px", "background-color" = "white"),
               textsize = "15px", direction = "auto"
             )
-          ) %>%  
-          addLayersControl( # Single layers control for both groups
-            overlayGroups = c("MBTA lines"), 
+          )%>%
+          #addPolygons( # Add City Council Districts
+          #  data = CITY_COUNCIL,
+          #  color = "#091F2F", # Border color
+          #  weight = 2,
+          #  opacity = 0.8,
+          #  fillOpacity = 0.1, # Make fill mostly transparent
+          #  fillColor = "#CCCCCC", # Light gray fill
+          #  group = "City Council",
+          #  options = pathOptions(pane = "outline_mbta", interactive = TRUE, pointerEvents= "none"),
+          #  label = ~DISTRICT_NAME, # Adjust column name as needed
+          #  labelOptions = labelOptions(
+          #    style = list("color" = APP_FONT_COLOR, "font-size" = "12px", "background-color" = "white"),
+          #    textsize = "15px", direction = "auto")
+          #) %>%
+          addLayersControl( # Single layers control
+            overlayGroups = c("MBTA lines"),# "City Council"), # Add the new group
             options = layersControlOptions(collapsed = FALSE),
             position = "topright" # Specify position for the control
           ) %>%
-          hideGroup("MBTA lines") # Hide both groups initially
+          hideGroup("MBTA lines") # c("MBTA lines", "City Council")) # Hide both groups initially
         
         for (yr in names(yrdfs)) { # Draw and add one layer of polygons for each year
           leafletProxy("map") %>% 
@@ -343,7 +376,11 @@ tabPanelServer <- function(geo_type) {
         # Check the selected indicator and remove 1950 and 1960 if necessary (for race/ethnicity categories)
         if (input$indicatorSelect %in% c("Share of population, Hispanic of any race", "Share of population, Asian alone")) {
           years <- years[!years %in% c(1950, 1960)]
-        }   
+        }
+        # Check the selected indicator and remove 1950 and 1960 if necessary (for race/ethnicity categories)
+        if (input$indicatorSelect %in% c("Share of population, two or more races")) {
+          years <- years[!years %in% c(1950, 1960, 1970, 1980, 1990)]
+        } 
         if (!input$projectionsToggle) {   # If projections are turned off, remove future years
           years <- years[years <= current_year]
         }
@@ -363,6 +400,8 @@ tabPanelServer <- function(geo_type) {
       
       # Update the map When the user moves the time slider or picks a new variable
       observeEvent(input$yearSelect, {
+        # Force remove any stray tooltips via JavaScript
+        # session$sendCustomMessage(type = 'forceCleanTooltips', message = list())
         leafletProxy("map") %>% 
           hideGroup(group = possible_years()) %>% # hide whatever year is currently selected...
           showGroup(input$yearSelect) %>% # ...then show the layer for the selected year...
@@ -373,6 +412,12 @@ tabPanelServer <- function(geo_type) {
       # This vector holds the IDs of all currently selected polygons. The line and
       # bar charts are configured to dynamically update in response to this vector
       selectedPolygons <- reactiveValues(groups = vector())
+      
+      # Reactive to determine whether we are in compare mode
+      # Compare mode is active when the toggle is on AND multiple areas are selected
+      isCompareMode <- reactive({
+        isTRUE(input$selectionMode == "compare") & length(selectedPolygons$groups) > 1
+      })
       
       # Define what happens when the user clicks on map polygons
       observeEvent(input$map_shape_click, {
@@ -387,8 +432,12 @@ tabPanelServer <- function(geo_type) {
           
           # if the data for the clicked-upon polygon is all non-null values...
           if (!any(is.na(subset(areas_summary_df(), GEOID == this_selection_id)$SUMMARY_VALUE))) {
-            # ...depending on the indicator parameters, we either do multiselection...
-            if (!"disable_multiselection" %in% names(indicator_params())) {
+            # ...in compare mode, cap selections at 5...
+            if (isCompareMode() & length(selectedPolygons$groups) >= 5) {
+              showNotification("Maximum of 5 areas can be compared at once.", type = "error", duration = 3)
+              
+              # ...depending on the indicator parameters, we either do multiselection...
+            } else if (!"disable_multiselection" %in% names(indicator_params()) | input$selectionMode == "compare") {
               leafletProxy("map") %>% showGroup(group = this_selection_id) 
               # ...displaying that polygon as selected and appending thepolygon's ID to selectedPolygons$groups...
               selectedPolygons$groups <- c(selectedPolygons$groups, this_selection_id)
@@ -416,6 +465,16 @@ tabPanelServer <- function(geo_type) {
       observeEvent(input$resetMapButton, {
         leafletProxy("map") %>%
           setView(lng = initial_lon, lat = initial_lat, zoom = initial_zoom_level) #...set lat, long and zoom to initial.
+      })
+      
+      # In response to the user switching selection mode...
+      observeEvent(input$selectionMode, {
+        if (input$selectionMode == "compare" & length(selectedPolygons$groups) > 5) {
+          to_remove <- selectedPolygons$groups[6:length(selectedPolygons$groups)]
+          leafletProxy("map") %>% hideGroup(group = to_remove)
+          selectedPolygons$groups <- selectedPolygons$groups[1:5]
+          showNotification("Selection trimmed to 5 areas for comparison.", type = "error", duration = 3)
+        }
       })
       
       # To update the specific topic selection menu each time the user selects a different general topic...
@@ -494,15 +553,20 @@ tabPanelServer <- function(geo_type) {
       # The data that goes into data downloads / onto the bar chart for a given topic & geo selection
       selectionData <- reactive({ # if the user doesn't have any polygons selected...
         if (length(selectedPolygons$groups) == 0) { # ...use citywide data for the given year
-          data <- totalarea_categories_df() 
+          data <- totalarea_categories_df() %>% mutate(SERIES = "City of Boston")
+        } else if (isCompareMode()) {  # if compare mode is toggled on...
+          data <- subset(areas_categories_df(), GEOID %in% selectedPolygons$groups) %>%
+            mutate(SERIES = NAME) # ...keep each area as its own series
         } else if (length(selectedPolygons$groups) == 1) { # if only one polygon is selected...
           # ...use the subcity binned data filtered to that polygon
-          data <- subset(areas_categories_df(), GEOID %in% selectedPolygons$groups)
+          data <- subset(areas_categories_df(), GEOID %in% selectedPolygons$groups) %>%
+            mutate(SERIES = selectionName())
         } else { # If multiple polygons are selected...
           # ...we aggregate the data for the set of selected polygons for each year...
           data <- subset(areas_categories_df(), GEOID %in% selectedPolygons$groups) %>%
             group_by(CATEGORY, YEAR) %>% # ...by category
-            summarise(VALUE = sum(VALUE), .groups='drop')
+            summarise(VALUE = sum(VALUE), .groups='drop') %>%
+            mutate(SERIES = selectionName())
         }
         
         return( # only return the columns that have been named in the barCats parameter
@@ -523,6 +587,7 @@ tabPanelServer <- function(geo_type) {
         if (nrow(data) == 0) { # if there's missing data for a given year...
           data <- totalarea_categories_df() %>% filter(CATEGORY %in% names(var_params()$barCats)) %>% subset(YEAR == input$yearSelect)
           data$VALUE <- 0 # ... display the bar chart with all 0s for the given categories
+          data$SERIES <- "City of Boston" #... and ensure SERIES exists when falling back to zeros
         }
         
         data
@@ -546,94 +611,176 @@ tabPanelServer <- function(geo_type) {
         }
       })
       
-      # Define how we render the bar chart at any given time
+      # Define how we render the bar chart at any given time using a nested if-else statements. Depends on...
+      #   1. whether user has toggled on compare mode
+      #   2. whether the variable requires a small bar font
+      #   3. number of categories
       output$bar_chart <- renderPlotly({
-        # Check if "smallbarfont" exists in var_params to render a horizontal chart
-        if ("smallbarfont" %in% names(var_params())) {
-          plot_ly(filteredBar(),
-                  y = ~CATEGORY,    # CATEGORY goes on the y-axis
-                  x = ~VALUE,       # VALUE goes on the x-axis
-                  name = selectionName(),
-                  text = ~VALUE,
-                  texttemplate = paste0(var_params()$bartickprefix, '%', sprintf('{x:%s}', var_params()$barhoverformat)),
-                  textposition = 'outside',
-                  textfont = list(color = APP_FONT_COLOR, family = FONT_MONT, size = APP_FONT_SIZE - 2),
-                  hoverinfo = 'skip',
-                  orientation = 'h'  # Explicitly set orientation to horizontal
-          ) %>% 
-            config(displayModeBar = FALSE) %>%
-            add_bars(color = I(BAR_COLOR),
-                     marker = list(pattern = list(shape = ifelse(input$yearSelect > current_year, "/", ""), # Apply diagonal pattern to future bars
+        if (isCompareMode()) { # If compare mode is toggled on, render grouped bar chart
+          # Assign colors to each series
+          series_names <- unique(filteredBar()$SERIES)
+          series_colors <- setNames(COMPARE_COLORS[seq_along(series_names)], series_names)
+          
+          # Determine whether to hide text labels and show axis/tooltips instead of data labels
+          many_categories <- length(var_params()$barCats) > 4
+          
+          if ("smallbarfont" %in% names(var_params())) { # Horizontal grouped bar chart for compare mode
+            p <- plot_ly(filteredBar(),
+                         y = ~CATEGORY, x = ~VALUE, color = ~SERIES,
+                         colors = series_colors,
+                         text = ~paste0(var_params()$bartickprefix,formatC(VALUE, format = "f", digits = 0, big.mark = ",")),
+                         hoverinfo ='text',
+                         texttemplate = paste0(var_params()$bartickprefix, '%', sprintf('{x:%s}', var_params()$barhoverformat)),
+                         textposition = 'none',
+                         textfont = list(color = APP_FONT_COLOR, family = FONT_MONT, size = APP_FONT_SIZE - 3),
+                         orientation = 'h'
+            ) %>%
+              config(displayModeBar = FALSE) %>%
+              add_bars() %>%
+              layout(
+                barmode = "group",
+                title = list(
+                  text = toupper(paste0(ifelse(input$yearSelect > current_year, "Projected ", ""),
+                                        var_params()$barTitle, " in ", input$yearSelect)),
+                  font = list(color = APP_FONT_COLOR, family = FONT_MONT, size = title_font_size())
+                ),
+                font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = bar_font_size()),
+                xaxis = list(title = '', fixedrange = TRUE, range = barRange(), showticklabels = TRUE, showgrid = TRUE,
+                             tickprefix = indicator_params()$tickprefix, #tickformat = var_params()$barhoverformat,
+                             tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)),
+                yaxis = list(title = '', fixedrange = TRUE,
+                             ticklabelposition = "outside", ticklen = 5, tickcolor = "rgba(0,0,0,0)",
+                             categoryorder = 'array', categoryarray = names(var_params()$barCats), autorange = "reversed"),
+                showlegend = TRUE,
+                legend = list(orientation = 'h', x = -0.4, y = 1.10,
+                              font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = APP_FONT_SIZE - 2),
+                              itemclick = FALSE, itemdoubleclick = FALSE),
+                hoverlabel = list(font = list(family = FONT_MONT, color = "white")),
+                margin = list(t = 75)
+              )
+          } else { # Vertical grouped bar chart for compare mode
+            p <- plot_ly(filteredBar(),
+                         x = ~CATEGORY, y = ~VALUE, color = ~SERIES,
+                         colors = series_colors,
+                         text = ~paste0(var_params()$bartickprefix,formatC(VALUE, format = "f", digits = 0, big.mark = ",")),
+                         texttemplate = if (!many_categories) paste0(var_params()$bartickprefix, '%', sprintf('{y:%s}', var_params()$barhoverformat)) else '',
+                         textposition = if (!many_categories) 'outside' else 'none',
+                         textfont = list(color = APP_FONT_COLOR, family = FONT_MONT, size = APP_FONT_SIZE - 3),
+                         hoverinfo = if (many_categories) 'text' else 'skip'
+            ) %>%
+              config(displayModeBar = FALSE) %>%
+              add_bars() %>%
+              layout(
+                barmode = "group",
+                title = list(
+                  text = toupper(paste0(ifelse(input$yearSelect > current_year, "Projected ", ""),
+                                        var_params()$barTitle, " in ", input$yearSelect)),
+                  font = list(color = APP_FONT_COLOR, family = FONT_MONT, size = title_font_size())
+                ),
+                font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = bar_font_size()),
+                xaxis = list(title = '', fixedrange = TRUE,
+                             categoryorder = 'array', categoryarray = names(var_params()$barCats)),
+                yaxis = list(title = '', fixedrange = TRUE, range = barRange(),
+                             showticklabels = many_categories, showgrid = many_categories,
+                             tickprefix = indicator_params()$tickprefix, #tickformat = var_params()$barhoverformat,
+                             tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)),
+                showlegend = TRUE,
+                legend = list(orientation = 'h', x = 0.01, y = 1.05,
+                              font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = APP_FONT_SIZE - 2),
+                              itemclick = FALSE, itemdoubleclick = FALSE),
+                hoverlabel = list(font = list(family = FONT_MONT, color = "white")),
+                margin = list(t = 50)
+              )
+          }
+          p
+          
+        } else { # Define how bar chart is rendered in regular "combine" mode
+          if ("smallbarfont" %in% names(var_params())) { # Check if "smallbarfont" exists in var_params to render a horizontal chart
+            plot_ly(filteredBar(),
+                    y = ~CATEGORY,    # CATEGORY goes on the y-axis
+                    x = ~VALUE,       # VALUE goes on the x-axis
+                    name = selectionName(),
+                    text = ~VALUE,
+                    texttemplate = paste0(var_params()$bartickprefix, '%', sprintf('{x:%s}', var_params()$barhoverformat)),
+                    textposition = 'outside',
+                    textfont = list(color = APP_FONT_COLOR, family = FONT_MONT, size = APP_FONT_SIZE - 2),
+                    hoverinfo = 'skip',
+                    orientation = 'h'  # Explicitly set orientation to horizontal
+            ) %>% 
+              config(displayModeBar = FALSE) %>%
+              add_bars(color = I(BAR_COLOR),
+                       marker = list(pattern = list(shape = ifelse(input$yearSelect > current_year, "/", ""), # Apply diagonal pattern to future bars
                                                   bgcolor = ifelse(input$yearSelect > current_year, "#B3DFFC", ""),
                                                   size = ifelse(input$yearSelect > current_year, "20", ""),
                                                   solidity = ifelse(input$yearSelect > current_year, "0.7", ""))) 
+              ) %>% 
+              layout(title = list(
+                text = toupper(paste0(ifelse(input$yearSelect > current_year, "Projected ", ""), # If selected year is in the future, prepend "Projected" to the title
+                                      var_params()$barTitle, " in ", input$yearSelect)),         # Otherwise, display the title as usual
+                font = list(color = APP_FONT_COLOR, family = FONT_MONT, size = title_font_size())
+              ),
+              font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = bar_font_size()),
+              xaxis = list(title = '', fixedrange = TRUE, range = barRange(),
+                          showticklabels = FALSE, showgrid = FALSE
+              ),  # Adjust x-axis for horizontal bars
+              yaxis = list(title = '', fixedrange = TRUE,
+                          ticklabelposition = "outside", ticklen = 5, tickcolor = "rgba(0,0,0,0)", # add clear tick lines to distance labels from axis
+                          categoryorder = 'array', categoryarray = names(var_params()$barCats), autorange = "reversed"
+              ),  # Adjust y-axis for categories
+              showlegend = T,
+              legend = list(orientation = 'h', 
+                            x = -0.4, y = 1.10, # location of the legend
+                            font = list(
+                              color = APP_FONT_COLOR, family = FONT_LORA,
+                              size = APP_FONT_SIZE - 2
+                            ),
+                            itemclick = FALSE, itemdoubleclick = FALSE
+              ),
+              margin = list(t = 75) # margin above chart
+              )
+          } else {
+            # Default axes (no flip)
+            plot_ly(filteredBar(),
+                    x = ~CATEGORY,    # CATEGORY goes on the x-axis
+                    y = ~VALUE,       # VALUE goes on the y-axis
+                    name = selectionName(),
+                    text = ~VALUE,
+                    texttemplate = paste0(var_params()$bartickprefix, '%', sprintf('{y:%s}', var_params()$barhoverformat)),
+                    textposition = 'outside',
+                    textfont = list(color = APP_FONT_COLOR, family = FONT_MONT, size = APP_FONT_SIZE - 2),
+                    hoverinfo = 'skip'
             ) %>% 
-            layout(title = list(
-              text = toupper(paste0(ifelse(input$yearSelect > current_year, "Projected ", ""), # If selected year is in the future, prepend "Projected" to the title
-                                    var_params()$barTitle, " in ", input$yearSelect)),         # Otherwise, display the title as usual
-              font = list(color = APP_FONT_COLOR, family = FONT_MONT, size = title_font_size())
-            ),
-            font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = bar_font_size()),
-            xaxis = list(title = '', fixedrange = TRUE, range = barRange(),
-                         showticklabels = FALSE, showgrid = FALSE
-            ),  # Adjust x-axis for horizontal bars
-            yaxis = list(title = '', fixedrange = TRUE,
-                         ticklabelposition = "outside", ticklen = 5, tickcolor = "rgba(0,0,0,0)", # add clear tick lines to distance labels from axis
-                         categoryorder = 'array', categoryarray = names(var_params()$barCats), autorange = "reversed"
-            ),  # Adjust y-axis for categories
-            showlegend = T,
-            legend = list(orientation = 'h', 
-                          x = -0.4, y = 1.10, # location of the legend
-                          font = list(
-                            color = APP_FONT_COLOR, family = FONT_LORA,
-                            size = APP_FONT_SIZE - 2
-                          ),
-                          itemclick = FALSE, itemdoubleclick = FALSE
-            ),
-            margin = list(t = 75) # margin above chart
-            )
-        } else {
-          # Default axes (no flip)
-          plot_ly(filteredBar(),
-                  x = ~CATEGORY,    # CATEGORY goes on the x-axis
-                  y = ~VALUE,       # VALUE goes on the y-axis
-                  name = selectionName(),
-                  text = ~VALUE,
-                  texttemplate = paste0(var_params()$bartickprefix, '%', sprintf('{y:%s}', var_params()$barhoverformat)),
-                  textposition = 'outside',
-                  textfont = list(color = APP_FONT_COLOR, family = FONT_MONT, size = APP_FONT_SIZE - 2),
-                  hoverinfo = 'skip'
-          ) %>% 
-            config(displayModeBar = FALSE) %>%
-            add_bars(color = I(BAR_COLOR),
-                     marker = list(pattern = list(shape = ifelse(input$yearSelect > current_year, "/", ""), # Apply diagonal pattern to future bars
-                                                  bgcolor = ifelse(input$yearSelect > current_year, "#B3DFFC", ""),
-                                                  size = ifelse(input$yearSelect > current_year, "20", ""),
-                                                  solidity = ifelse(input$yearSelect > current_year, "0.7", ""))) 
-            ) %>% 
-            layout(title = list(
-              text = toupper(paste0(ifelse(input$yearSelect > current_year, "Projected ", ""), # If selected year is in the future, prepend "Projected" to the title
-                                    var_params()$barTitle, " in ", input$yearSelect)),         # Otherwise, display the title as usual
-              font = list(color = APP_FONT_COLOR, family = FONT_MONT, size = title_font_size())
-            ),
-            font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = bar_font_size()),
-            xaxis = list(title = '', fixedrange = TRUE,
-                         categoryorder = 'array', categoryarray = names(var_params()$barCats)
-            ),
-            yaxis = list(title = '', fixedrange = TRUE, range = barRange(),
-                         showticklabels = FALSE, showgrid = FALSE
-            ),
-            showlegend = T,
-            legend = list(orientation = 'h', 
-                          x = 0.01, y = 1.05,
-                          font = list(
-                            color = APP_FONT_COLOR, family = FONT_LORA,
-                            size = APP_FONT_SIZE - 2
-                          ),
-                          itemclick = FALSE, itemdoubleclick = FALSE
-            ),
-            margin = list(t = 50) # margin above chart
-            )
+              config(displayModeBar = FALSE) %>%
+              add_bars(color = I(BAR_COLOR),
+                       marker = list(pattern = list(shape = ifelse(input$yearSelect > current_year, "/", ""), # Apply diagonal pattern to future bars
+                                                    bgcolor = ifelse(input$yearSelect > current_year, "#B3DFFC", ""),
+                                                    size = ifelse(input$yearSelect > current_year, "20", ""),
+                                                    solidity = ifelse(input$yearSelect > current_year, "0.7", ""))) 
+              ) %>% 
+              layout(title = list(
+                text = toupper(paste0(ifelse(input$yearSelect > current_year, "Projected ", ""), # If selected year is in the future, prepend "Projected" to the title
+                                      var_params()$barTitle, " in ", input$yearSelect)),         # Otherwise, display the title as usual
+                font = list(color = APP_FONT_COLOR, family = FONT_MONT, size = title_font_size())
+              ),
+              font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = bar_font_size()),
+              xaxis = list(title = '', fixedrange = TRUE,
+                           categoryorder = 'array', categoryarray = names(var_params()$barCats)
+              ),
+              yaxis = list(title = '', fixedrange = TRUE, range = barRange(),
+                           showticklabels = FALSE, showgrid = FALSE
+              ),
+              showlegend = T,
+              legend = list(orientation = 'h', 
+                            x = 0.01, y = 1.05,
+                            font = list(
+                              color = APP_FONT_COLOR, family = FONT_LORA,
+                              size = APP_FONT_SIZE - 2
+                            ),
+                            itemclick = FALSE, itemdoubleclick = FALSE
+              ),
+              margin = list(t = 50) # margin above chart
+              )
+          }
         }
       })
       
@@ -642,10 +789,17 @@ tabPanelServer <- function(geo_type) {
       
       # This is the data that is displayed on the line chart. It's a function of topic and geo selection
       selectedLine <- reactive({ # if the user doesn't have any polygons selected...
-        if (length(selectedPolygons$groups) == 0) {totalarea_summary_df()} # ...show citywide data.
-        else if (length(selectedPolygons$groups) == 1) { # if only 1 polygon is selected...
+        if (length(selectedPolygons$groups) == 0) {
+          totalarea_summary_df() %>% mutate(SERIES = "City of Boston") # ...show citywide data.
+        } else if (isCompareMode()) {  # if compare mode is toggled on ...
+          areas_summary_df() %>%  # ...keep each area as its own series
+            filter(GEOID %in% selectedPolygons$groups) %>%
+            mutate(SERIES = NAME) %>%
+            select(YEAR, SUMMARY_VALUE, SERIES)
+        } else if (length(selectedPolygons$groups) == 1) { # if only 1 polygon is selected...
           # ...use the subcity summary data frame, filtered to that polygon
-          subset(areas_summary_df(), GEOID %in% selectedPolygons$groups)
+          subset(areas_summary_df(), GEOID %in% selectedPolygons$groups) %>%
+            mutate(SERIES = selectionName())
         }
         else { # If multiple polygons are selected...
 
@@ -667,13 +821,15 @@ tabPanelServer <- function(geo_type) {
             # ...we can use the variable's summary_expression (which uses category aliases)...
             rowwise() %>% mutate(SUMMARY_VALUE = !!indicator_params()$summary_expression) %>%
             # ...to compute the yearly summary values for the selected polygons.
-            select(all_of(c("YEAR", "SUMMARY_VALUE")))
+            select(all_of(c("YEAR", "SUMMARY_VALUE"))) %>%
+            mutate(SERIES = selectionName())
         }
       })
       
       selectedLineFilter <- reactive({ # remove old years for Hispanic and Asian population indicators
         selectedLine() %>% # get data that has already been filtered for the selected geographies
-          filter(!(input$indicatorSelect %in% c("Share of population, Hispanic of any race", "Share of population, Asian alone") & YEAR %in% c(1950, 1960)))
+          filter(!(input$indicatorSelect %in% c("Share of population, Hispanic of any race", "Share of population, Asian alone") & YEAR %in% c(1950, 1960))) %>%
+          filter(!(input$indicatorSelect == "Share of population, two or more races" & YEAR %in% c(1950, 1960, 1970, 1980, 1990)))
       })
       
       # The y-axis range for the line chart is fixed for a given variable and map selection,
@@ -688,129 +844,244 @@ tabPanelServer <- function(geo_type) {
           # ...and the maximum summary value citywide is bigger than the default upper value...
           if (cw_val > top_val) {top_val <- cw_val} # ... we use the citywide max as the top.
         }
+        # In compare mode with citywide comparison, also check citywide values
+        if (isCompareMode() & indicator_params()$citywide_comparison) {
+          cw_val <- max(totalarea_summary_df()$SUMMARY_VALUE, na.rm=TRUE)
+          if (cw_val > top_val) {top_val <- cw_val}
+        }
         c(0, 1.1*top_val) # multiplying the top value by 1.1 gives a little padding at the top
       })
       
-      # "Bookend" is my term for the amount of padding to put on each side of the
+      # "Bookend" is the term for the amount of padding to put on each side of the
       # line chart x-axis range to ensure that no data points are visually cut off
       line_xrange_bookend <- reactive({
         # 0.1 of the difference between the min and max year seems to work decently well
         0.1*(as.numeric(tail(var_years(), 1))-as.numeric(var_years()[1]))
       })
       
-      # Define how we render the line chart at any given time
+      # Define how we render the line chart at any given time using a nested if-else statements. Depends on...
+      #   1. whether user has toggled on compare mode
+      #   2. whether user has toggled on projections
       output$line_chart <- renderPlotly({
-        # Separate selected data into past and future based on the current year
-        past_data <- subset(selectedLineFilter(), YEAR <= current_year)
-        max_past_year <- max(past_data$YEAR, na.rm = TRUE)
-        future_data <- subset(selectedLineFilter(), YEAR > current_year | YEAR == max_past_year)
-        
-        # Separate citywide data into past and future based on the current year
-        past_citywide_data <- subset(totalarea_summary_df(), YEAR <= current_year)
-        max_past_citywide_year <- max(past_citywide_data$YEAR, na.rm = TRUE)
-        future_citywide_data <- subset(totalarea_summary_df(), YEAR > current_year | YEAR == max_past_year)
-        
-        # Create the base plot for the past data
-        p <- plot_ly(past_data, 
-                     x = ~YEAR,
-                     y = ~SUMMARY_VALUE,
-                     source = session$ns("line_chart"), 
-                     hoverinfo = 'text'
-        ) %>% 
-          config(displayModeBar = FALSE) %>% # remove default plotly controls
-          add_trace(hoverinfo='x', mode = 'markers', type = 'scatter', # add a hidden trace for displaying years on hover
-                    marker=list(size=0, color='white'), showlegend=FALSE, opacity=0) %>%
-          add_lines(color=I(LINE_COLOR), # set the line formatting options
-                    line=list(width = 3, shape = 'spline', smoothing = 1),
-                    hoverinfo = "y", # display y-values when hovering over line chart
-                    name=selectionName() # set the series name for the line (appears in legend)
-                    ) %>%
-          add_markers(x = ~YEAR, 
-                      y = ~SUMMARY_VALUE,
-                      marker = list(color = LINE_COLOR, size = 6, symbol = 'circle'), # solid circle marker for years w/ data
-                      showlegend = FALSE, # don't show this marker in the legend
-                      hoverinfo = 'none' # enable hover info for the markers
-          ) %>%
+        if (isCompareMode()) { # If compare mode is on, render line chart with multiple lines
+          series_names <- unique(selectedLineFilter()$SERIES)
+          series_colors <- setNames(COMPARE_COLORS[seq_along(series_names)], series_names)
           
-          layout(title = list(text = toupper(input$indicatorSelect), font=list(color = APP_FONT_COLOR, family = FONT_MONT, size=title_font_size())), 
-                 font=list(color=APP_FONT_COLOR, family = FONT_LORA, size = APP_FONT_SIZE-2),
-                 xaxis = list(title = '', fixedrange = TRUE,
-                              range = c( # set x axis range a little wider than the data so as to not cut off text
-                                as.numeric(var_years()[1]) - line_xrange_bookend(),
-                                as.numeric(tail(var_years(), 1)) + line_xrange_bookend()
-                              ),
-                              tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)
-                 ),
-                 yaxis = list(title = '', fixedrange = TRUE, range = lineRange(),
-                              # set the number format for the data that appear on hover...
-                              hoverformat = indicator_params()$hoverformat,
-                              # ... and the number formatting for the y axis labels
-                              tickprefix = indicator_params()$tickprefix, 
-                              tickformat = indicator_params()$tickformat,
-                              tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)
-                 ),
-                 showlegend = T, # always show the legend (even with just 1 series)
-                 legend = list(orientation = 'h', # place legend items side by side
-                               x=0.01, y=1.05, # position legend near the top left
-                               itemclick = FALSE, itemdoubleclick = FALSE,
-                               font = list(family = FONT_LORA)
-                 ), 
-                 hovermode = "x unified", # show the data values for all lines when hovering over a given x
-                 hoverlabel = list(font = list(family = FONT_MONT, color = APP_FONT_COLOR)),
-                 margin = list(t=40) # top padding to make sure chart title is visible
+          p <- plot_ly(source = session$ns("line_chart")) %>%
+            config(displayModeBar = FALSE)
+          
+          # Add a hidden trace for year hover display
+          first_series_data <- subset(selectedLineFilter(), SERIES == series_names[1])
+          past_first <- subset(first_series_data, YEAR <= current_year)
+          p <- p %>% add_trace(x = past_first$YEAR, y = past_first$SUMMARY_VALUE,
+                               hoverinfo='x', mode = 'markers', type = 'scatter',
+                               marker=list(size=0, color='white'), showlegend=FALSE, opacity=0)
+          
+          # Add a line for each selected area
+          for (i in seq_along(series_names)) {
+            s <- series_names[i]
+            s_color <- series_colors[s]
+            s_data <- subset(selectedLineFilter(), SERIES == s)
+            past_s <- subset(s_data, YEAR <= current_year)
+            
+            p <- p %>%
+              add_lines(x = past_s$YEAR, y = past_s$SUMMARY_VALUE,
+                        color = I(s_color),
+                        line = list(width = 3, shape = 'spline', smoothing = 1),
+                        hoverinfo = "y", name = s) %>%
+              add_markers(x = past_s$YEAR, y = past_s$SUMMARY_VALUE,
+                          marker = list(color = s_color, size = 6, symbol = 'circle'),
+                          showlegend = FALSE, hoverinfo = 'none')
+            
+            # Add projection lines if enabled
+            if (input$projectionsToggle) {
+              max_past_year_s <- max(past_s$YEAR, na.rm = TRUE)
+              future_s <- subset(s_data, YEAR > current_year | YEAR == max_past_year_s)
+              if (nrow(future_s) > 0) {
+                p <- p %>%
+                  add_lines(x = future_s$YEAR, y = future_s$SUMMARY_VALUE,
+                            hoverinfo = ifelse(future_s$YEAR > max_past_year_s, "y", "none"),
+                            color = I(s_color),
+                            line = list(width = 3, shape = 'spline', smoothing = 1, dash = 'dot'),
+                            showlegend = FALSE) %>%
+                  add_markers(x = future_s$YEAR, y = future_s$SUMMARY_VALUE,
+                              marker = list(color = s_color, size = 6, symbol = 'circle'),
+                              showlegend = FALSE, hoverinfo = 'none')
+              }
+            }
+          }
+          
+          # Add citywide comparison line in compare mode if enabled
+          if (indicator_params()$citywide_comparison) {
+            past_citywide_data <- subset(totalarea_summary_df(), YEAR <= current_year)
+            p <- p %>%
+              add_lines(x = past_citywide_data$YEAR, y = past_citywide_data$SUMMARY_VALUE,
+                        hoverinfo = "y", name = "City of Boston", color = I("rgba(40, 139, 228, 0.4)"),
+                        line = list(width = 3, shape = 'spline', smoothing = 1))
+            if (input$projectionsToggle) {
+              max_past_cw <- max(past_citywide_data$YEAR, na.rm = TRUE)
+              future_citywide_data <- subset(totalarea_summary_df(), YEAR > current_year | YEAR == max_past_cw)
+              p <- p %>%
+                add_lines(x = future_citywide_data$YEAR, y = future_citywide_data$SUMMARY_VALUE,
+                          hoverinfo = ifelse(future_citywide_data$YEAR > max_past_cw, "y", "none"),
+                          name = "City of Boston", color = I("rgba(40, 139, 228, 0.4)"),
+                          line = list(width = 3, shape = 'spline', smoothing = 1, dash = 'dot'), showlegend = FALSE)
+            }
+          }
+          
+          # Add the year marker for the currently selected year
+          marker_data <- subset(selectedLineFilter(), YEAR == input$yearSelect)
+          if (nrow(marker_data) > 0) {
+            for (i in seq_along(series_names)) {
+              s <- series_names[i]
+              s_marker <- subset(marker_data, SERIES == s)
+              if (nrow(s_marker) > 0) {
+                p <- p %>%
+                  add_markers(x = input$yearSelect, y = s_marker$SUMMARY_VALUE,
+                              marker = list(color = "white", symbol = "circle", size = 16,
+                                            line = list(color = series_colors[s], width = 3)),
+                              showlegend = FALSE, hoverinfo = "skip")
+              }
+            }
+          }
+          
+          p <- p %>% layout(
+            title = list(text = toupper(input$indicatorSelect),
+                         font = list(color = APP_FONT_COLOR, family = FONT_MONT, size = title_font_size())),
+            font = list(color = APP_FONT_COLOR, family = FONT_LORA, size = APP_FONT_SIZE - 2),
+            xaxis = list(title = '', fixedrange = TRUE,
+                         range = c(as.numeric(var_years()[1]) - line_xrange_bookend(),
+                                   as.numeric(tail(var_years(), 1)) + line_xrange_bookend()),
+                         tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)),
+            yaxis = list(title = '', fixedrange = TRUE, range = lineRange(),
+                         hoverformat = indicator_params()$hoverformat,
+                         tickprefix = indicator_params()$tickprefix,
+                         tickformat = indicator_params()$tickformat,
+                         tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)),
+            showlegend = TRUE,
+            legend = list(orientation = 'h', x = 0.01, y = 1.05,
+                          itemclick = FALSE, itemdoubleclick = FALSE,
+                          font = list(family = FONT_LORA)),
+            hovermode = "x unified",
+            hoverlabel = list(font = list(family = FONT_MONT, color = APP_FONT_COLOR)),
+            margin = list(t = 40)
           )
+          
+          line_loaded(TRUE)
+          p
+          
+        } else { # render line chart in regular aggregate mode
+          # Separate selected data into past and future based on the current year
+          past_data <- subset(selectedLineFilter(), YEAR <= current_year)
+          max_past_year <- max(past_data$YEAR, na.rm = TRUE)
+          future_data <- subset(selectedLineFilter(), YEAR > current_year | YEAR == max_past_year)
         
-        # If projections are enabled, add future data
-        if (input$projectionsToggle) {
-          # Format the future line as dotted (if projections are on)
-          p <- p %>%
-            add_trace(x = future_data$YEAR, y = future_data$SUMMARY_VALUE,
-                      hoverinfo=ifelse(future_data$YEAR > max_past_year, "x", "none"), mode = 'markers', type = 'scatter', # add a hidden trace for displaying years on hover
-                      marker=list(size=0, color='white'), showlegend=FALSE, opacity=0
-            ) %>%
-            add_lines(x = future_data$YEAR, y = future_data$SUMMARY_VALUE,
-                      hoverinfo=ifelse(future_data$YEAR > max_past_year, "y", "none"), color=I(LINE_COLOR), # set the line formatting options
-                      line=list(width = 3, shape = 'spline', smoothing = 1, dash='dot'), name="Projection", showlegend = FALSE
-            ) %>% 
-            add_markers(x = future_data$YEAR,
-                        y = future_data$SUMMARY_VALUE,
+          # Separate citywide data into past and future based on the current year
+          past_citywide_data <- subset(totalarea_summary_df(), YEAR <= current_year)
+          max_past_citywide_year <- max(past_citywide_data$YEAR, na.rm = TRUE)
+          future_citywide_data <- subset(totalarea_summary_df(), YEAR > current_year | YEAR == max_past_year)
+        
+          # Create the base plot for the past data
+          p <- plot_ly(past_data, 
+                       x = ~YEAR,
+                       y = ~SUMMARY_VALUE,
+                       source = session$ns("line_chart"), 
+                       hoverinfo = 'text'
+          ) %>% 
+            config(displayModeBar = FALSE) %>% # remove default plotly controls
+            add_trace(hoverinfo='x', mode = 'markers', type = 'scatter', # add a hidden trace for displaying years on hover
+                      marker=list(size=0, color='white'), showlegend=FALSE, opacity=0) %>%
+            add_lines(color=I(LINE_COLOR), # set the line formatting options
+                      line=list(width = 3, shape = 'spline', smoothing = 1),
+                      hoverinfo = "y", # display y-values when hovering over line chart
+                      name=selectionName() # set the series name for the line (appears in legend)
+                      ) %>%
+            add_markers(x = ~YEAR, 
+                        y = ~SUMMARY_VALUE,
                         marker = list(color = LINE_COLOR, size = 6, symbol = 'circle'), # solid circle marker for years w/ data
                         showlegend = FALSE, # don't show this marker in the legend
                         hoverinfo = 'none' # enable hover info for the markers
+            ) %>%
+          
+            layout(title = list(text = toupper(input$indicatorSelect), font=list(color = APP_FONT_COLOR, family = FONT_MONT, size=title_font_size())), 
+                   font=list(color=APP_FONT_COLOR, family = FONT_LORA, size = APP_FONT_SIZE-2),
+                   xaxis = list(title = '', fixedrange = TRUE,
+                                range = c( # set x axis range a little wider than the data so as to not cut off text
+                                  as.numeric(var_years()[1]) - line_xrange_bookend(),
+                                  as.numeric(tail(var_years(), 1)) + line_xrange_bookend()
+                                ),
+                                tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)
+                  ),
+                  yaxis = list(title = '', fixedrange = TRUE, range = lineRange(),
+                                # set the number format for the data that appear on hover...
+                                hoverformat = indicator_params()$hoverformat,
+                                # ... and the number formatting for the y axis labels
+                                tickprefix = indicator_params()$tickprefix, 
+                                tickformat = indicator_params()$tickformat,
+                                tickfont = list(family = FONT_MONT, color = APP_FONT_COLOR)
+                  ),
+                  showlegend = T, # always show the legend (even with just 1 series)
+                  legend = list(orientation = 'h', # place legend items side by side
+                                x=0.01, y=1.05, # position legend near the top left
+                                itemclick = FALSE, itemdoubleclick = FALSE,
+                                font = list(family = FONT_LORA)
+                  ), 
+                  hovermode = "x unified", # show the data values for all lines when hovering over a given x
+                  hoverlabel = list(font = list(family = FONT_MONT, color = APP_FONT_COLOR)),
+                  margin = list(t=40) # top padding to make sure chart title is visible
             )
-        }
         
-        # If at least one polygon is selected and citywide comparison is enabled...
-        if (length(selectedPolygons$groups) > 0 & indicator_params()$citywide_comparison) {
-          p <- p %>%
-            add_lines(x = past_citywide_data$YEAR, y = past_citywide_data$SUMMARY_VALUE,
-                      hoverinfo="y", name="City of Boston", color = I("rgba(40, 139, 228, 0.4)"),
-                      line=list(width = 3, shape = 'spline', smoothing = 1)
-            )
-          if (input$projectionsToggle) {
+          if (input$projectionsToggle) { # If projections are enabled, add future data
+            # Format the future line as dotted (if projections are on)
             p <- p %>%
-              add_lines(x = future_citywide_data$YEAR, y = future_citywide_data$SUMMARY_VALUE,
-                        hoverinfo=ifelse(future_citywide_data$YEAR > max_past_citywide_year, "y", "none"), name="City of Boston", color = I("rgba(40, 139, 228, 0.4)"),
-                        line=list(width = 3, shape = 'spline', smoothing = 1, dash='dot'), showlegend = FALSE
+              add_trace(x = future_data$YEAR, y = future_data$SUMMARY_VALUE,
+                        hoverinfo=ifelse(future_data$YEAR > max_past_year, "x", "none"), mode = 'markers', type = 'scatter', # add a hidden trace for displaying years on hover
+                        marker=list(size=0, color='white'), showlegend=FALSE, opacity=0
+              ) %>%
+              add_lines(x = future_data$YEAR, y = future_data$SUMMARY_VALUE,
+                        hoverinfo=ifelse(future_data$YEAR > max_past_year, "y", "none"), color=I(LINE_COLOR), # set the line formatting options
+                        line=list(width = 3, shape = 'spline', smoothing = 1, dash='dot'), name="Projection", showlegend = FALSE
+              ) %>% 
+              add_markers(x = future_data$YEAR,
+                          y = future_data$SUMMARY_VALUE,
+                          marker = list(color = LINE_COLOR, size = 6, symbol = 'circle'), # solid circle marker for years w/ data
+                          showlegend = FALSE, # don't show this marker in the legend
+                          hoverinfo = 'none' # enable hover info for the markers
               )
           }
+        
+          # If at least one polygon is selected and citywide comparison is enabled...
+          if (length(selectedPolygons$groups) > 0 & indicator_params()$citywide_comparison) {
+            p <- p %>%
+              add_lines(x = past_citywide_data$YEAR, y = past_citywide_data$SUMMARY_VALUE,
+                        hoverinfo="y", name="City of Boston", color = I("rgba(40, 139, 228, 0.4)"),
+                        line=list(width = 3, shape = 'spline', smoothing = 1)
+              )
+            if (input$projectionsToggle) {
+              p <- p %>%
+                add_lines(x = future_citywide_data$YEAR, y = future_citywide_data$SUMMARY_VALUE,
+                          hoverinfo=ifelse(future_citywide_data$YEAR > max_past_citywide_year, "y", "none"), name="City of Boston", color = I("rgba(40, 139, 228, 0.4)"),
+                          line=list(width = 3, shape = 'spline', smoothing = 1, dash='dot'), showlegend = FALSE
+                )
+            }
+          }
+        
+          # Add a marker highlighting the current year on the slider
+          marker_y_data <- subset(selectedLineFilter(), YEAR == input$yearSelect)
+          if (nrow(marker_y_data) > 0) {
+            p <- p %>%
+              add_markers(x = input$yearSelect, y = marker_y_data$SUMMARY_VALUE,
+                          marker = list(color = "white", symbol = "circle", size = 16,
+                                        line = list(color = "#fb4d42", width = 3)
+                          ), showlegend = FALSE, hoverinfo = "skip"
+              )
+          }
+        
+          # Mark the line chart as ready to be clicked
+          line_loaded(TRUE)
+        
+          p
         }
-        
-        # Add a marker highlighting the current year on the slider
-        marker_y_data <- subset(selectedLineFilter(), YEAR == input$yearSelect)
-        if (nrow(marker_y_data) > 0) {
-          p <- p %>%
-            add_markers(x = input$yearSelect, y = marker_y_data$SUMMARY_VALUE,
-                        marker = list(color = "white", symbol = "circle", size = 16,
-                                      line = list(color = "#fb4d42", width = 3)
-                        ), showlegend = FALSE, hoverinfo = "skip"
-            )
-        }
-        
-        # Mark the line chart as ready to be clicked
-        line_loaded(TRUE)
-        
-        p
       })
       
       
@@ -835,34 +1106,57 @@ tabPanelServer <- function(geo_type) {
       
       # this records whether the aggregation options panel on the download window should be shown
       output$showAggPanel <- reactive({
-        length(selectedPolygons$groups) != 1 # the only case where we don't show the panel is when a single area is selected
+        allows_multi <- !"disable_multiselection" %in% names(indicator_params())
+        n_selected <- length(selectedPolygons$groups)
+        # Show aggregation option radio buttons if:
+        # - 0 selected (always), OR
+        # - multiple selected AND multiselect is allowed
+        n_selected == 0 || (allows_multi && n_selected > 1)
       })
       outputOptions(output, "showAggPanel", suspendWhenHidden = FALSE) # this ensures that showAggPanel is continuously calculated
+
       
       # Displays a modal (pop up window) in response to user clicking download button
       observeEvent(input$downloadButton, {
+        area_phrase <- if (length(selectedPolygons$groups) == 0) "Boston" else "the selected area"
+        
+        # Decide default download type
+        allows_multi <- !"disable_multiselection" %in% names(indicator_params())
+        n_selected <- length(selectedPolygons$groups)
+    
+        if (n_selected == 1 || (!allows_multi && n_selected > 1)) {
+          default_download_type <- "geographically disaggregated"
+        } else {
+          default_download_type <- "single-area / aggregated"
+        }
+        
         showModal(modalDialog(
           HTML(
             paste(
               "<b>Topic:</b>", topic_name(), "<br>", 
-              "<b>Geographic extent:</b>", selectedAreas(), "<br>",
+              "<b>Area:</b>", selectedAreas(), "<br>",
               "<b>Variable:</b>", input$indicatorSelect, "<br><br>",
-              conditionalPanel(   # prompts user to select a disagreegaged data series, or disaggregated series
+              conditionalPanel(   # prompts user to select a disaggregated data series, or disaggregated series
                 condition = 'output.showAggPanel == true', ns = session$ns,
                 radioButtons(
                   session$ns("downloadType"), "Choose a download type:",
-                  choiceNames = c("Download a single, aggregated data series for this extent", "Download disaggregated data for each area within this extent"),
+                  choiceNames = list(
+                    HTML(paste0("Download combined totals for ", area_phrase)),
+                    HTML(paste0("Download data for each ", geo_unit_singular, " in ", area_phrase, " separately"))
+                  ),
                   choiceValues = c("single-area / aggregated", "geographically disaggregated"),
                   width = "100%",
-                  selected = "single-area / aggregated"
-                )
+                  selected = default_download_type
+                  )
               ),
               conditionalPanel(
                 condition = 'true', ns = session$ns,  # always show this modal dialog
                 radioButtons(
                   session$ns("yearDownload"), "Years for download:",
-                  choiceNames = c(paste0("All years: ", var_years()[1], "-", var_years()[length(var_years())]),
-                                  paste0("Only selected year: ", input$yearSelect)),  # Display selected year
+                  choiceNames = list(
+                    HTML(paste0("All years <i>", var_years()[1], "-", var_years()[length(var_years())], "</i>")),
+                    HTML(paste0("<i>", input$yearSelect, "</i> only"))
+                  ),
                   choiceValues = c("all", "selected"),
                   width = "100%",
                   selected = "all"  # Default selection
@@ -925,11 +1219,15 @@ tabPanelServer <- function(geo_type) {
           
           if (input$downloadType == "single-area / aggregated") {
             output <- selectionData() %>% 
+              select(-SERIES) %>%  # remove SERIES column for download
               pivot_wider(id_cols = "YEAR", names_from='CATEGORY', values_from='VALUE') %>%
               subset(select = c("YEAR", names(var_params()$barCats))) %>%
               filter(YEAR %in% years_to_use) %>% # filter for year selection
               # downloaded data includes bar chart categories + the selected indicator for each year
-              merge(selectedLineFilter() %>% select(YEAR, SUMMARY_VALUE) %>% st_drop_geometry(), by='YEAR') %>%
+              merge(selectedLineFilter() %>% select(YEAR, SUMMARY_VALUE) %>% 
+                      {if ("SERIES" %in% names(.)) select(., -SERIES) else .} %>%
+                      {if ("geometry" %in% names(.)) st_drop_geometry(.) else .} %>%
+                      distinct(YEAR, .keep_all = TRUE), by='YEAR') %>% 
               # rename the SUMMARY_VALUE column to the name of the selected indicator
               mutate(YEAR = as.character(YEAR), !!input$indicatorSelect := SUMMARY_VALUE, .keep='unused')
           } else if (length(selectedPolygons$groups) == 0) { # i.e. if the user wants disaggregated citywide data
@@ -967,7 +1265,7 @@ tabPanelServer <- function(geo_type) {
           o <- as.data.frame(
             rbind( # paste a description and citation of the data on the first few lines of the output csv file
               c(paste("Topic:", topic_name()),rep(NA,ncol(output)-1)),
-              c(paste("Geographic Extent:", selectedAreas()),rep(NA,ncol(output)-1)),
+              c(paste("Area:", selectedAreas()),rep(NA,ncol(output)-1)),
               c(paste("Year(s):", paste(years_to_use, collapse = ", ")), rep(NA, ncol(output) - 1)),  
               c(paste(var_params()$note), rep(NA, ncol(output) - 1)),
               c(paste("Source:", gsub("\\s+", " ", gsub("[\r\n]", "", var_params()$source))),rep(NA,ncol(output)-1)),

@@ -130,7 +130,7 @@ margin-bottom: 8px;
 .sidebar-panel {
     height: 100%; /* set height to be consistent with the main panel height using 99.5 units of viewport height (browser window) */
     background-color: #ffffff; /* Set background to white */
-    border-radius: 8px; /* Rounded corners */
+    border-radius: 12px; /* Rounded corners */
    margin-left: -10px; /* Adjust left margin */
 
 }
@@ -156,10 +156,10 @@ margin-bottom: 8px;
 
 /* dropdown rounded corners*/
 .selectize-input {
-  border-radius: 8px;
+  border-radius: 12px;
 }
 .selectize-input.dropdown-active {
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .selectize-control.single .selectize-input.input-active {
@@ -178,7 +178,7 @@ margin-bottom: 8px;
     line-height: 1;
     padding: 3px 5px;
     background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 /* styling other control rows (topic + variable selectors, time slder) */
@@ -276,10 +276,31 @@ margin-bottom: 8px;
   padding-right: 0px;
 }
 
-
 /* Style the map instruction/projection row without margins */
 .instruction-map .row .col-sm-6 .form-group {
   margin: 0px;
+}
+
+/* formatting of combine/compare mode selector */
+#neighborhoods-selectionMode.shinythings-radio-inputs,
+#census_tracts-selectionMode.shinythings-radio-inputs,
+#zip_code_areas-selectionMode.shinythings-radio-inputs {
+  overflow: visible !important;
+}
+
+/* Combine/compare two-button layout for: round the right side of the second button */
+.shinythings-radio-inputs label:last-of-type {
+  border-radius: 0 12px 12px 0 !important;
+}
+
+/* T=Combine/compare two-button layout: round the left side of the first button */
+.shinythings-radio-inputs label:first-of-type {
+  border-radius: 12px 0 0 12px !important;
+}
+
+/* Combine/compare single-button layout: round all corners */
+.shinythings-radio-inputs label:first-of-type:last-of-type {
+  border-radius: 12px !important;
 }
 
 /* fix topic and variable selectors to take up width of column */
@@ -458,7 +479,7 @@ h2 {
 /* MAIN PANEL STYLING ------------------------------------------------------- */
 .main-panel {
   background-color: #ffffff; /* white background */
-  border-radius: 8px; /* rounded corners */
+  border-radius: 12px; /* rounded corners */
   padding: 10px 5px 5px 5px;  /* top padding 10px, 5px all other sides */
 }
 
@@ -646,6 +667,12 @@ cursor:pointer;
   border-color: #8c8c8c;
   cursor: pointer; /* Change cursor to indicate it's clickable */
 }
+
+.shiny-notification {
+             position:fixed;
+             top: calc(50%);
+             left: calc(20%);
+             }
 
 /* DOWNLOAD BUTTON STYLING --------------------------------------------------- */
 

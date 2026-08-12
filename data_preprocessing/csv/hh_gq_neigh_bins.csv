@@ -23,29 +23,29 @@ YEAR,hh,gq_adj,hu,GEOID,NAME
 1950,46074,243,11308,South End,South End
 1950,12791,118,3789,West End,West End
 1950,26950,116,7267,West Roxbury,West Roxbury
-1960,17928,1147,6779,Allston,Allston
+1960,17929,1147,6779,Allston,Allston
 1960,14822,3332,8741,Back Bay,Back Bay
-1960,10657,990,6097,Beacon Hill,Beacon Hill
-1960,43874,1333,15958,Brighton,Brighton
-1960,20196,443,5978,Charlestown,Charlestown
+1960,10656,990,6097,Beacon Hill,Beacon Hill
+1960,43872,1334,15958,Brighton,Brighton
+1960,19704,443,5978,Charlestown,Charlestown
 1960,2037,430,973,Chinatown,Chinatown
 1960,149960,2166,44299,Dorchester,Dorchester
 1960,2699,146,1863,Downtown,Downtown
-1960,43795,369,13294,East Boston,East Boston
+1960,43440,369,13294,East Boston,East Boston
 1960,17898,5500,10468,Fenway,Fenway
-1960,85,1747,20,Harbor Islands,Harbor Islands
-1960,29484,218,8106,Hyde Park,Hyde Park
-1960,46655,4478,14052,Jamaica Plain,Jamaica Plain
+1960,65,1747,20,Harbor Islands,Harbor Islands
+1960,29484,217,8106,Hyde Park,Hyde Park
+1960,46657,4478,14052,Jamaica Plain,Jamaica Plain
 1960,2584,1142,1069,Longwood,Longwood
-1960,23586,821,6969,Mattapan,Mattapan
+1960,23588,821,6969,Mattapan,Mattapan
 1960,15642,2211,5329,Mission Hill,Mission Hill
-1960,13923,161,4033,North End,North End
+1960,11774,162,4033,North End,North End
 1960,31552,1346,9199,Roslindale,Roslindale
-1960,71238,1975,23026,Roxbury,Roxbury
-1960,46941,375,13542,South Boston,South Boston
-1960,1069,9,130,South Boston Waterfront,South Boston Waterfront
+1960,71238,1974,23026,Roxbury,Roxbury
+1960,43172,375,13542,South Boston,South Boston
+1960,389,9,130,South Boston Waterfront,South Boston Waterfront
 1960,27757,1583,15491,South End,South End
-1960,1396,586,744,West End,West End
+1960,1395,586,744,West End,West End
 1960,29423,372,8544,West Roxbury,West Roxbury
 1970,16992,2605,7437,Allston,Allston
 1970,14620,3497,9206,Back Bay,Back Bay
@@ -152,10 +152,10 @@ YEAR,hh,gq_adj,hu,GEOID,NAME
 2010,112942,1307,41237,Dorchester,Dorchester
 2010,7927,2472,4623,Downtown,Downtown
 2010,40279,229,14651,East Boston,East Boston
-2010,20671,13224,12837,Fenway,Fenway
+2010,20751,13226,12837,Fenway,Fenway
 2010,0,535,0,Harbor Islands,Harbor Islands
 2010,32022,295,11712,Hyde Park,Hyde Park
-2010,35366,1073,15373,Jamaica Plain,Jamaica Plain
+2010,35286,1071,15373,Jamaica Plain,Jamaica Plain
 2010,696,4165,395,Longwood,Longwood
 2010,22125,375,8349,Mattapan,Mattapan
 2010,14143,1747,6125,Mission Hill,Mission Hill

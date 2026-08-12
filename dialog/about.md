@@ -28,6 +28,21 @@ The methods used here are similar to those used in the commercially available Ne
 
 ##### <sup>1</sup> Because they cannot be separately identified at the Census tract level, the Leather District is combined with Downtown and Bay Village is combined with the South End. Census Tract 9815.02 is partially in East Boston and partially in Revere, but almost the entire population is in Revere so it is excluded from the East Boston approximation.
 
+### Housing Vacancy by Tenure
+
+Rental and homeowner vacancy rates are calculated using the standard Census Bureau definitions, adapted to handle differences in housing status categories across decennial census years.
+
+- Rental vacancy rate = vacant-for-rent units / rental inventory
+- Owner vacancy rate = vacant-for-sale units / homeowner inventory
+
+The denominators (rental and homeowner inventory) are constructed differently depending on data availability for each year:
+
+- **1960 and 1980:** Rental inventory = renter-occupied + vacant-for-rent. Homeowner inventory = owner-occupied + vacant-for-sale. ("Rented or sold, not occupied" is not separately reported in these years.)
+- **1970, 1990, 2000:** A combined "rented or sold, not occupied" category is reported but not split between rental and ownership tenure. These units are allocated proportionally based on each tract's share of renter- vs. owner-occupied units. Rental inventory = renter-occupied + vacant-for-rent + (rented/sold-not-occupied * renter share). Owner inventory is constructed analogously using the owner share.
+- **2010 onward:** "Rented, not occupied" and "Sold, not occupied" are reported separately and assigned directly. Rental inventory = renter-occupied + vacant-for-rent + rented-not-occupied. Owner inventory = owner-occupied + vacant-for-sale + sold-not-occupied.
+
+Note that rented/sold-but-not-yet-occupied units are grouped with "Other vacant" in the bar chart for visual simplicity, but are included in the rental and homeowner inventories (the denominators of the rental and homeowner vacancy rates) following Census Bureau convention.
+
 <!-- 
 ### Imputation Methodology (Children by Race and Ethnicity)
 

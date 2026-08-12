@@ -1,0 +1,73 @@
+GEOID,YEAR,NAME,owner,less_than_twenty,twenty_to_twentyfive,twentyfive_to_thirty,thirty_to_thirtyfive,thirtyfive_or_more,not_computed
+Allston,2010,Allston,1036,471,106,141,41,276,0
+Back Bay,2010,Back Bay,3203,1353,279,470,157,909,35
+Beacon Hill,2010,Beacon Hill,1858,853,186,146,80,593,0
+Brighton,2010,Brighton,4735,1748,661,418,433,1458,18
+Charlestown,2010,Charlestown,3572,1707,513,364,187,784,17
+Chinatown,2010,Chinatown,321,153,31,33,16,85,3
+Dorchester,2010,Dorchester,14023,4685,1802,1289,1066,5124,57
+Downtown,2010,Downtown,1636,776,219,162,95,367,19
+East Boston,2010,East Boston,4371,1133,504,508,508,1678,40
+Fenway,2010,Fenway,1136,402,184,69,144,325,12
+Harbor Islands,2010,Harbor Islands,0,0,0,0,0,0,0
+Hyde Park,2010,Hyde Park,7059,2524,936,996,626,1948,29
+Jamaica Plain,2010,Jamaica Plain,6778,2983,899,837,466,1592,1
+Longwood,2010,Longwood,48,20,6,0,12,10,0
+Mattapan,2010,Mattapan,3242,887,337,325,215,1465,13
+Mission Hill,2010,Mission Hill,601,223,52,113,42,158,12
+North End,2010,North End,1668,700,185,136,146,497,4
+Roslindale,2010,Roslindale,5793,2315,907,491,509,1532,39
+Roxbury,2010,Roxbury,3814,1194,370,381,382,1462,25
+South Boston,2010,South Boston,5736,2286,1044,680,458,1253,15
+South Boston Waterfront,2010,South Boston Waterfront,393,131,82,28,30,122,0
+South End,2010,South End,5141,2127,724,573,359,1314,43
+West End,2010,West End,784,302,68,49,82,283,0
+West Roxbury,2010,West Roxbury,8203,4076,1183,758,533,1557,96
+Allston,2020,Allston,998,557,69,34,88,223,27
+Back Bay,2020,Back Bay,3099,1821,136,135,111,795,101
+Beacon Hill,2020,Beacon Hill,1739,1210,79,126,100,202,22
+Brighton,2020,Brighton,4516,2309,687,420,205,871,24
+Charlestown,2020,Charlestown,4013,2618,467,274,177,472,5
+Chinatown,2020,Chinatown,177,117,38,9,6,7,0
+Dorchester,2020,Dorchester,15028,6653,1926,1239,876,4118,216
+Downtown,2020,Downtown,2046,940,154,116,183,646,7
+East Boston,2020,East Boston,4333,2392,400,278,208,1009,46
+Fenway,2020,Fenway,1261,657,76,74,24,410,20
+Harbor Islands,2020,Harbor Islands,0,0,0,0,0,0,0
+Hyde Park,2020,Hyde Park,7163,3960,765,412,435,1539,52
+Jamaica Plain,2020,Jamaica Plain,7140,4268,813,542,402,1085,30
+Longwood,2020,Longwood,40,7,0,0,0,33,0
+Mattapan,2020,Mattapan,3511,1644,291,255,391,865,65
+Mission Hill,2020,Mission Hill,655,364,0,86,10,195,0
+North End,2020,North End,1545,536,151,218,155,485,0
+Roslindale,2020,Roslindale,6085,3413,779,440,430,986,37
+Roxbury,2020,Roxbury,3869,1546,555,227,354,1150,37
+South Boston,2020,South Boston,6772,4009,729,486,292,1164,92
+South Boston Waterfront,2020,South Boston Waterfront,693,394,31,42,35,191,0
+South End,2020,South End,5670,3110,617,419,254,1169,101
+West End,2020,West End,747,407,22,91,40,187,0
+West Roxbury,2020,West Roxbury,8294,5240,936,675,245,1162,36
+Allston,2025,Allston,1046,417,110,21,123,235,140
+Back Bay,2025,Back Bay,2984,1725,98,147,147,776,91
+Beacon Hill,2025,Beacon Hill,2047,1418,112,145,120,192,60
+Brighton,2025,Brighton,4639,2212,664,457,245,1040,21
+Charlestown,2025,Charlestown,4661,2983,573,298,333,468,6
+Chinatown,2025,Chinatown,203,131,44,9,12,7,0
+Dorchester,2025,Dorchester,17517,7846,2264,1206,997,4929,275
+Downtown,2025,Downtown,1866,964,188,81,89,535,9
+East Boston,2025,East Boston,5033,2896,468,309,248,1039,73
+Fenway,2025,Fenway,1132,571,101,79,54,316,11
+Harbor Islands,2025,Harbor Islands,0,0,0,0,0,0,0
+Hyde Park,2025,Hyde Park,7796,4292,868,642,357,1595,42
+Jamaica Plain,2025,Jamaica Plain,8090,4873,943,687,486,1069,32
+Longwood,2025,Longwood,39,17,0,0,0,22,0
+Mattapan,2025,Mattapan,4259,2031,420,347,444,932,85
+Mission Hill,2025,Mission Hill,661,386,27,34,10,191,13
+North End,2025,North End,1305,576,98,190,116,325,0
+Roslindale,2025,Roslindale,6721,3957,647,443,454,1207,13
+Roxbury,2025,Roxbury,4755,2076,430,227,389,1589,44
+South Boston,2025,South Boston,8023,4573,998,534,349,1471,98
+South Boston Waterfront,2025,South Boston Waterfront,878,491,55,15,47,270,0
+South End,2025,South End,5965,3593,541,400,274,1071,86
+West End,2025,West End,758,484,12,49,21,192,0
+West Roxbury,2025,West Roxbury,8435,5404,916,612,311,1154,38
