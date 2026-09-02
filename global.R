@@ -29,6 +29,11 @@ MBTA_STOPS <- read_sf("geoms/MBTA_STOPS.geojson")
 MBTA_LINES <- read_sf("geoms/MBTA_LINES.geojson")
 CR_STOPS <- read_sf("geoms/CR_STOPS.geojson")
 CR_LINES <- read_sf("geoms/CR_LINES.geojson")
+# API key for Carto for the basemap; value lives in .Renviron locally and in the app's environment variables on shinyapps.io — never in this file
+CARTO_KEY <- Sys.getenv("CARTO_KEY")
+if (!nzchar(CARTO_KEY)) {
+  stop("CARTO_KEY is not set. Add it to .Renviron locally, or set it in the app's environment variables on shinyapps.io.")
+}
 #CITY_COUNCIL <- read_sf("geoms/city_council_districts.geojson")
 
 

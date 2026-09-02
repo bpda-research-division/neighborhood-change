@@ -146,8 +146,12 @@ tabPanelServer <- function(geo_type) {
       # Set up static components of the map
       output$map <- renderLeaflet({
         leaflet() %>% 
-          addProviderTiles(provider = "CartoDB.Positron", group='basemap') %>%
-          addMapPane("outline_mbta", zIndex = 420) %>% # pane for outline and mbta layers
+          addTiles(
+            urlTemplate = paste0("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png?key=", CARTO_KEY),
+            attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            options = tileOptions(subdomains = "abcd", maxZoom = 20),
+            group = "basemap"
+          ) %>%          addMapPane("outline_mbta", zIndex = 420) %>% # pane for outline and mbta layers
           addMapPane("selected_polyg", zIndex = 430) %>% # pane for polygons currently selected
           addMapPane("all_polyg", zIndex = 410) %>% # pane for all polygons
           setView(initial_lon, initial_lat, zoom = initial_zoom_level)

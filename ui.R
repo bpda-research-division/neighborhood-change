@@ -97,7 +97,7 @@ geoTabPanelUI <- function(geo_type) {
             column(4, align = "right", class = "projection-switch-div",
                    conditionalPanel(
                      condition = sprintf(
-                       "(input['%s'] == 'Population' || input['%s'] == 'Age' || input['%s'] == 'Children by Age (NOW WITH PROJECTIONS!)') && '%s' == 'neighborhoods'", 
+                       "(input['%s'] == 'Population' || input['%s'] == 'Age' || input['%s'] == 'Children by Age') && '%s' == 'neighborhoods'", 
                        ns("topicSelect"), ns("topicSelect"), ns("topicSelect"), geo_type  
                        # Display projections switch only for neighborhoods and certain topics
                      ),

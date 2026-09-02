@@ -601,7 +601,7 @@ APP_CONFIG <- list(
       2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### housing vacancy by tenure - NEW -----
-    "Housing Vacancy by Tenure (NEW!)" = list(
+    "Housing Vacancy by Tenure" = list(
       data_code = "vacancy_tract_new", generalTopic = 'Housing',
       areas_categories_csv = 'csv/vacancy_tract.csv', # 'csv/hbic_neigh_housing_vacancy_bins.csv',
      # totalarea_categories_csv = 'csv/tot_huvac_rev.csv',   # 'csv/hbicthouvac_cb.csv',
@@ -655,7 +655,7 @@ APP_CONFIG <- list(
       2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### household type - NEW ----
-    "Household Type (NEW!)" = list(
+    "Household Type" = list(
       data_code = "hhtype_tract", generalTopic = 'Housing',
       areas_categories_csv = 'csv/hhtype_tract.csv',
       barTitle = "Households by type", barhoverformat = ",.0f",
@@ -770,7 +770,7 @@ APP_CONFIG <- list(
         2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### renter cost burden - NEW ----
-    "Renter Housing Cost Burden (NEW!)" = list(
+    "Renter Housing Cost Burden" = list(
       data_code = "rentcostburden_tract", generalTopic = 'Housing',
       areas_categories_csv = 'csv/rentcostburden_tract.csv', 
       barTitle = "Renter householdss by share of income spent on rent", barhoverformat = ",.0f",
@@ -799,7 +799,7 @@ APP_CONFIG <- list(
         2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### owner cost burden - NEW ----
-    "Owner Housing Cost Burden (NEW!)" = list(
+    "Owner Housing Cost Burden" = list(
       data_code = "ownercostburden_tract", generalTopic = 'Housing',
       areas_categories_csv = 'csv/ownercostburden_tract.csv', 
       barTitle = "Owner households by share of income spent on housing", barhoverformat = ",.0f",
@@ -858,6 +858,7 @@ APP_CONFIG <- list(
       ),
       note = "Note: All originated loans for single- and multi-family properties are included.",
       source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; City of Boston Planning Department Research Division Analysis"
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2025; City of Boston Planning Department Research Division Analysis"
     ),
     ### $ of home loans ----
     "Volume ($) of Home Loans" = list(
@@ -898,8 +899,8 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
         )
       ),
-      note = "Note: All originated loans for single- and multi-family properties are included. All monetary values are in 2022 inflation-adjusted dollars.",
-      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; City of Boston Planning Department Research Division Analysis"
+      note = "Note: All originated loans for single- and multi-family properties are included. All monetary values are in 2025 inflation-adjusted dollars.",
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2025; City of Boston Planning Department Research Division Analysis"
     ),
     ### num of sm. bus. loans ----
     "Number of Small Business Loans" = list(
@@ -1075,7 +1076,7 @@ APP_CONFIG <- list(
       2020, 2024, and 2025 City of Boston Planning Department Research Division estimates, 2030 and 2035 Research Division projections"
     ),
     ### children by age -----
-    "Children by Age (NOW WITH PROJECTIONS!)" = list(
+    "Children by Age" = list(
       data_code = "chilna", generalTopic = 'Demographics',
       areas_categories_csv = 'csv/chi_by_age_neigh_rev.csv',        # 'csv/children_neigh_age_bins.csv',
       barTitle = "Children by age", barhoverformat = ",.0f",
@@ -1478,7 +1479,7 @@ APP_CONFIG <- list(
       2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### housing vacancy by tenure - NEW -----
-    "Housing Vacancy by Tenure (NEW!)" = list(
+    "Housing Vacancy by Tenure" = list(
       data_code = "vacancy_neigh_new", generalTopic = 'Housing',
       areas_categories_csv = 'csv/vacancy_neigh.csv', # 'csv/hbic_neigh_housing_vacancy_bins.csv',
       # totalarea_categories_csv = 'csv/tot_huvac_rev.csv',   # 'csv/hbicthouvac_cb.csv',
@@ -1546,7 +1547,7 @@ APP_CONFIG <- list(
       2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### household type - NEW ----
-    "Household Type (NEW!)" = list(
+    "Household Type" = list(
       data_code = "hhtype_neigh", generalTopic = 'Housing',
       areas_categories_csv = 'csv/hhtype_neigh.csv',
       barTitle = "Households by type", barhoverformat = ",.0f",
@@ -1573,7 +1574,7 @@ APP_CONFIG <- list(
         2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### housing sales ------
-    "Housing Sales (UPDATED WITH 2025!)" = list(
+    "Housing Sales" = list(
       data_code = "sales", generalTopic = 'Housing',
       areas_categories_csv = 'csv/sales_neighborhoods.csv', totalarea_categories_csv = 'csv/sales_citywide.csv',
       barTitle = "Number of sales transactions by unit type", barhoverformat = ",.0f",
@@ -1613,7 +1614,7 @@ APP_CONFIG <- list(
       note = "Note: Only one neighborhood at a time can be selected for median price variables."
     ),
     ### apartment rent ------
-    "Apartment Rent (UPDATED WITH 2025!)" = list(
+    "Apartment Rent" = list(
       data_code = "medrent", generalTopic = 'Housing',
       areas_categories_csv = 'csv/median_rent_neighborhood_rentalbeast.csv', 
       totalarea_categories_csv = 'csv/median_rent_citywide_rentalbeast.csv',
@@ -1768,7 +1769,7 @@ APP_CONFIG <- list(
       Research Division estimates"
     ),
     ### renter cost burden - NEW ----
-    "Renter Housing Cost Burden (NEW!)" = list(
+    "Renter Housing Cost Burden" = list(
       data_code = "rentcostburden_neigh", generalTopic = 'Housing',
       areas_categories_csv = 'csv/rentcostburden_neigh.csv', 
       barTitle = "Renter households by share of income spent on rent", barhoverformat = ",.0f",
@@ -1796,7 +1797,7 @@ APP_CONFIG <- list(
         2020 and 2025 City of Boston Planning Department Research Division estimates"
     ),
     ### owner cost burden - NEW ----
-    "Owner Housing Cost Burden (NEW!)" = list(
+    "Owner Housing Cost Burden" = list(
       data_code = "ownercostburden_neigh", generalTopic = 'Housing',
       areas_categories_csv = 'csv/ownercostburden_neigh.csv', 
       barTitle = "Owner households by share of income spent on housing", barhoverformat = ",.0f",
@@ -1852,7 +1853,7 @@ APP_CONFIG <- list(
         )
       ),
       note = "Note: All originated loans for single- and multi-family properties are included.",
-      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; City of Boston Planning Department Research Division Analysis"
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2025; City of Boston Planning Department Research Division Analysis"
     ),
     ### $ of home loans ----
     "Volume ($) of Home Loans" = list(
@@ -1892,8 +1893,8 @@ APP_CONFIG <- list(
           hoverformat = ",.0f", tickprefix = "$", tickformat = ""
         )
       ),
-      note = "Note: All originated loans for single- and multi-family properties are included. All monetary values are in 2022 inflation-adjusted dollars.",
-      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2022; City of Boston Planning Department Research Division Analysis"
+      note = "Note: All originated loans for single- and multi-family properties are included. All monetary values are in 2025 inflation-adjusted dollars.",
+      source = "Consumer Financial Protection Bureau, Home Mortgage Disclosure Act 2007-2025; City of Boston Planning Department Research Division Analysis"
     ),
     ### num of sm. bus. loans ----
     "Number of Small Business Loans" = list(
@@ -2152,16 +2153,17 @@ if (length(topic_codes) != length(unique(topic_codes))) {
 # prep_data(APP_CONFIG[['census tracts']]$topics[['Children by Race and Ethnicity']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Population']])
 # prep_data(APP_CONFIG[['neighborhoods']]$topics[['Age']])
-#prep_data(APP_CONFIG[['census tracts']]$topics[['Commute Mode']])
-#prep_data(APP_CONFIG[['neighborhoods']]$topics[['Commute Mode']])
-
+prep_data(APP_CONFIG[['census tracts']]$topics[['Number of Home Loans']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Number of Home Loans']])
+prep_data(APP_CONFIG[['census tracts']]$topics[['Volume ($) of Home Loans']])
+prep_data(APP_CONFIG[['neighborhoods']]$topics[['Volume ($) of Home Loans']])
 
 # ...or prep data for all topics
-for (geo_type in APP_CONFIG) {
-  for (topic in geo_type$topics) {
-    prep_data(topic)
-  }
-}
+#for (geo_type in APP_CONFIG) {
+#  for (topic in geo_type$topics) {
+#    prep_data(topic)
+#  }
+#}
 
 # Change order on the tool to neighborhoods first, then tracts
 APP_CONFIG <- APP_CONFIG[c("neighborhoods", "census tracts", "zip code areas")]
